@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:freshtrack/domain/products/product.dart';
+import 'package:freshtrack/domain/common/civil_date.dart';
 import 'package:freshtrack/domain/products/product_repository.dart';
 import 'package:freshtrack/presentation/products/products_screen.dart';
 import 'package:freshtrack/presentation/providers/product_providers.dart';
@@ -25,7 +26,11 @@ void main() {
       ProviderScope(
         overrides: [productRepositoryProvider.overrideWithValue(repository)],
         child: MaterialApp(
-          home: Scaffold(body: ProductsScreen(expirationDate: selectedDate)),
+          home: Scaffold(
+            body: ProductsScreen(
+              expirationDate: CivilDate.fromDateTime(selectedDate),
+            ),
+          ),
         ),
       ),
     );
@@ -46,6 +51,9 @@ class _FakeRepository implements ProductRepository {
 
   @override
   Stream<List<Product>> watchAll() => Stream.value(products);
+
+  @override
+  Future<List<Product>> getAll() async => products;
 
   @override
   Future<Product?> getById(String id) async =>
@@ -71,8 +79,10 @@ Product _product(
   category: ProductCategory.food,
   quantity: 1,
   unit: MeasurementUnit.pieces,
-  purchaseDate: expirationDate.subtract(const Duration(days: 2)),
-  expirationDate: expirationDate,
+  purchaseDate: CivilDate.fromDateTime(
+    expirationDate.subtract(const Duration(days: 2)),
+  ),
+  expirationDate: CivilDate.fromDateTime(expirationDate),
   status: status,
   notificationDaysBefore: 3,
   createdAt: DateTime(2026, 8, 1),

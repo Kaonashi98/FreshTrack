@@ -17,7 +17,9 @@
 - [x] Package ID definitivo: `io.github.kaonashi98.freshtrack`.
 - [x] Codice pubblicato senza licenza open-source, con tutti i diritti riservati.
 - [x] Indirizzo di assistenza professionale: `freshtrack.help@outlook.com`.
-- [ ] Pubblicare `PRIVACY_POLICY.md` con un URL HTTPS stabile.
+- [ ] Pubblicare l’informativa con GitHub Pages
+      (`https://kaonashi98.github.io/FreshTrack/`) oppure, in alternativa,
+      usare `https://github.com/Kaonashi98/FreshTrack/blob/main/PRIVACY_POLICY.md`.
 - [ ] Controllare che nessun file `.jks`, `key.properties` o `local.properties` sia incluso nel commit.
 - [ ] Attivare GitHub Actions e verificare che la workflow `Flutter CI` sia verde.
 
@@ -50,7 +52,10 @@
 
 - [ ] Creare l'app come applicazione gratuita, categoria Produttività.
 - [ ] Compilare scheda dello store, email di assistenza e URL privacy.
-- [ ] Caricare icona 512×512, feature graphic 1024×500 e screenshot telefono.
+- [x] Preparare icona 512×512 e feature graphic 1024×500 in
+      `docs/play-store/`.
+- [ ] Acquisire e caricare screenshot telefono rifatti sulla build release
+      corrente (niente «ddd»/«gggg», niente import/export).
 - [ ] Dichiarare che l'app non contiene pubblicità.
 - [ ] Compilare target audience, classificazione dei contenuti e Data safety.
 - [ ] Dichiarare correttamente fotocamera e notifiche.
@@ -67,7 +72,7 @@
 - [ ] Dashboard: indicatori interattivi, massimo tre priorità in ordine e pannelli per scadenze/scaduti.
 - [ ] Eliminazione singola e multipla degli scaduti, entrambe con conferma.
 - [ ] Cambio dell'orario delle notifiche dalle Impostazioni.
-- [ ] Notifica alle 09:00 nel giorno di scadenza e notifica con preavviso personalizzato.
+- [ ] Notifica verso l’orario scelto nel giorno di scadenza e notifica con preavviso.
 - [ ] Tap sulla notifica verso i prodotti della data corretta.
 - [ ] Ripristino notifiche dopo riavvio.
 - [ ] Navigazione Dashboard/Prodotti/Impostazioni fluida, senza bagliori.

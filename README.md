@@ -4,8 +4,8 @@
   <img src="assets/images/logo.png" alt="Logo FreshTrack" width="220">
 </p>
 
-FreshTrack è un'app Android offline-first per tenere sotto controllo i prodotti
-presenti in casa, ricordarne le scadenze e ridurre gli sprechi.
+FreshTrack è un'app Android offline-first per gestire le scadenze della
+dispensa e dell'armadietto dei medicinali, riducendo sprechi e dimenticanze.
 
 Il progetto è sviluppato in Flutter con Material 3 e Clean Architecture.
 Il package Android è `io.github.kaonashi98.freshtrack` ed è mantenuto da
@@ -22,7 +22,7 @@ key o connessione Internet.
 - Creazione e modifica dei prodotti con foto da fotocamera o galleria.
 - Modifica ed eliminazione con flussi di conferma.
 - Indicatori visivi per prodotti freschi, in scadenza e scaduti.
-- Notifiche locali alle 09:00 nel giorno della scadenza; preavviso e orario sono configurabili.
+- Notifiche locali nel giorno della scadenza; preavviso e orario sono configurabili. Android può ritardare l’orario di alcuni minuti.
 - Apertura dell'elenco corretto toccando una notifica.
 - Tema chiaro, scuro o di sistema.
 - Cancellazione completa di prodotti e immagini.
@@ -115,14 +115,15 @@ flutter build appbundle --release
 ## Privacy
 
 FreshTrack non raccoglie né trasmette dati. Fotografie, inventario e preferenze
-restano nella memoria privata dell'app. Consulta
-[PRIVACY_POLICY.md](PRIVACY_POLICY.md) per i dettagli.
+restano nella memoria privata dell'app. Consulta [PRIVACY_POLICY.md](PRIVACY_POLICY.md) per i dettagli. L’URL
+pubblico da usare in Play Console, dopo aver attivato GitHub Pages, è
+[https://kaonashi98.github.io/FreshTrack/](https://kaonashi98.github.io/FreshTrack/).
 
 Per assistenza: [freshtrack.help@outlook.com](mailto:freshtrack.help@outlook.com).
 
 ## Roadmap
 
-La versione 1.0 privilegia un inventario piccolo ma completo. Sono pianificati
+La versione 1.0 privilegia una gestione semplice di alimenti e farmaci. Sono pianificati
 per versioni successive:
 
 - calendario mensile delle scadenze;
@@ -135,6 +136,7 @@ per versioni successive:
 
 - [Checklist di rilascio](docs/release_checklist.md)
 - [Bozza della scheda Google Play](docs/play_store_listing_it.md)
+- [Asset Google Play](docs/play-store/README.md)
 - [Informativa sulla privacy](PRIVACY_POLICY.md)
 
 ## Piattaforme

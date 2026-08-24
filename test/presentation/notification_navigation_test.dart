@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:freshtrack/core/app.dart';
 import 'package:freshtrack/domain/notifications/expiration_notification_scheduler.dart';
+import 'package:freshtrack/domain/common/civil_date.dart';
 import 'package:freshtrack/domain/products/product.dart';
 import 'package:freshtrack/domain/products/product_repository.dart';
 import 'package:freshtrack/presentation/providers/notification_providers.dart';
@@ -48,22 +49,29 @@ void main() {
 }
 
 class _FakeScheduler implements ExpirationNotificationScheduler {
-  final _openedDates = StreamController<DateTime>.broadcast();
+  final _openedDates = StreamController<CivilDate>.broadcast();
 
-  void open(DateTime date) => _openedDates.add(date);
-
-  @override
-  Stream<DateTime> get openedExpirationDates => _openedDates.stream;
+  void open(DateTime date) => _openedDates.add(CivilDate.fromDateTime(date));
 
   @override
-  Future<DateTime?> initialize() async => null;
+  Stream<CivilDate> get openedExpirationDates => _openedDates.stream;
 
   @override
-  Future<void> synchronize(
+  Future<CivilDate?> initialize() async => null;
+
+  @override
+  Future<bool> areNotificationsEnabled() async => true;
+
+  @override
+  Future<bool> requestNotificationPermission() async => true;
+
+  @override
+  Future<NotificationSynchronizationResult> synchronize(
     List<Product> products, {
     required int hour,
     required int minute,
-  }) async {}
+    required int daysBefore,
+  }) async => const NotificationSynchronizationResult();
 
   @override
   void dispose() => _openedDates.close();
@@ -76,6 +84,9 @@ class _FakeRepository implements ProductRepository {
 
   @override
   Stream<List<Product>> watchAll() => Stream.value(products);
+
+  @override
+  Future<List<Product>> getAll() async => products;
 
   @override
   Future<Product?> getById(String id) async => null;
@@ -96,8 +107,10 @@ Product _product(String name, DateTime expirationDate) => Product(
   category: ProductCategory.food,
   quantity: 1,
   unit: MeasurementUnit.pieces,
-  purchaseDate: expirationDate.subtract(const Duration(days: 2)),
-  expirationDate: expirationDate,
+  purchaseDate: CivilDate.fromDateTime(
+    expirationDate.subtract(const Duration(days: 2)),
+  ),
+  expirationDate: CivilDate.fromDateTime(expirationDate),
   status: ProductStatus.available,
   notificationDaysBefore: 3,
   createdAt: DateTime(2026, 8, 1),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freshtrack/presentation/dashboard/dashboard_screen.dart';
+import 'package:freshtrack/domain/common/civil_date.dart';
 import 'package:freshtrack/presentation/products/product_details_screen.dart';
 import 'package:freshtrack/presentation/products/product_form_screen.dart';
 import 'package:freshtrack/presentation/products/products_screen.dart';
@@ -43,7 +44,7 @@ final routerProvider = Provider<GoRouter>(
             pageBuilder: (_, state) => _tabPage(
               state,
               ProductsScreen(
-                expirationDate: DateTime.tryParse(
+                expirationDate: CivilDate.tryParse(
                   state.uri.queryParameters['expiresOn'] ?? '',
                 ),
               ),

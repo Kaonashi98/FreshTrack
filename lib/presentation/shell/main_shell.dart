@@ -20,9 +20,10 @@ class MainShell extends StatelessWidget {
       extendBody: true,
       backgroundColor: Colors.transparent,
       body: SafeArea(bottom: false, child: child),
-      floatingActionButton: index != 0
+      floatingActionButton: index == 2
           ? null
           : FloatingActionButton.extended(
+              key: const Key('add-product'),
               onPressed: () => context.push('/products/new'),
               icon: const Icon(Icons.add_rounded),
               label: const Text('Aggiungi'),

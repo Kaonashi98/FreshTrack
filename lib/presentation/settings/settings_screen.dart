@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freshtrack/core/theme/app_theme.dart';
-import 'package:freshtrack/domain/products/product.dart';
 import 'package:freshtrack/domain/settings/app_settings.dart';
+import 'package:freshtrack/presentation/providers/notification_providers.dart';
 import 'package:freshtrack/presentation/providers/product_providers.dart';
 import 'package:freshtrack/presentation/providers/settings_providers.dart';
 import 'package:freshtrack/shared/widgets/glass_surface.dart';
@@ -17,10 +17,41 @@ class SettingsScreen extends ConsumerStatefulWidget {
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _busy = false;
+  bool _checkingNotificationPermission = true;
+  bool? _notificationsEnabled;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _refreshNotificationPermission(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final settings = ref.watch(appSettingsProvider);
+    final settingsState = ref.watch(appSettingsProvider);
+    final settings = settingsState.value;
+    if (settings == null) {
+      return Center(
+        child: settingsState.hasError
+            ? Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('Impostazioni non disponibili.'),
+                    const SizedBox(height: 12),
+                    FilledButton.tonal(
+                      onPressed: () => ref.invalidate(appSettingsProvider),
+                      child: const Text('Riprova'),
+                    ),
+                  ],
+                ),
+              )
+            : const CircularProgressIndicator(),
+      );
+    }
     return CustomScrollView(
       key: const Key('settings-scroll'),
       slivers: [
@@ -59,33 +90,60 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    SizedBox(
-                      width: double.infinity,
-                      child: SegmentedButton<AppThemePreference>(
-                        key: const Key('theme-selector'),
-                        showSelectedIcon: false,
-                        segments: const [
-                          ButtonSegment(
-                            value: AppThemePreference.system,
-                            icon: Icon(Icons.brightness_auto_rounded),
-                            label: Text('Sistema'),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final useVertical =
+                            constraints.maxWidth < 340 ||
+                            MediaQuery.textScalerOf(context).scale(1) > 1.5;
+                        if (useVertical) {
+                          return Column(
+                            key: const Key('theme-selector'),
+                            children: [
+                              for (final option in AppThemePreference.values)
+                                ListTile(
+                                  leading: Icon(
+                                    settings.themePreference == option
+                                        ? Icons.radio_button_checked_rounded
+                                        : Icons.radio_button_off_rounded,
+                                  ),
+                                  title: Text(_themeLabel(option)),
+                                  selected: settings.themePreference == option,
+                                  onTap: () => ref
+                                      .read(appSettingsProvider.notifier)
+                                      .setThemePreference(option),
+                                ),
+                            ],
+                          );
+                        }
+                        return SizedBox(
+                          width: double.infinity,
+                          child: SegmentedButton<AppThemePreference>(
+                            key: const Key('theme-selector'),
+                            showSelectedIcon: false,
+                            segments: const [
+                              ButtonSegment(
+                                value: AppThemePreference.system,
+                                icon: Icon(Icons.brightness_auto_rounded),
+                                label: Text('Sistema'),
+                              ),
+                              ButtonSegment(
+                                value: AppThemePreference.light,
+                                icon: Icon(Icons.light_mode_rounded),
+                                label: Text('Chiaro'),
+                              ),
+                              ButtonSegment(
+                                value: AppThemePreference.dark,
+                                icon: Icon(Icons.dark_mode_rounded),
+                                label: Text('Scuro'),
+                              ),
+                            ],
+                            selected: {settings.themePreference},
+                            onSelectionChanged: (selection) => ref
+                                .read(appSettingsProvider.notifier)
+                                .setThemePreference(selection.single),
                           ),
-                          ButtonSegment(
-                            value: AppThemePreference.light,
-                            icon: Icon(Icons.light_mode_rounded),
-                            label: Text('Chiaro'),
-                          ),
-                          ButtonSegment(
-                            value: AppThemePreference.dark,
-                            icon: Icon(Icons.dark_mode_rounded),
-                            label: Text('Scuro'),
-                          ),
-                        ],
-                        selected: {settings.themePreference},
-                        onSelectionChanged: (selection) => ref
-                            .read(appSettingsProvider.notifier)
-                            .setThemePreference(selection.single),
-                      ),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -100,62 +158,128 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
+                    ListTile(
+                      key: const Key('notification-permission'),
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(
+                        _notificationsEnabled == true
+                            ? Icons.notifications_active_rounded
+                            : Icons.notifications_off_outlined,
+                        color: _notificationsEnabled == true
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      title: const Text(
+                        'Promemoria di scadenza',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      subtitle: Text(_notificationPermissionLabel),
+                      trailing: _checkingNotificationPermission
+                          ? const SizedBox.square(
+                              dimension: 22,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : _notificationsEnabled == true
+                          ? Icon(
+                              Icons.check_circle_rounded,
+                              color: Theme.of(context).colorScheme.primary,
+                            )
+                          : FilledButton.tonal(
+                              key: const Key('enable-notifications'),
+                              onPressed: _requestNotificationPermission,
+                              child: const Text('Attiva'),
+                            ),
+                    ),
+                    const SizedBox(height: 4),
+                    Divider(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.outlineVariant.withValues(alpha: .28),
+                    ),
+                    const SizedBox(height: 4),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final controls = <Widget>[
+                          _CounterButton(
+                            tooltip: 'Riduci giorni',
+                            icon: Icons.remove_rounded,
+                            onPressed: settings.notificationDaysBefore == 0
+                                ? null
+                                : () => _configureNotifications(
+                                    () => ref
+                                        .read(appSettingsProvider.notifier)
+                                        .setNotificationDaysBefore(
+                                          settings.notificationDaysBefore - 1,
+                                        ),
+                                  ),
+                          ),
+                          SizedBox(
+                            width: 42,
+                            child: Text(
+                              '${settings.notificationDaysBefore}',
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                          ),
+                          _CounterButton(
+                            tooltip: 'Aumenta giorni',
+                            icon: Icons.add_rounded,
+                            onPressed: settings.notificationDaysBefore == 30
+                                ? null
+                                : () => _configureNotifications(
+                                    () => ref
+                                        .read(appSettingsProvider.notifier)
+                                        .setNotificationDaysBefore(
+                                          settings.notificationDaysBefore + 1,
+                                        ),
+                                  ),
+                          ),
+                        ];
+                        final label = Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Preavviso',
+                              style: TextStyle(fontWeight: FontWeight.w700),
+                            ),
+                            const SizedBox(height: 5),
+                            Text(
+                              _notificationLabel(
+                                settings.notificationDaysBefore,
+                              ),
+                              key: const Key('notification-days-label'),
+                              style: TextStyle(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        );
+                        if (MediaQuery.textScalerOf(context).scale(1) > 1.3 ||
+                            constraints.maxWidth < 300) {
+                          return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Preavviso predefinito',
-                                style: TextStyle(fontWeight: FontWeight.w700),
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                _notificationLabel(
-                                  settings.notificationDaysBefore,
-                                ),
-                                key: const Key('notification-days-label'),
-                                style: TextStyle(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant,
+                              label,
+                              const SizedBox(height: 8),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: controls,
                                 ),
                               ),
                             ],
-                          ),
-                        ),
-                        _CounterButton(
-                          tooltip: 'Riduci giorni',
-                          icon: Icons.remove_rounded,
-                          onPressed: settings.notificationDaysBefore == 0
-                              ? null
-                              : () => ref
-                                    .read(appSettingsProvider.notifier)
-                                    .setNotificationDaysBefore(
-                                      settings.notificationDaysBefore - 1,
-                                    ),
-                        ),
-                        SizedBox(
-                          width: 42,
-                          child: Text(
-                            '${settings.notificationDaysBefore}',
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                        ),
-                        _CounterButton(
-                          tooltip: 'Aumenta giorni',
-                          icon: Icons.add_rounded,
-                          onPressed: settings.notificationDaysBefore == 30
-                              ? null
-                              : () => ref
-                                    .read(appSettingsProvider.notifier)
-                                    .setNotificationDaysBefore(
-                                      settings.notificationDaysBefore + 1,
-                                    ),
-                        ),
-                      ],
+                          );
+                        }
+                        return Row(
+                          children: [
+                            Expanded(child: label),
+                            ...controls,
+                          ],
+                        );
+                      },
                     ),
                     const SizedBox(height: 10),
                     Divider(
@@ -175,11 +299,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         style: TextStyle(fontWeight: FontWeight.w700),
                       ),
                       subtitle: Text(
-                        'Gli avvisi arriveranno alle '
-                        '${_notificationTimeLabel(settings)}.',
+                        'Gli avvisi partiranno verso le '
+                        '${_notificationTimeLabel(settings)}. Android può '
+                        'ritardarli di alcuni minuti.',
                       ),
                       trailing: const Icon(Icons.chevron_right_rounded),
-                      onTap: () => _selectNotificationTime(settings),
+                      onTap: () => _configureNotifications(
+                        () => _selectNotificationTime(settings),
+                      ),
                     ),
                   ],
                 ),
@@ -193,7 +320,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   key: const Key('clear-data'),
                   icon: Icons.delete_forever_outlined,
                   title: 'Cancella tutti i dati',
-                  subtitle: 'Rimuove definitivamente prodotti e immagini.',
+                  subtitle: 'Rimuove prodotti, immagini e preferenze dell’app.',
                   color: AppTheme.danger,
                   onTap: _busy ? null : _clearData,
                 ),
@@ -217,6 +344,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               const SizedBox(height: 14),
               GlassSurface(
                 padding: const EdgeInsets.all(18),
+                child: Text(
+                  'FreshTrack è uno strumento di organizzazione personale. '
+                  'Non fornisce consigli medici e non sostituisce il parere '
+                  'di un medico o di un farmacista.',
+                  key: const Key('medical-disclaimer'),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    height: 1.45,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              GlassSurface(
+                padding: const EdgeInsets.all(18),
                 child: Row(
                   children: [
                     Icon(
@@ -224,21 +365,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             'FreshTrack',
                             style: TextStyle(fontWeight: FontWeight.w700),
                           ),
-                          SizedBox(height: 3),
+                          const SizedBox(height: 3),
                           Text(
-                            'Versione 1.0.0 · build 2',
-                            key: Key('app-version'),
+                            ref
+                                .watch(appVersionLabelProvider)
+                                .maybeWhen(
+                                  data: (label) => label,
+                                  orElse: () => 'Versione 1.0.0',
+                                ),
+                            key: const Key('app-version'),
                           ),
-                          SizedBox(height: 2),
-                          Text(
+                          const SizedBox(height: 2),
+                          const Text(
                             'Offline-first · I dati restano sul dispositivo',
                           ),
                         ],
@@ -259,9 +405,115 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   String _notificationLabel(int days) {
-    if (days == 0) return 'Avvisa il giorno della scadenza.';
-    if (days == 1) return 'Avvisa un giorno prima della scadenza.';
-    return 'Avvisa $days giorni prima della scadenza.';
+    if (days == 0) {
+      return 'Avvisa il giorno della scadenza, per tutti i prodotti.';
+    }
+    if (days == 1) {
+      return 'Avvisa un giorno prima della scadenza, per tutti i prodotti.';
+    }
+    return 'Avvisa $days giorni prima della scadenza, per tutti i prodotti.';
+  }
+
+  String _themeLabel(AppThemePreference value) => switch (value) {
+    AppThemePreference.system => 'Sistema',
+    AppThemePreference.light => 'Chiaro',
+    AppThemePreference.dark => 'Scuro',
+  };
+
+  String get _notificationPermissionLabel {
+    if (_checkingNotificationPermission) {
+      return 'Controllo del permesso in corso…';
+    }
+    if (_notificationsEnabled == true) {
+      return 'Attivi. Gli avvisi restano sul dispositivo.';
+    }
+    if (_notificationsEnabled == false) {
+      return 'Non attivi. Abilitali per ricevere gli avvisi.';
+    }
+    return 'Stato non disponibile. Tocca Attiva per riprovare.';
+  }
+
+  Future<void> _refreshNotificationPermission() async {
+    if (mounted) setState(() => _checkingNotificationPermission = true);
+    bool? enabled;
+    try {
+      enabled = await ref
+          .read(expirationNotificationSchedulerProvider)
+          .areNotificationsEnabled();
+    } catch (_) {
+      enabled = null;
+    }
+    if (!mounted) return;
+    setState(() {
+      _notificationsEnabled = enabled;
+      _checkingNotificationPermission = false;
+    });
+  }
+
+  Future<bool> _requestNotificationPermission() async {
+    setState(() => _checkingNotificationPermission = true);
+    var granted = false;
+    try {
+      granted = await ref
+          .read(expirationNotificationSchedulerProvider)
+          .requestNotificationPermission();
+    } catch (_) {
+      granted = false;
+    }
+    if (!mounted) return granted;
+    setState(() {
+      _notificationsEnabled = granted;
+      _checkingNotificationPermission = false;
+    });
+    if (!granted) {
+      _showMessage(
+        'Permesso non concesso. Puoi abilitarlo dalle impostazioni Android.',
+      );
+    }
+    return granted;
+  }
+
+  Future<void> _configureNotifications(
+    Future<void> Function() configure,
+  ) async {
+    if (_notificationsEnabled != true) {
+      final confirmed = await _confirm(
+        title: 'Attivare i promemoria?',
+        message:
+            'FreshTrack userà le notifiche solo per ricordarti le scadenze. '
+            'Nessun dato viene inviato online.',
+        confirmLabel: 'Continua',
+      );
+      if (!confirmed || !mounted) return;
+      final granted = await _requestNotificationPermission();
+      if (!granted || !mounted) return;
+    }
+    try {
+      await configure();
+    } catch (_) {
+      if (mounted) {
+        _showMessage(
+          'Impostazione non salvata. Il valore precedente è invariato.',
+        );
+      }
+      return;
+    }
+    try {
+      final result = await ref
+          .read(notificationSynchronizationProvider)
+          .synchronizeLatest();
+      if (!result.isComplete && mounted) {
+        _showMessage(
+          'Impostazione salvata, ma alcuni promemoria non sono stati aggiornati.',
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        _showMessage(
+          'Impostazione salvata. I promemoria verranno riallineati alla prossima apertura.',
+        );
+      }
+    }
   }
 
   String _notificationTimeLabel(AppSettings settings) =>
@@ -289,28 +541,39 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final confirmed = await _confirm(
       title: 'Cancellare tutti i dati?',
       message:
-          'Prodotti, scadenze e immagini verranno rimossi definitivamente.',
+          'Prodotti, scadenze, immagini e preferenze verranno rimossi '
+          'definitivamente.',
       confirmLabel: 'Cancella',
       destructive: true,
     );
     if (!confirmed || !mounted) return;
     setState(() => _busy = true);
     try {
-      final current = await ref.read(productsProvider.future);
       await ref.read(productRepositoryProvider).clear();
-      await _deleteImages(current);
-      if (mounted) _showMessage('Tutti i dati sono stati cancellati.');
+      final incomplete = <String>[];
+      try {
+        await ref.read(productImageStorageProvider).deleteAll();
+      } catch (_) {
+        incomplete.add('alcune immagini');
+      }
+      try {
+        await ref.read(appSettingsProvider.notifier).reset();
+      } catch (_) {
+        incomplete.add('le preferenze');
+      }
+      if (!mounted) return;
+      if (incomplete.isEmpty) {
+        _showMessage('Tutti i dati sono stati cancellati.');
+      } else {
+        _showMessage(
+          'Prodotti cancellati, ma non è stato possibile rimuovere '
+          '${incomplete.join(' e ')}. Riprova.',
+        );
+      }
     } catch (_) {
       if (mounted) _showMessage('Cancellazione non riuscita.');
     } finally {
       if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  Future<void> _deleteImages(List<Product> products) async {
-    final storage = ref.read(productImageStorageProvider);
-    for (final product in products) {
-      await storage.delete(product.imagePath);
     }
   }
 
@@ -360,7 +623,9 @@ class _SectionTitle extends StatelessWidget {
     children: [
       Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
       const SizedBox(width: 9),
-      Text(title, style: Theme.of(context).textTheme.titleLarge),
+      Expanded(
+        child: Text(title, style: Theme.of(context).textTheme.titleLarge),
+      ),
     ],
   );
 }

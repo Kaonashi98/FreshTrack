@@ -1,6 +1,6 @@
 # Informativa sulla privacy di FreshTrack
 
-Ultimo aggiornamento: 29 luglio 2026.
+Ultimo aggiornamento: 23 agosto 2026.
 
 FreshTrack è un'applicazione offline-first. Non crea account, non integra
 strumenti pubblicitari o di analisi e non invia dati personali a server esterni.
@@ -25,19 +25,25 @@ L'app può memorizzare esclusivamente sul dispositivo:
 ## Condivisione e conservazione
 
 FreshTrack non vende, condivide o trasferisce dati a terzi. Il backup Android
-automatico è disabilitato. I dati rimangono finché l'utente non elimina un
-prodotto, cancella tutti i dati dalle impostazioni o disinstalla l'app.
+automatico e il trasferimento dei dati dell'app tra dispositivi sono
+disabilitati. I dati rimangono finché l'utente non elimina un prodotto,
+cancella tutti i dati dalle impostazioni o disinstalla l'app.
 
 ## Controllo dell'utente
 
-Dalla schermata Impostazioni è possibile cancellare
-definitivamente prodotti e immagini. È inoltre possibile revocare i permessi
-dalle impostazioni Android.
+Dalla schermata Impostazioni è possibile cancellare definitivamente prodotti,
+immagini e preferenze dell'app. È inoltre possibile revocare i permessi dalle
+impostazioni Android.
+
+## Uso dell'app
+
+FreshTrack è uno strumento di organizzazione personale. Non fornisce consigli
+medici e non sostituisce il parere di un medico o di un farmacista.
 
 ## Modifiche
 
 Eventuali aggiornamenti di questa informativa saranno pubblicati insieme a una
-nuova versione dell'app.
+nuova versione dell'app e su questa pagina.
 
 ## Contatti
 

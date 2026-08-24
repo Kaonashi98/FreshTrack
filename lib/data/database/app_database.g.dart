@@ -95,6 +95,31 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
         type: DriftSqlType.dateTime,
         requiredDuringInsert: true,
       );
+  static const VerificationMeta _purchaseDateCivilMeta = const VerificationMeta(
+    'purchaseDateCivil',
+  );
+  @override
+  late final GeneratedColumn<String> purchaseDateCivil =
+      GeneratedColumn<String>(
+        'purchase_date_civil',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('1970-01-01'),
+      );
+  static const VerificationMeta _expirationDateCivilMeta =
+      const VerificationMeta('expirationDateCivil');
+  @override
+  late final GeneratedColumn<String> expirationDateCivil =
+      GeneratedColumn<String>(
+        'expiration_date_civil',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('1970-01-01'),
+      );
   static const VerificationMeta _imagePathMeta = const VerificationMeta(
     'imagePath',
   );
@@ -125,6 +150,42 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
     false,
     type: DriftSqlType.int,
     requiredDuringInsert: true,
+  );
+  static const VerificationMeta _categoryCodeMeta = const VerificationMeta(
+    'categoryCode',
+  );
+  @override
+  late final GeneratedColumn<String> categoryCode = GeneratedColumn<String>(
+    'category_code',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('food'),
+  );
+  static const VerificationMeta _unitCodeMeta = const VerificationMeta(
+    'unitCode',
+  );
+  @override
+  late final GeneratedColumn<String> unitCode = GeneratedColumn<String>(
+    'unit_code',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('pieces'),
+  );
+  static const VerificationMeta _statusCodeMeta = const VerificationMeta(
+    'statusCode',
+  );
+  @override
+  late final GeneratedColumn<String> statusCode = GeneratedColumn<String>(
+    'status_code',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('available'),
   );
   static const VerificationMeta _notificationDaysBeforeMeta =
       const VerificationMeta('notificationDaysBefore');
@@ -169,9 +230,14 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
     unit,
     purchaseDate,
     expirationDate,
+    purchaseDateCivil,
+    expirationDateCivil,
     imagePath,
     barcode,
     status,
+    categoryCode,
+    unitCode,
+    statusCode,
     notificationDaysBefore,
     createdAt,
     updatedAt,
@@ -256,6 +322,24 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
     } else if (isInserting) {
       context.missing(_expirationDateMeta);
     }
+    if (data.containsKey('purchase_date_civil')) {
+      context.handle(
+        _purchaseDateCivilMeta,
+        purchaseDateCivil.isAcceptableOrUnknown(
+          data['purchase_date_civil']!,
+          _purchaseDateCivilMeta,
+        ),
+      );
+    }
+    if (data.containsKey('expiration_date_civil')) {
+      context.handle(
+        _expirationDateCivilMeta,
+        expirationDateCivil.isAcceptableOrUnknown(
+          data['expiration_date_civil']!,
+          _expirationDateCivilMeta,
+        ),
+      );
+    }
     if (data.containsKey('image_path')) {
       context.handle(
         _imagePathMeta,
@@ -275,6 +359,27 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
       );
     } else if (isInserting) {
       context.missing(_statusMeta);
+    }
+    if (data.containsKey('category_code')) {
+      context.handle(
+        _categoryCodeMeta,
+        categoryCode.isAcceptableOrUnknown(
+          data['category_code']!,
+          _categoryCodeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('unit_code')) {
+      context.handle(
+        _unitCodeMeta,
+        unitCode.isAcceptableOrUnknown(data['unit_code']!, _unitCodeMeta),
+      );
+    }
+    if (data.containsKey('status_code')) {
+      context.handle(
+        _statusCodeMeta,
+        statusCode.isAcceptableOrUnknown(data['status_code']!, _statusCodeMeta),
+      );
     }
     if (data.containsKey('notification_days_before')) {
       context.handle(
@@ -342,6 +447,14 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}expiration_date'],
       )!,
+      purchaseDateCivil: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}purchase_date_civil'],
+      )!,
+      expirationDateCivil: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}expiration_date_civil'],
+      )!,
       imagePath: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}image_path'],
@@ -353,6 +466,18 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
       status: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}status'],
+      )!,
+      categoryCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category_code'],
+      )!,
+      unitCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}unit_code'],
+      )!,
+      statusCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status_code'],
       )!,
       notificationDaysBefore: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -384,9 +509,14 @@ class Product extends DataClass implements Insertable<Product> {
   final int unit;
   final DateTime purchaseDate;
   final DateTime expirationDate;
+  final String purchaseDateCivil;
+  final String expirationDateCivil;
   final String? imagePath;
   final String? barcode;
   final int status;
+  final String categoryCode;
+  final String unitCode;
+  final String statusCode;
   final int notificationDaysBefore;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -399,9 +529,14 @@ class Product extends DataClass implements Insertable<Product> {
     required this.unit,
     required this.purchaseDate,
     required this.expirationDate,
+    required this.purchaseDateCivil,
+    required this.expirationDateCivil,
     this.imagePath,
     this.barcode,
     required this.status,
+    required this.categoryCode,
+    required this.unitCode,
+    required this.statusCode,
     required this.notificationDaysBefore,
     required this.createdAt,
     required this.updatedAt,
@@ -419,6 +554,8 @@ class Product extends DataClass implements Insertable<Product> {
     map['unit'] = Variable<int>(unit);
     map['purchase_date'] = Variable<DateTime>(purchaseDate);
     map['expiration_date'] = Variable<DateTime>(expirationDate);
+    map['purchase_date_civil'] = Variable<String>(purchaseDateCivil);
+    map['expiration_date_civil'] = Variable<String>(expirationDateCivil);
     if (!nullToAbsent || imagePath != null) {
       map['image_path'] = Variable<String>(imagePath);
     }
@@ -426,6 +563,9 @@ class Product extends DataClass implements Insertable<Product> {
       map['barcode'] = Variable<String>(barcode);
     }
     map['status'] = Variable<int>(status);
+    map['category_code'] = Variable<String>(categoryCode);
+    map['unit_code'] = Variable<String>(unitCode);
+    map['status_code'] = Variable<String>(statusCode);
     map['notification_days_before'] = Variable<int>(notificationDaysBefore);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -444,6 +584,8 @@ class Product extends DataClass implements Insertable<Product> {
       unit: Value(unit),
       purchaseDate: Value(purchaseDate),
       expirationDate: Value(expirationDate),
+      purchaseDateCivil: Value(purchaseDateCivil),
+      expirationDateCivil: Value(expirationDateCivil),
       imagePath: imagePath == null && nullToAbsent
           ? const Value.absent()
           : Value(imagePath),
@@ -451,6 +593,9 @@ class Product extends DataClass implements Insertable<Product> {
           ? const Value.absent()
           : Value(barcode),
       status: Value(status),
+      categoryCode: Value(categoryCode),
+      unitCode: Value(unitCode),
+      statusCode: Value(statusCode),
       notificationDaysBefore: Value(notificationDaysBefore),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
@@ -471,9 +616,16 @@ class Product extends DataClass implements Insertable<Product> {
       unit: serializer.fromJson<int>(json['unit']),
       purchaseDate: serializer.fromJson<DateTime>(json['purchaseDate']),
       expirationDate: serializer.fromJson<DateTime>(json['expirationDate']),
+      purchaseDateCivil: serializer.fromJson<String>(json['purchaseDateCivil']),
+      expirationDateCivil: serializer.fromJson<String>(
+        json['expirationDateCivil'],
+      ),
       imagePath: serializer.fromJson<String?>(json['imagePath']),
       barcode: serializer.fromJson<String?>(json['barcode']),
       status: serializer.fromJson<int>(json['status']),
+      categoryCode: serializer.fromJson<String>(json['categoryCode']),
+      unitCode: serializer.fromJson<String>(json['unitCode']),
+      statusCode: serializer.fromJson<String>(json['statusCode']),
       notificationDaysBefore: serializer.fromJson<int>(
         json['notificationDaysBefore'],
       ),
@@ -493,9 +645,14 @@ class Product extends DataClass implements Insertable<Product> {
       'unit': serializer.toJson<int>(unit),
       'purchaseDate': serializer.toJson<DateTime>(purchaseDate),
       'expirationDate': serializer.toJson<DateTime>(expirationDate),
+      'purchaseDateCivil': serializer.toJson<String>(purchaseDateCivil),
+      'expirationDateCivil': serializer.toJson<String>(expirationDateCivil),
       'imagePath': serializer.toJson<String?>(imagePath),
       'barcode': serializer.toJson<String?>(barcode),
       'status': serializer.toJson<int>(status),
+      'categoryCode': serializer.toJson<String>(categoryCode),
+      'unitCode': serializer.toJson<String>(unitCode),
+      'statusCode': serializer.toJson<String>(statusCode),
       'notificationDaysBefore': serializer.toJson<int>(notificationDaysBefore),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -511,9 +668,14 @@ class Product extends DataClass implements Insertable<Product> {
     int? unit,
     DateTime? purchaseDate,
     DateTime? expirationDate,
+    String? purchaseDateCivil,
+    String? expirationDateCivil,
     Value<String?> imagePath = const Value.absent(),
     Value<String?> barcode = const Value.absent(),
     int? status,
+    String? categoryCode,
+    String? unitCode,
+    String? statusCode,
     int? notificationDaysBefore,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -526,9 +688,14 @@ class Product extends DataClass implements Insertable<Product> {
     unit: unit ?? this.unit,
     purchaseDate: purchaseDate ?? this.purchaseDate,
     expirationDate: expirationDate ?? this.expirationDate,
+    purchaseDateCivil: purchaseDateCivil ?? this.purchaseDateCivil,
+    expirationDateCivil: expirationDateCivil ?? this.expirationDateCivil,
     imagePath: imagePath.present ? imagePath.value : this.imagePath,
     barcode: barcode.present ? barcode.value : this.barcode,
     status: status ?? this.status,
+    categoryCode: categoryCode ?? this.categoryCode,
+    unitCode: unitCode ?? this.unitCode,
+    statusCode: statusCode ?? this.statusCode,
     notificationDaysBefore:
         notificationDaysBefore ?? this.notificationDaysBefore,
     createdAt: createdAt ?? this.createdAt,
@@ -550,9 +717,22 @@ class Product extends DataClass implements Insertable<Product> {
       expirationDate: data.expirationDate.present
           ? data.expirationDate.value
           : this.expirationDate,
+      purchaseDateCivil: data.purchaseDateCivil.present
+          ? data.purchaseDateCivil.value
+          : this.purchaseDateCivil,
+      expirationDateCivil: data.expirationDateCivil.present
+          ? data.expirationDateCivil.value
+          : this.expirationDateCivil,
       imagePath: data.imagePath.present ? data.imagePath.value : this.imagePath,
       barcode: data.barcode.present ? data.barcode.value : this.barcode,
       status: data.status.present ? data.status.value : this.status,
+      categoryCode: data.categoryCode.present
+          ? data.categoryCode.value
+          : this.categoryCode,
+      unitCode: data.unitCode.present ? data.unitCode.value : this.unitCode,
+      statusCode: data.statusCode.present
+          ? data.statusCode.value
+          : this.statusCode,
       notificationDaysBefore: data.notificationDaysBefore.present
           ? data.notificationDaysBefore.value
           : this.notificationDaysBefore,
@@ -572,9 +752,14 @@ class Product extends DataClass implements Insertable<Product> {
           ..write('unit: $unit, ')
           ..write('purchaseDate: $purchaseDate, ')
           ..write('expirationDate: $expirationDate, ')
+          ..write('purchaseDateCivil: $purchaseDateCivil, ')
+          ..write('expirationDateCivil: $expirationDateCivil, ')
           ..write('imagePath: $imagePath, ')
           ..write('barcode: $barcode, ')
           ..write('status: $status, ')
+          ..write('categoryCode: $categoryCode, ')
+          ..write('unitCode: $unitCode, ')
+          ..write('statusCode: $statusCode, ')
           ..write('notificationDaysBefore: $notificationDaysBefore, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -592,9 +777,14 @@ class Product extends DataClass implements Insertable<Product> {
     unit,
     purchaseDate,
     expirationDate,
+    purchaseDateCivil,
+    expirationDateCivil,
     imagePath,
     barcode,
     status,
+    categoryCode,
+    unitCode,
+    statusCode,
     notificationDaysBefore,
     createdAt,
     updatedAt,
@@ -611,9 +801,14 @@ class Product extends DataClass implements Insertable<Product> {
           other.unit == this.unit &&
           other.purchaseDate == this.purchaseDate &&
           other.expirationDate == this.expirationDate &&
+          other.purchaseDateCivil == this.purchaseDateCivil &&
+          other.expirationDateCivil == this.expirationDateCivil &&
           other.imagePath == this.imagePath &&
           other.barcode == this.barcode &&
           other.status == this.status &&
+          other.categoryCode == this.categoryCode &&
+          other.unitCode == this.unitCode &&
+          other.statusCode == this.statusCode &&
           other.notificationDaysBefore == this.notificationDaysBefore &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
@@ -628,9 +823,14 @@ class ProductsCompanion extends UpdateCompanion<Product> {
   final Value<int> unit;
   final Value<DateTime> purchaseDate;
   final Value<DateTime> expirationDate;
+  final Value<String> purchaseDateCivil;
+  final Value<String> expirationDateCivil;
   final Value<String?> imagePath;
   final Value<String?> barcode;
   final Value<int> status;
+  final Value<String> categoryCode;
+  final Value<String> unitCode;
+  final Value<String> statusCode;
   final Value<int> notificationDaysBefore;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
@@ -644,9 +844,14 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     this.unit = const Value.absent(),
     this.purchaseDate = const Value.absent(),
     this.expirationDate = const Value.absent(),
+    this.purchaseDateCivil = const Value.absent(),
+    this.expirationDateCivil = const Value.absent(),
     this.imagePath = const Value.absent(),
     this.barcode = const Value.absent(),
     this.status = const Value.absent(),
+    this.categoryCode = const Value.absent(),
+    this.unitCode = const Value.absent(),
+    this.statusCode = const Value.absent(),
     this.notificationDaysBefore = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -661,9 +866,14 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     required int unit,
     required DateTime purchaseDate,
     required DateTime expirationDate,
+    this.purchaseDateCivil = const Value.absent(),
+    this.expirationDateCivil = const Value.absent(),
     this.imagePath = const Value.absent(),
     this.barcode = const Value.absent(),
     required int status,
+    this.categoryCode = const Value.absent(),
+    this.unitCode = const Value.absent(),
+    this.statusCode = const Value.absent(),
     this.notificationDaysBefore = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
@@ -687,9 +897,14 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     Expression<int>? unit,
     Expression<DateTime>? purchaseDate,
     Expression<DateTime>? expirationDate,
+    Expression<String>? purchaseDateCivil,
+    Expression<String>? expirationDateCivil,
     Expression<String>? imagePath,
     Expression<String>? barcode,
     Expression<int>? status,
+    Expression<String>? categoryCode,
+    Expression<String>? unitCode,
+    Expression<String>? statusCode,
     Expression<int>? notificationDaysBefore,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -704,9 +919,15 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       if (unit != null) 'unit': unit,
       if (purchaseDate != null) 'purchase_date': purchaseDate,
       if (expirationDate != null) 'expiration_date': expirationDate,
+      if (purchaseDateCivil != null) 'purchase_date_civil': purchaseDateCivil,
+      if (expirationDateCivil != null)
+        'expiration_date_civil': expirationDateCivil,
       if (imagePath != null) 'image_path': imagePath,
       if (barcode != null) 'barcode': barcode,
       if (status != null) 'status': status,
+      if (categoryCode != null) 'category_code': categoryCode,
+      if (unitCode != null) 'unit_code': unitCode,
+      if (statusCode != null) 'status_code': statusCode,
       if (notificationDaysBefore != null)
         'notification_days_before': notificationDaysBefore,
       if (createdAt != null) 'created_at': createdAt,
@@ -724,9 +945,14 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     Value<int>? unit,
     Value<DateTime>? purchaseDate,
     Value<DateTime>? expirationDate,
+    Value<String>? purchaseDateCivil,
+    Value<String>? expirationDateCivil,
     Value<String?>? imagePath,
     Value<String?>? barcode,
     Value<int>? status,
+    Value<String>? categoryCode,
+    Value<String>? unitCode,
+    Value<String>? statusCode,
     Value<int>? notificationDaysBefore,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
@@ -741,9 +967,14 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       unit: unit ?? this.unit,
       purchaseDate: purchaseDate ?? this.purchaseDate,
       expirationDate: expirationDate ?? this.expirationDate,
+      purchaseDateCivil: purchaseDateCivil ?? this.purchaseDateCivil,
+      expirationDateCivil: expirationDateCivil ?? this.expirationDateCivil,
       imagePath: imagePath ?? this.imagePath,
       barcode: barcode ?? this.barcode,
       status: status ?? this.status,
+      categoryCode: categoryCode ?? this.categoryCode,
+      unitCode: unitCode ?? this.unitCode,
+      statusCode: statusCode ?? this.statusCode,
       notificationDaysBefore:
           notificationDaysBefore ?? this.notificationDaysBefore,
       createdAt: createdAt ?? this.createdAt,
@@ -779,6 +1010,14 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     if (expirationDate.present) {
       map['expiration_date'] = Variable<DateTime>(expirationDate.value);
     }
+    if (purchaseDateCivil.present) {
+      map['purchase_date_civil'] = Variable<String>(purchaseDateCivil.value);
+    }
+    if (expirationDateCivil.present) {
+      map['expiration_date_civil'] = Variable<String>(
+        expirationDateCivil.value,
+      );
+    }
     if (imagePath.present) {
       map['image_path'] = Variable<String>(imagePath.value);
     }
@@ -787,6 +1026,15 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     }
     if (status.present) {
       map['status'] = Variable<int>(status.value);
+    }
+    if (categoryCode.present) {
+      map['category_code'] = Variable<String>(categoryCode.value);
+    }
+    if (unitCode.present) {
+      map['unit_code'] = Variable<String>(unitCode.value);
+    }
+    if (statusCode.present) {
+      map['status_code'] = Variable<String>(statusCode.value);
     }
     if (notificationDaysBefore.present) {
       map['notification_days_before'] = Variable<int>(
@@ -816,9 +1064,14 @@ class ProductsCompanion extends UpdateCompanion<Product> {
           ..write('unit: $unit, ')
           ..write('purchaseDate: $purchaseDate, ')
           ..write('expirationDate: $expirationDate, ')
+          ..write('purchaseDateCivil: $purchaseDateCivil, ')
+          ..write('expirationDateCivil: $expirationDateCivil, ')
           ..write('imagePath: $imagePath, ')
           ..write('barcode: $barcode, ')
           ..write('status: $status, ')
+          ..write('categoryCode: $categoryCode, ')
+          ..write('unitCode: $unitCode, ')
+          ..write('statusCode: $statusCode, ')
           ..write('notificationDaysBefore: $notificationDaysBefore, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -849,9 +1102,14 @@ typedef $$ProductsTableCreateCompanionBuilder =
       required int unit,
       required DateTime purchaseDate,
       required DateTime expirationDate,
+      Value<String> purchaseDateCivil,
+      Value<String> expirationDateCivil,
       Value<String?> imagePath,
       Value<String?> barcode,
       required int status,
+      Value<String> categoryCode,
+      Value<String> unitCode,
+      Value<String> statusCode,
       Value<int> notificationDaysBefore,
       required DateTime createdAt,
       required DateTime updatedAt,
@@ -867,9 +1125,14 @@ typedef $$ProductsTableUpdateCompanionBuilder =
       Value<int> unit,
       Value<DateTime> purchaseDate,
       Value<DateTime> expirationDate,
+      Value<String> purchaseDateCivil,
+      Value<String> expirationDateCivil,
       Value<String?> imagePath,
       Value<String?> barcode,
       Value<int> status,
+      Value<String> categoryCode,
+      Value<String> unitCode,
+      Value<String> statusCode,
       Value<int> notificationDaysBefore,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
@@ -925,6 +1188,16 @@ class $$ProductsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get purchaseDateCivil => $composableBuilder(
+    column: $table.purchaseDateCivil,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get expirationDateCivil => $composableBuilder(
+    column: $table.expirationDateCivil,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get imagePath => $composableBuilder(
     column: $table.imagePath,
     builder: (column) => ColumnFilters(column),
@@ -937,6 +1210,21 @@ class $$ProductsTableFilterComposer
 
   ColumnFilters<int> get status => $composableBuilder(
     column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get categoryCode => $composableBuilder(
+    column: $table.categoryCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get unitCode => $composableBuilder(
+    column: $table.unitCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get statusCode => $composableBuilder(
+    column: $table.statusCode,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1005,6 +1293,16 @@ class $$ProductsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get purchaseDateCivil => $composableBuilder(
+    column: $table.purchaseDateCivil,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get expirationDateCivil => $composableBuilder(
+    column: $table.expirationDateCivil,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get imagePath => $composableBuilder(
     column: $table.imagePath,
     builder: (column) => ColumnOrderings(column),
@@ -1017,6 +1315,21 @@ class $$ProductsTableOrderingComposer
 
   ColumnOrderings<int> get status => $composableBuilder(
     column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get categoryCode => $composableBuilder(
+    column: $table.categoryCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get unitCode => $composableBuilder(
+    column: $table.unitCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get statusCode => $composableBuilder(
+    column: $table.statusCode,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -1075,6 +1388,16 @@ class $$ProductsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get purchaseDateCivil => $composableBuilder(
+    column: $table.purchaseDateCivil,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get expirationDateCivil => $composableBuilder(
+    column: $table.expirationDateCivil,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get imagePath =>
       $composableBuilder(column: $table.imagePath, builder: (column) => column);
 
@@ -1083,6 +1406,19 @@ class $$ProductsTableAnnotationComposer
 
   GeneratedColumn<int> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get categoryCode => $composableBuilder(
+    column: $table.categoryCode,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get unitCode =>
+      $composableBuilder(column: $table.unitCode, builder: (column) => column);
+
+  GeneratedColumn<String> get statusCode => $composableBuilder(
+    column: $table.statusCode,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<int> get notificationDaysBefore => $composableBuilder(
     column: $table.notificationDaysBefore,
@@ -1132,9 +1468,14 @@ class $$ProductsTableTableManager
                 Value<int> unit = const Value.absent(),
                 Value<DateTime> purchaseDate = const Value.absent(),
                 Value<DateTime> expirationDate = const Value.absent(),
+                Value<String> purchaseDateCivil = const Value.absent(),
+                Value<String> expirationDateCivil = const Value.absent(),
                 Value<String?> imagePath = const Value.absent(),
                 Value<String?> barcode = const Value.absent(),
                 Value<int> status = const Value.absent(),
+                Value<String> categoryCode = const Value.absent(),
+                Value<String> unitCode = const Value.absent(),
+                Value<String> statusCode = const Value.absent(),
                 Value<int> notificationDaysBefore = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
@@ -1148,9 +1489,14 @@ class $$ProductsTableTableManager
                 unit: unit,
                 purchaseDate: purchaseDate,
                 expirationDate: expirationDate,
+                purchaseDateCivil: purchaseDateCivil,
+                expirationDateCivil: expirationDateCivil,
                 imagePath: imagePath,
                 barcode: barcode,
                 status: status,
+                categoryCode: categoryCode,
+                unitCode: unitCode,
+                statusCode: statusCode,
                 notificationDaysBefore: notificationDaysBefore,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -1166,9 +1512,14 @@ class $$ProductsTableTableManager
                 required int unit,
                 required DateTime purchaseDate,
                 required DateTime expirationDate,
+                Value<String> purchaseDateCivil = const Value.absent(),
+                Value<String> expirationDateCivil = const Value.absent(),
                 Value<String?> imagePath = const Value.absent(),
                 Value<String?> barcode = const Value.absent(),
                 required int status,
+                Value<String> categoryCode = const Value.absent(),
+                Value<String> unitCode = const Value.absent(),
+                Value<String> statusCode = const Value.absent(),
                 Value<int> notificationDaysBefore = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
@@ -1182,9 +1533,14 @@ class $$ProductsTableTableManager
                 unit: unit,
                 purchaseDate: purchaseDate,
                 expirationDate: expirationDate,
+                purchaseDateCivil: purchaseDateCivil,
+                expirationDateCivil: expirationDateCivil,
                 imagePath: imagePath,
                 barcode: barcode,
                 status: status,
+                categoryCode: categoryCode,
+                unitCode: unitCode,
+                statusCode: statusCode,
                 notificationDaysBefore: notificationDaysBefore,
                 createdAt: createdAt,
                 updatedAt: updatedAt,

@@ -4,4 +4,8 @@
     <issue id="PropertyEscape">
         <ignore path="local.properties" />
     </issue>
+    <!-- Referenziata per nome da AndroidInitializationSettings in Dart. -->
+    <issue id="UnusedResources">
+        <ignore path="src/main/res/drawable/ic_notification.xml" />
+    </issue>
 </lint>

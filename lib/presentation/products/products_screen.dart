@@ -1,25 +1,60 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freshtrack/domain/products/product.dart';
+import 'package:freshtrack/domain/common/civil_date.dart';
 import 'package:freshtrack/presentation/providers/product_providers.dart';
 import 'package:freshtrack/shared/widgets/glass_surface.dart';
 import 'package:freshtrack/shared/widgets/product_card.dart';
+import 'package:freshtrack/shared/text/search_normalization.dart';
 import 'package:go_router/go_router.dart';
 
 enum ProductSort { expiration, name, newest }
 
-bool _sameDate(DateTime first, DateTime second) =>
-    first.year == second.year &&
-    first.month == second.month &&
-    first.day == second.day;
+List<Product> filterAndSortProducts(
+  List<Product> products, {
+  String query = '',
+  ProductCategory? category,
+  CivilDate? expirationDate,
+  ProductSort sort = ProductSort.expiration,
+}) {
+  final normalizedQuery = normalizeForSearch(query);
+  final filtered = products
+      .where(
+        (product) =>
+            normalizeForSearch(product.name).contains(normalizedQuery) &&
+            (category == null || product.category == category) &&
+            (expirationDate == null ||
+                (product.status == ProductStatus.available &&
+                    product.expirationDate == expirationDate)),
+      )
+      .toList();
+  switch (sort) {
+    case ProductSort.expiration:
+      filtered.sort(
+        (first, second) =>
+            first.expirationDate.compareTo(second.expirationDate),
+      );
+    case ProductSort.name:
+      filtered.sort(
+        (first, second) => normalizeForSearch(
+          first.name,
+        ).compareTo(normalizeForSearch(second.name)),
+      );
+    case ProductSort.newest:
+      filtered.sort(
+        (first, second) => second.createdAt.compareTo(first.createdAt),
+      );
+  }
+  return filtered;
+}
 
-String _formatDate(DateTime date) =>
+String _formatDate(CivilDate date) =>
     '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
 
 class ProductsScreen extends ConsumerStatefulWidget {
   const ProductsScreen({this.expirationDate, super.key});
 
-  final DateTime? expirationDate;
+  final CivilDate? expirationDate;
 
   @override
   ConsumerState<ProductsScreen> createState() => _ProductsScreenState();
@@ -42,14 +77,30 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
     final products = ref.watch(productsProvider);
     return products.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, _) => const Center(
+      error: (_, _) => Center(
         child: Padding(
-          padding: EdgeInsets.all(24),
-          child: Text('Non è stato possibile caricare i prodotti.'),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Non è stato possibile caricare i prodotti.'),
+              const SizedBox(height: 12),
+              FilledButton.tonal(
+                onPressed: () => ref.invalidate(productsProvider),
+                child: const Text('Riprova'),
+              ),
+            ],
+          ),
         ),
       ),
       data: (loadedItems) {
-        final filtered = _filterAndSort(loadedItems);
+        final filtered = filterAndSortProducts(
+          loadedItems,
+          query: _query,
+          category: _category,
+          expirationDate: widget.expirationDate,
+          sort: _sort,
+        );
         final hasFilters = _query.isNotEmpty || _category != null;
         return CustomScrollView(
           key: const Key('products-scroll'),
@@ -64,7 +115,8 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                     Text(
                       widget.expirationDate == null
                           ? 'I tuoi prodotti'
-                          : _sameDate(widget.expirationDate!, DateTime.now())
+                          : widget.expirationDate ==
+                                CivilDate.fromDateTime(DateTime.now())
                           ? 'Scadono oggi'
                           : 'Scadenze del ${_formatDate(widget.expirationDate!)}',
                       style: Theme.of(context).textTheme.headlineMedium
@@ -95,7 +147,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                           ),
                       ],
                       onChanged: (value) =>
-                          setState(() => _query = value.trim().toLowerCase()),
+                          setState(() => _query = normalizeForSearch(value)),
                       onSubmitted: (_) => FocusScope.of(context).unfocus(),
                     ),
                     const SizedBox(height: 12),
@@ -169,7 +221,10 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
             if (filtered.isEmpty)
               SliverFillRemaining(
                 hasScrollBody: false,
-                child: _EmptyProducts(hasFilters: hasFilters),
+                child: _EmptyProducts(
+                  hasFilters: hasFilters,
+                  onAdd: () => context.push('/products/new'),
+                ),
               )
             else
               SliverPadding(
@@ -197,45 +252,12 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
     ProductSort.name => 'Nome',
     ProductSort.newest => 'Recenti',
   };
-
-  List<Product> _filterAndSort(List<Product> products) {
-    final filtered = products
-        .where(
-          (product) =>
-              product.name.toLowerCase().contains(_query) &&
-              (_category == null || product.category == _category) &&
-              (widget.expirationDate == null ||
-                  (product.status == ProductStatus.available &&
-                      _sameDate(
-                        product.expirationDate,
-                        widget.expirationDate!,
-                      ))),
-        )
-        .toList();
-    switch (_sort) {
-      case ProductSort.expiration:
-        filtered.sort(
-          (first, second) =>
-              first.expirationDate.compareTo(second.expirationDate),
-        );
-      case ProductSort.name:
-        filtered.sort(
-          (first, second) =>
-              first.name.toLowerCase().compareTo(second.name.toLowerCase()),
-        );
-      case ProductSort.newest:
-        filtered.sort(
-          (first, second) => second.createdAt.compareTo(first.createdAt),
-        );
-    }
-    return filtered;
-  }
 }
 
 class _ExpiryDateFilter extends StatelessWidget {
   const _ExpiryDateFilter({required this.date, required this.onClear});
 
-  final DateTime date;
+  final CivilDate date;
   final VoidCallback onClear;
 
   @override
@@ -351,9 +373,10 @@ class _FilterButton extends StatelessWidget {
 }
 
 class _EmptyProducts extends StatelessWidget {
-  const _EmptyProducts({required this.hasFilters});
+  const _EmptyProducts({required this.hasFilters, required this.onAdd});
 
   final bool hasFilters;
+  final VoidCallback onAdd;
 
   @override
   Widget build(BuildContext context) => Center(
@@ -378,9 +401,18 @@ class _EmptyProducts extends StatelessWidget {
             Text(
               hasFilters
                   ? 'Prova a cambiare la ricerca o a rimuovere i filtri.'
-                  : 'Aggiungi il primo prodotto dalla Dashboard.',
+                  : 'Inizia registrando una scadenza.',
               textAlign: TextAlign.center,
             ),
+            if (!hasFilters) ...[
+              const SizedBox(height: 18),
+              FilledButton.icon(
+                key: const Key('empty-products-add'),
+                onPressed: onAdd,
+                icon: const Icon(Icons.add_rounded),
+                label: const Text('Aggiungi prodotto'),
+              ),
+            ],
           ],
         ),
       ),

@@ -67,7 +67,7 @@ class ProductCard extends StatelessWidget {
                     const SizedBox(width: 7),
                     Expanded(
                       child: Text(
-                        '$label · ${DateFormat('dd/MM/yyyy').format(product.expirationDate)}',
+                        '$label · ${DateFormat('dd/MM/yyyy').format(product.expirationDate.toLocalDateTime())}',
                         style: TextStyle(
                           color: color,
                           fontWeight: FontWeight.w700,
@@ -137,6 +137,7 @@ class _ProductThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final decodedPixels = (58 * MediaQuery.devicePixelRatioOf(context)).ceil();
     final fallback = DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -156,6 +157,8 @@ class _ProductThumbnail extends StatelessWidget {
             : Image.file(
                 File(product.imagePath!),
                 fit: BoxFit.cover,
+                cacheWidth: decodedPixels,
+                cacheHeight: decodedPixels,
                 errorBuilder: (_, _, _) => fallback,
               ),
       ),

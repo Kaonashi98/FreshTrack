@@ -13,7 +13,8 @@ class FreshTrackApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(appSettingsProvider);
+    final settings =
+        ref.watch(appSettingsProvider).value ?? AppSettings.defaults;
     final themeMode = switch (settings.themePreference) {
       AppThemePreference.system => ThemeMode.system,
       AppThemePreference.light => ThemeMode.light,

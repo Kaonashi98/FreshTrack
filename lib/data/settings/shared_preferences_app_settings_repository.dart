@@ -10,7 +10,7 @@ class SharedPreferencesAppSettingsRepository implements AppSettingsRepository {
   static const _notificationHourKey = 'settings.notification_hour';
   static const _notificationMinuteKey = 'settings.notification_minute';
   static const _defaultsVersionKey = 'settings.defaults_version';
-  static const _currentDefaultsVersion = 2;
+  static const _currentDefaultsVersion = 3;
 
   final SharedPreferencesAsync _preferences;
 
@@ -21,9 +21,9 @@ class SharedPreferencesAppSettingsRepository implements AppSettingsRepository {
     final storedHour = await _preferences.getInt(_notificationHourKey);
     final storedMinute = await _preferences.getInt(_notificationMinuteKey);
     final defaultsVersion = await _preferences.getInt(_defaultsVersionKey) ?? 1;
-    final notificationDays = defaultsVersion >= _currentDefaultsVersion
-        ? storedDays ?? AppSettings.defaults.notificationDaysBefore
-        : AppSettings.defaults.notificationDaysBefore;
+    // A defaults-version bump must never overwrite an explicit user choice.
+    final notificationDays =
+        storedDays ?? AppSettings.defaults.notificationDaysBefore;
     if (defaultsVersion < _currentDefaultsVersion) {
       await _preferences.setInt(_notificationDaysKey, notificationDays);
       await _preferences.setInt(_defaultsVersionKey, _currentDefaultsVersion);
@@ -57,5 +57,14 @@ class SharedPreferencesAppSettingsRepository implements AppSettingsRepository {
       settings.notificationMinute,
     );
     await _preferences.setInt(_defaultsVersionKey, _currentDefaultsVersion);
+  }
+
+  @override
+  Future<void> clear() async {
+    await _preferences.remove(_themeKey);
+    await _preferences.remove(_notificationDaysKey);
+    await _preferences.remove(_notificationHourKey);
+    await _preferences.remove(_notificationMinuteKey);
+    await _preferences.remove(_defaultsVersionKey);
   }
 }

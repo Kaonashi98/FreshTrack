@@ -1,3 +1,4 @@
+import 'package:freshtrack/domain/common/civil_date.dart';
 import 'package:freshtrack/domain/products/product.dart';
 
 class ExpirationNotificationPlan {
@@ -10,7 +11,7 @@ class ExpirationNotificationPlan {
   });
 
   final int id;
-  final DateTime date;
+  final CivilDate date;
   final String title;
   final String body;
   final String payload;
@@ -28,37 +29,39 @@ class ExpirationNotificationPlanner {
     required DateTime now,
     int notificationHour = defaultNotificationHour,
     int notificationMinute = defaultNotificationMinute,
+    int daysBefore = 0,
   }) {
-    final expiryGroups = <DateTime, List<Product>>{};
-    final advanceGroups = <(DateTime, DateTime, int), List<Product>>{};
+    final expiryGroups = <CivilDate, List<Product>>{};
+    final advanceGroups = <(CivilDate, CivilDate, int), List<Product>>{};
+    final advanceDays = daysBefore.clamp(0, 30);
+    final today = CivilDate.fromDateTime(now);
 
     for (final product in products) {
-      final expirationDate = _dateOnly(product.expirationDate);
+      final expirationDate = product.expirationDate;
       if (product.status != ProductStatus.available ||
-          expirationDate.isBefore(_dateOnly(now))) {
+          expirationDate.isBefore(today)) {
         continue;
       }
-      if (_scheduledAt(
+      if (_isFutureSchedule(
         expirationDate,
+        now,
         notificationHour,
         notificationMinute,
-      ).isAfter(now)) {
+      )) {
         expiryGroups.putIfAbsent(expirationDate, () => []).add(product);
       }
 
-      final daysBefore = product.notificationDaysBefore.clamp(0, 30);
-      if (daysBefore == 0) continue;
-      final notificationDate = expirationDate.subtract(
-        Duration(days: daysBefore),
-      );
-      if (!_scheduledAt(
+      if (advanceDays == 0) continue;
+      final notificationDate = expirationDate.subtractDays(advanceDays);
+      if (!_isFutureSchedule(
         notificationDate,
+        now,
         notificationHour,
         notificationMinute,
-      ).isAfter(now)) {
+      )) {
         continue;
       }
-      final key = (notificationDate, expirationDate, daysBefore);
+      final key = (notificationDate, expirationDate, advanceDays);
       advanceGroups.putIfAbsent(key, () => []).add(product);
     }
 
@@ -77,13 +80,13 @@ class ExpirationNotificationPlanner {
     return plans;
   }
 
-  DateTime? dateFromPayload(String? payload) {
+  CivilDate? dateFromPayload(String? payload) {
     if (payload == null || !payload.startsWith(payloadPrefix)) return null;
-    return DateTime.tryParse(payload.substring(payloadPrefix.length));
+    return CivilDate.tryParse(payload.substring(payloadPrefix.length));
   }
 
   ExpirationNotificationPlan _expiryPlan(
-    DateTime expirationDate,
+    CivilDate expirationDate,
     List<Product> products,
   ) {
     final count = products.length;
@@ -96,23 +99,24 @@ class ExpirationNotificationPlanner {
       title: count == 1
           ? '${products.single.name} scade oggi'
           : '$count prodotti scadono oggi',
-      body: count == 1
-          ? 'Consumalo oggi per evitare sprechi.'
-          : _productNames(products),
+      body: count == 1 ? _expiryBody(products.single) : _productNames(products),
       payload: '$payloadPrefix${_isoDate(expirationDate)}',
     );
   }
 
   ExpirationNotificationPlan _advancePlan(
-    (DateTime, DateTime, int) key,
+    (CivilDate, CivilDate, int) key,
     List<Product> products,
   ) {
     final (notificationDate, expirationDate, daysBefore) = key;
     final count = products.length;
     return ExpirationNotificationPlan(
-      id: _stableId(
-        'advance:${_isoDate(notificationDate)}:${_isoDate(expirationDate)}:$daysBefore',
-      ),
+      // The negative namespace cannot collide with positive expiry IDs.
+      // One pre-alert per expiration date is active for the global setting.
+      id:
+          -(expirationDate.year * 10000 +
+              expirationDate.month * 100 +
+              expirationDate.day),
       date: notificationDate,
       title: count == 1
           ? '${products.single.name} scade tra $daysBefore ${daysBefore == 1 ? 'giorno' : 'giorni'}'
@@ -124,37 +128,29 @@ class ExpirationNotificationPlanner {
     );
   }
 
+  String _expiryBody(Product product) {
+    if (product.category == ProductCategory.medicines) {
+      return 'Controlla la scadenza. FreshTrack non sostituisce il parere di un medico o di un farmacista.';
+    }
+    return 'Usalo o consumalo oggi per evitare sprechi.';
+  }
+
   String _productNames(List<Product> products) {
     final names = products.take(3).map((product) => product.name).join(', ');
     final remaining = products.length - 3;
     return remaining > 0 ? '$names e altri $remaining' : names;
   }
 
-  int _stableId(String value) {
-    var hash = 17;
-    for (final codeUnit in value.codeUnits) {
-      hash = (hash * 31 + codeUnit) & 0x7fffffff;
-    }
-    return hash;
+  bool _isFutureSchedule(CivilDate date, DateTime now, int hour, int minute) {
+    final dateComparison = date.compareTo(CivilDate.fromDateTime(now));
+    if (dateComparison != 0) return dateComparison > 0;
+    final scheduledMinute = hour.clamp(0, 23) * 60 + minute.clamp(0, 59);
+    return scheduledMinute > now.hour * 60 + now.minute;
   }
 
-  DateTime _scheduledAt(DateTime date, int hour, int minute) => DateTime(
-    date.year,
-    date.month,
-    date.day,
-    hour.clamp(0, 23),
-    minute.clamp(0, 59),
-  );
+  String _isoDate(CivilDate date) => date.toIso8601String();
 
-  DateTime _dateOnly(DateTime value) =>
-      DateTime(value.year, value.month, value.day);
-
-  String _isoDate(DateTime date) =>
-      '${date.year.toString().padLeft(4, '0')}-'
-      '${date.month.toString().padLeft(2, '0')}-'
-      '${date.day.toString().padLeft(2, '0')}';
-
-  String _displayDate(DateTime date) =>
+  String _displayDate(CivilDate date) =>
       '${date.day.toString().padLeft(2, '0')}/'
       '${date.month.toString().padLeft(2, '0')}/${date.year}';
 }

@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:freshtrack/data/database/app_database.dart' hide Product;
 import 'package:freshtrack/data/products/drift_product_repository.dart';
 import 'package:freshtrack/domain/products/product.dart';
+import 'package:freshtrack/domain/common/civil_date.dart';
 
 void main() {
   late AppDatabase database;
@@ -34,6 +35,24 @@ void main() {
 
     expect(await repository.watchAll().first, isEmpty);
   });
+
+  test(
+    'codici enum sconosciuti usano fallback sicuri senza RangeError',
+    () async {
+      final product = _product('future');
+      await repository.save(product);
+      await database.customStatement(
+        "UPDATE products SET category_code = 'future-category', "
+        "unit_code = 'future-unit', status_code = 'future-status' "
+        "WHERE id = 'future'",
+      );
+
+      final restored = await repository.getById('future');
+      expect(restored?.category, ProductCategory.other);
+      expect(restored?.unit, MeasurementUnit.pieces);
+      expect(restored?.status, ProductStatus.available);
+    },
+  );
 }
 
 Product _product(String id) {
@@ -44,8 +63,8 @@ Product _product(String id) {
     category: ProductCategory.food,
     quantity: 1,
     unit: MeasurementUnit.liters,
-    purchaseDate: now,
-    expirationDate: now.add(const Duration(days: 5)),
+    purchaseDate: CivilDate.fromDateTime(now),
+    expirationDate: CivilDate.fromDateTime(now.add(const Duration(days: 5))),
     status: ProductStatus.available,
     notificationDaysBefore: 3,
     createdAt: now,

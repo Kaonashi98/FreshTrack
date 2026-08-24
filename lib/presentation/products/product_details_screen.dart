@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freshtrack/domain/products/expiration_service.dart';
 import 'package:freshtrack/domain/products/product.dart';
 import 'package:freshtrack/presentation/providers/product_providers.dart';
+import 'package:freshtrack/presentation/providers/notification_providers.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
@@ -65,6 +66,15 @@ class ProductDetailsScreen extends ConsumerWidget {
 
     try {
       await ref.read(productRepositoryProvider).delete(product.id);
+      var notificationsComplete = true;
+      try {
+        final result = await ref
+            .read(notificationSynchronizationProvider)
+            .synchronizeLatest();
+        notificationsComplete = result.isComplete;
+      } catch (_) {
+        notificationsComplete = false;
+      }
       try {
         await ref.read(productImageStorageProvider).delete(product.imagePath);
       } catch (_) {
@@ -72,9 +82,15 @@ class ProductDetailsScreen extends ConsumerWidget {
       }
       if (context.mounted) {
         context.go('/products');
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Prodotto eliminato.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              notificationsComplete
+                  ? 'Prodotto eliminato.'
+                  : 'Prodotto eliminato, ma alcuni promemoria non sono stati aggiornati.',
+            ),
+          ),
+        );
       }
     } catch (_) {
       if (context.mounted) {
@@ -140,12 +156,16 @@ class _ProductDetails extends StatelessWidget {
                 const Divider(height: 24),
                 _DetailRow(
                   label: 'Acquistato il',
-                  value: dateFormat.format(product.purchaseDate),
+                  value: dateFormat.format(
+                    product.purchaseDate.toLocalDateTime(),
+                  ),
                 ),
                 const Divider(height: 24),
                 _DetailRow(
                   label: 'Scade il',
-                  value: dateFormat.format(product.expirationDate),
+                  value: dateFormat.format(
+                    product.expirationDate.toLocalDateTime(),
+                  ),
                 ),
               ],
             ),
@@ -320,7 +340,13 @@ class _DetailRow extends StatelessWidget {
     children: [
       Expanded(child: Text(label)),
       const SizedBox(width: 16),
-      Text(value, style: const TextStyle(fontWeight: FontWeight.w700)),
+      Expanded(
+        child: Text(
+          value,
+          textAlign: TextAlign.end,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+      ),
     ],
   );
 }

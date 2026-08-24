@@ -298,6 +298,8 @@ class _PriorityRow extends StatelessWidget {
     };
     final day = product.expirationDate.day.toString().padLeft(2, '0');
     final month = product.expirationDate.month.toString().padLeft(2, '0');
+    final textScale = MediaQuery.textScalerOf(context).scale(1);
+    final dateTileSize = 50.0 + ((textScale - 1).clamp(0, 1) * 56);
 
     return InkWell(
       key: Key('priority-${product.id}'),
@@ -308,8 +310,8 @@ class _PriorityRow extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 50,
-              height: 50,
+              width: dateTileSize,
+              height: dateTileSize,
               decoration: BoxDecoration(
                 color: color.withValues(alpha: .12),
                 borderRadius: BorderRadius.circular(16),
@@ -673,7 +675,7 @@ class _SheetProductRow extends StatelessWidget {
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            '$label · ${DateFormat('dd/MM/yyyy').format(product.expirationDate)}',
+                            '$label · ${DateFormat('dd/MM/yyyy').format(product.expirationDate.toLocalDateTime())}',
                             style: TextStyle(
                               color: color,
                               fontSize: 12,

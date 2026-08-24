@@ -3,12 +3,36 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:freshtrack/domain/products/product.dart';
 import 'package:freshtrack/domain/products/product_repository.dart';
+import 'package:freshtrack/domain/notifications/expiration_notification_scheduler.dart';
+import 'package:freshtrack/domain/common/civil_date.dart';
 import 'package:freshtrack/presentation/products/product_details_screen.dart';
 import 'package:freshtrack/presentation/products/product_form_screen.dart';
+import 'package:freshtrack/presentation/providers/notification_providers.dart';
 import 'package:freshtrack/presentation/providers/product_providers.dart';
+import 'package:freshtrack/shared/widgets/product_card.dart';
 import 'package:go_router/go_router.dart';
 
 void main() {
+  testWidgets('thumbnail decodifica alla dimensione fisica visualizzata', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ProductCard(
+            product: _product(imagePath: 'foto-non-presente.jpg'),
+          ),
+        ),
+      ),
+    );
+    final image = tester.widget<Image>(find.byType(Image));
+    final provider = image.image as ResizeImage;
+    expect(provider.width, 116);
+    expect(provider.height, 116);
+  });
+
   testWidgets('modifica un prodotto esistente', (tester) async {
     _useLargeViewport(tester);
     final repository = _MemoryProductRepository([_product()]);
@@ -49,7 +73,111 @@ void main() {
     await tester.pumpAndSettle();
 
     expect((await repository.getById('latte'))?.name, 'Latte intero');
+    expect(
+      (await repository.getById('latte'))?.category,
+      ProductCategory.beverages,
+    );
     expect(find.byKey(const Key('open-edit')), findsOneWidget);
+  });
+
+  testWidgets('dopo il salvataggio propone di attivare le notifiche', (
+    tester,
+  ) async {
+    _useLargeViewport(tester);
+    final repository = _MemoryProductRepository([]);
+    final scheduler = _FakeNotificationScheduler(enabled: false);
+    final router = GoRouter(
+      initialLocation: '/host',
+      routes: [
+        GoRoute(
+          path: '/host',
+          builder: (context, _) => Scaffold(
+            body: Center(
+              child: FilledButton(
+                key: const Key('open-new'),
+                onPressed: () => context.push('/products/new'),
+                child: const Text('Apri nuovo'),
+              ),
+            ),
+          ),
+        ),
+        GoRoute(
+          path: '/products/new',
+          builder: (_, _) => const ProductFormScreen(),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          productRepositoryProvider.overrideWithValue(repository),
+          expirationNotificationSchedulerProvider.overrideWithValue(scheduler),
+        ],
+        child: MaterialApp.router(routerConfig: router),
+      ),
+    );
+    await tester.tap(find.byKey(const Key('open-new')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('product-name')), 'Yogurt');
+    await tester.tap(find.byKey(const Key('save-product')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Attivare i promemoria?'), findsOneWidget);
+    expect(scheduler.permissionRequests, 0);
+    await tester.tap(find.byKey(const Key('confirm-enable-notifications')));
+    await tester.pumpAndSettle();
+    expect(scheduler.permissionRequests, 1);
+    expect(repository.products.single.name, 'Yogurt');
+  });
+
+  testWidgets('un errore nelle notifiche non annulla il prodotto salvato', (
+    tester,
+  ) async {
+    _useLargeViewport(tester);
+    final repository = _MemoryProductRepository([]);
+    final scheduler = _FakeNotificationScheduler(failStatusCheck: true);
+    final router = GoRouter(
+      initialLocation: '/host',
+      routes: [
+        GoRoute(
+          path: '/host',
+          builder: (context, _) => Scaffold(
+            body: Center(
+              child: FilledButton(
+                key: const Key('open-new'),
+                onPressed: () => context.push('/products/new'),
+                child: const Text('Apri nuovo'),
+              ),
+            ),
+          ),
+        ),
+        GoRoute(
+          path: '/products/new',
+          builder: (_, _) => const ProductFormScreen(),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          productRepositoryProvider.overrideWithValue(repository),
+          expirationNotificationSchedulerProvider.overrideWithValue(scheduler),
+        ],
+        child: MaterialApp.router(routerConfig: router),
+      ),
+    );
+    await tester.tap(find.byKey(const Key('open-new')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('product-name')), 'Pasta');
+    await tester.tap(find.byKey(const Key('save-product')));
+    await tester.pumpAndSettle();
+
+    expect(repository.products.single.name, 'Pasta');
+    expect(find.byKey(const Key('open-new')), findsOneWidget);
   });
 
   testWidgets('apre la foto del prodotto a schermo intero', (tester) async {
@@ -115,8 +243,17 @@ void main() {
   });
 }
 
-Widget _app(GoRouter router, ProductRepository repository) => ProviderScope(
-  overrides: [productRepositoryProvider.overrideWithValue(repository)],
+Widget _app(
+  GoRouter router,
+  ProductRepository repository, {
+  ExpirationNotificationScheduler? scheduler,
+}) => ProviderScope(
+  overrides: [
+    productRepositoryProvider.overrideWithValue(repository),
+    expirationNotificationSchedulerProvider.overrideWithValue(
+      scheduler ?? _FakeNotificationScheduler(),
+    ),
+  ],
   child: MaterialApp.router(routerConfig: router),
 );
 
@@ -134,8 +271,8 @@ Product _product({String? imagePath}) => Product(
   category: ProductCategory.beverages,
   quantity: 1,
   unit: MeasurementUnit.liters,
-  purchaseDate: DateTime(2026, 7, 27),
-  expirationDate: DateTime(2026, 8, 2),
+  purchaseDate: CivilDate(2026, 7, 27),
+  expirationDate: CivilDate(2026, 8, 2),
   status: ProductStatus.available,
   notificationDaysBefore: 3,
   createdAt: DateTime(2026, 7, 27),
@@ -172,4 +309,48 @@ class _MemoryProductRepository implements ProductRepository {
   @override
   Stream<List<Product>> watchAll() =>
       Stream.value(List<Product>.unmodifiable(products));
+
+  @override
+  Future<List<Product>> getAll() async => List.unmodifiable(products);
+}
+
+class _FakeNotificationScheduler implements ExpirationNotificationScheduler {
+  _FakeNotificationScheduler({
+    this.enabled = true,
+    this.failStatusCheck = false,
+  });
+
+  bool enabled;
+  final bool failStatusCheck;
+  int permissionRequests = 0;
+
+  @override
+  Stream<CivilDate> get openedExpirationDates => const Stream.empty();
+
+  @override
+  Future<bool> areNotificationsEnabled() async {
+    if (failStatusCheck) throw StateError('Plugin notifiche non disponibile');
+    return enabled;
+  }
+
+  @override
+  void dispose() {}
+
+  @override
+  Future<CivilDate?> initialize() async => null;
+
+  @override
+  Future<bool> requestNotificationPermission() async {
+    permissionRequests++;
+    enabled = true;
+    return enabled;
+  }
+
+  @override
+  Future<NotificationSynchronizationResult> synchronize(
+    List<Product> products, {
+    required int hour,
+    required int minute,
+    required int daysBefore,
+  }) async => const NotificationSynchronizationResult();
 }

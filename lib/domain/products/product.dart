@@ -1,3 +1,5 @@
+import 'package:freshtrack/domain/common/civil_date.dart';
+
 enum ProductCategory {
   food('Alimentari'),
   beverages('Bevande'),
@@ -41,6 +43,8 @@ const selectableMeasurementUnits = [
   MeasurementUnit.pieces,
   MeasurementUnit.grams,
   MeasurementUnit.kilograms,
+  MeasurementUnit.milliliters,
+  MeasurementUnit.liters,
   MeasurementUnit.packs,
 ];
 
@@ -69,8 +73,8 @@ class Product {
   final ProductCategory category;
   final double quantity;
   final MeasurementUnit unit;
-  final DateTime purchaseDate;
-  final DateTime expirationDate;
+  final CivilDate purchaseDate;
+  final CivilDate expirationDate;
   final String? imagePath;
   final ProductStatus status;
   final int notificationDaysBefore;
@@ -84,8 +88,8 @@ class Product {
     ProductCategory? category,
     double? quantity,
     MeasurementUnit? unit,
-    DateTime? purchaseDate,
-    DateTime? expirationDate,
+    CivilDate? purchaseDate,
+    CivilDate? expirationDate,
     Object? imagePath = _unsetProductField,
     ProductStatus? status,
     int? notificationDaysBefore,

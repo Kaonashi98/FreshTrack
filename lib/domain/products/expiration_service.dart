@@ -1,3 +1,4 @@
+import 'package:freshtrack/domain/common/civil_date.dart';
 import 'package:freshtrack/domain/products/product.dart';
 
 enum ExpirationState { fresh, dueSoon, expiresToday, expired }
@@ -10,13 +11,12 @@ class ExpirationInfo {
 
 abstract final class ExpirationService {
   static ExpirationInfo evaluate({
-    required DateTime expirationDate,
+    required CivilDate expirationDate,
     DateTime? now,
     int dueSoonDays = 7,
   }) {
-    final today = _dateOnly(now ?? DateTime.now());
-    final expiration = _dateOnly(expirationDate);
-    final days = expiration.difference(today).inDays;
+    final today = CivilDate.fromDateTime(now ?? DateTime.now());
+    final days = expirationDate.differenceInDays(today);
     if (days < 0) {
       return ExpirationInfo(
         state: ExpirationState.expired,
@@ -43,7 +43,4 @@ abstract final class ExpirationService {
       (product.status == ProductStatus.available &&
           evaluate(expirationDate: product.expirationDate, now: now).state ==
               ExpirationState.expired);
-
-  static DateTime _dateOnly(DateTime value) =>
-      DateTime(value.year, value.month, value.day);
 }

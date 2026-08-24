@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 class PrivacyPolicyScreen extends StatelessWidget {
   const PrivacyPolicyScreen({super.key});
 
+  static const lastUpdated = '23 agosto 2026';
+
   @override
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: Colors.transparent,
@@ -27,25 +29,38 @@ class PrivacyPolicyScreen extends StatelessWidget {
             body:
                 'La fotocamera viene usata solo quando scegli di scattare la '
                 'foto di un prodotto. Le notifiche servono esclusivamente per '
-                'i promemoria sulle scadenze.',
+                'i promemoria sulle scadenze. Il permesso di avvio completato '
+                'serve ad Android per ripristinare i promemoria dopo un '
+                'riavvio.',
           ),
           _PrivacySection(
             title: 'Condivisione',
             body:
                 'FreshTrack non vende, condivide o trasmette dati personali a '
-                'terzi. Il backup automatico Android è disabilitato.',
+                'terzi. Il backup automatico Android e il trasferimento dei '
+                'dati dell’app tra dispositivi sono disabilitati.',
           ),
           _PrivacySection(
             title: 'Controllo',
             body:
-                'Puoi eliminare singoli prodotti oppure cancellare tutti i '
-                'dati e le immagini dalle Impostazioni. Disinstallando l’app '
-                'vengono rimossi anche i dati conservati localmente.',
+                'Puoi eliminare singoli prodotti oppure cancellare prodotti, '
+                'immagini e preferenze dalle Impostazioni. Disinstallando '
+                'l’app vengono rimossi anche i dati conservati localmente.',
           ),
           _PrivacySection(
-            title: 'Ultimo aggiornamento',
-            body: '27 luglio 2026',
+            title: 'Uso dell’app',
+            body:
+                'FreshTrack è uno strumento di organizzazione personale. Non '
+                'fornisce consigli medici e non sostituisce il parere di un '
+                'medico o di un farmacista.',
           ),
+          _PrivacySection(
+            title: 'Contatti',
+            body:
+                'Per richieste relative alla privacy o all’assistenza: '
+                'freshtrack.help@outlook.com. Sviluppatore: Nicola Zingaro.',
+          ),
+          _PrivacySection(title: 'Ultimo aggiornamento', body: lastUpdated),
         ],
       ),
     ),

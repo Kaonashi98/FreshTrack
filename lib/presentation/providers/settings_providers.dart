@@ -1,57 +1,56 @@
-import 'dart:async';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freshtrack/data/settings/shared_preferences_app_settings_repository.dart';
 import 'package:freshtrack/domain/settings/app_settings.dart';
 import 'package:freshtrack/domain/settings/app_settings_repository.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+final appVersionLabelProvider = FutureProvider<String>((ref) async {
+  final info = await PackageInfo.fromPlatform();
+  return 'Versione ${info.version} · build ${info.buildNumber}';
+});
 
 final appSettingsRepositoryProvider = Provider<AppSettingsRepository>(
   (_) => SharedPreferencesAppSettingsRepository(SharedPreferencesAsync()),
 );
 
 final appSettingsProvider =
-    NotifierProvider<AppSettingsController, AppSettings>(
+    AsyncNotifierProvider<AppSettingsController, AppSettings>(
       AppSettingsController.new,
     );
 
-class AppSettingsController extends Notifier<AppSettings> {
+class AppSettingsController extends AsyncNotifier<AppSettings> {
   @override
-  AppSettings build() {
-    unawaited(_restore());
-    return AppSettings.defaults;
-  }
+  Future<AppSettings> build() => ref.read(appSettingsRepositoryProvider).load();
 
   Future<void> setThemePreference(AppThemePreference value) async {
-    state = state.copyWith(themePreference: value);
-    await _persist();
+    await _persist((await future).copyWith(themePreference: value));
   }
 
   Future<void> setNotificationDaysBefore(int value) async {
-    state = state.copyWith(notificationDaysBefore: value.clamp(0, 30));
-    await _persist();
+    await _persist(
+      (await future).copyWith(notificationDaysBefore: value.clamp(0, 30)),
+    );
   }
 
   Future<void> setNotificationTime({
     required int hour,
     required int minute,
   }) async {
-    state = state.copyWith(
+    final next = (await future).copyWith(
       notificationHour: hour.clamp(0, 23),
       notificationMinute: minute.clamp(0, 59),
     );
-    await _persist();
+    await _persist(next);
   }
 
-  Future<void> _restore() async {
-    try {
-      final restored = await ref.read(appSettingsRepositoryProvider).load();
-      if (ref.mounted) state = restored;
-    } catch (_) {
-      // The defaults remain available if persistent storage cannot be read.
-    }
+  Future<void> reset() async {
+    await ref.read(appSettingsRepositoryProvider).clear();
+    state = const AsyncData(AppSettings.defaults);
   }
 
-  Future<void> _persist() =>
-      ref.read(appSettingsRepositoryProvider).save(state);
+  Future<void> _persist(AppSettings next) async {
+    await ref.read(appSettingsRepositoryProvider).save(next);
+    if (ref.mounted) state = AsyncData(next);
+  }
 }
