@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:freshtrack/presentation/providers/product_providers.dart';
 import 'package:freshtrack/shared/widgets/glass_surface.dart';
 import 'package:go_router/go_router.dart';
 
-class MainShell extends StatelessWidget {
+class MainShell extends ConsumerStatefulWidget {
   const MainShell({required this.child, super.key});
 
   final Widget child;
+
+  @override
+  ConsumerState<MainShell> createState() => _MainShellState();
+}
+
+class _MainShellState extends ConsumerState<MainShell> {
+  var _openingProductForm = false;
 
   @override
   Widget build(BuildContext context) {
@@ -16,15 +25,25 @@ class MainShell extends StatelessWidget {
         ? 2
         : 0;
     final scheme = Theme.of(context).colorScheme;
+    final loadedProducts = switch (ref.watch(productsProvider)) {
+      AsyncData(:final value) => value,
+      _ => null,
+    };
+    final showAddProductFab = switch (index) {
+      0 => loadedProducts != null,
+      1 => loadedProducts?.isNotEmpty ?? false,
+      _ => false,
+    };
     return Scaffold(
       extendBody: true,
       backgroundColor: Colors.transparent,
-      body: SafeArea(bottom: false, child: child),
-      floatingActionButton: index == 2
+      body: SafeArea(bottom: false, child: widget.child),
+      floatingActionButton: !showAddProductFab
           ? null
           : FloatingActionButton.extended(
               key: const Key('add-product'),
-              onPressed: () => context.push('/products/new'),
+              tooltip: 'Aggiungi prodotto',
+              onPressed: _openProductForm,
               icon: const Icon(Icons.add_rounded),
               label: const Text('Aggiungi'),
             ),
@@ -59,5 +78,15 @@ class MainShell extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _openProductForm() async {
+    if (_openingProductForm) return;
+    _openingProductForm = true;
+    try {
+      await context.push<void>('/products/new');
+    } finally {
+      _openingProductForm = false;
+    }
   }
 }

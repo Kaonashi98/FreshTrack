@@ -10,6 +10,12 @@ import 'package:go_router/go_router.dart';
 
 enum ProductSort { expiration, name, newest }
 
+// MainShell uses extendBody so the content continues underneath the 80dp
+// NavigationBar. The additional 28dp keeps cards and the empty-state panel
+// visually clear of that overlay without coupling this screen to Scaffold's
+// post-layout geometry.
+const _shellBottomContentClearance = 108.0;
+
 List<Product> filterAndSortProducts(
   List<Product> products, {
   String query = '',
@@ -65,6 +71,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
   String _query = '';
   ProductCategory? _category;
   ProductSort _sort = ProductSort.expiration;
+  var _openingProductForm = false;
 
   @override
   void dispose() {
@@ -101,7 +108,10 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
           expirationDate: widget.expirationDate,
           sort: _sort,
         );
-        final hasFilters = _query.isNotEmpty || _category != null;
+        final hasFilters =
+            _query.isNotEmpty ||
+            _category != null ||
+            widget.expirationDate != null;
         return CustomScrollView(
           key: const Key('products-scroll'),
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -221,9 +231,16 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
             if (filtered.isEmpty)
               SliverFillRemaining(
                 hasScrollBody: false,
-                child: _EmptyProducts(
-                  hasFilters: hasFilters,
-                  onAdd: () => context.push('/products/new'),
+                child: Padding(
+                  // MainShell extends beneath the navigation bar. Reserving
+                  // its area keeps the empty panel centered in visible space.
+                  padding: const EdgeInsets.only(
+                    bottom: _shellBottomContentClearance,
+                  ),
+                  child: _EmptyProducts(
+                    hasFilters: hasFilters,
+                    onAdd: _openProductForm,
+                  ),
                 ),
               )
             else
@@ -240,7 +257,10 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                   },
                 ),
               ),
-            const SliverToBoxAdapter(child: SizedBox(height: 108)),
+            if (filtered.isNotEmpty)
+              const SliverToBoxAdapter(
+                child: SizedBox(height: _shellBottomContentClearance),
+              ),
           ],
         );
       },
@@ -252,6 +272,16 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
     ProductSort.name => 'Nome',
     ProductSort.newest => 'Recenti',
   };
+
+  Future<void> _openProductForm() async {
+    if (_openingProductForm) return;
+    _openingProductForm = true;
+    try {
+      await context.push<void>('/products/new');
+    } finally {
+      _openingProductForm = false;
+    }
+  }
 }
 
 class _ExpiryDateFilter extends StatelessWidget {
@@ -383,6 +413,7 @@ class _EmptyProducts extends StatelessWidget {
     child: Padding(
       padding: const EdgeInsets.all(32),
       child: GlassSurface(
+        key: const Key('empty-products-panel'),
         padding: const EdgeInsets.all(26),
         child: Column(
           mainAxisSize: MainAxisSize.min,

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -6,11 +8,14 @@ import 'package:freshtrack/core/router/app_router.dart';
 import 'package:freshtrack/core/theme/app_theme.dart';
 import 'package:freshtrack/domain/products/product.dart';
 import 'package:freshtrack/domain/products/product_repository.dart';
+import 'package:freshtrack/domain/settings/app_settings.dart';
+import 'package:freshtrack/domain/settings/app_settings_repository.dart';
 import 'package:freshtrack/presentation/dashboard/dashboard_screen.dart';
 import 'package:freshtrack/presentation/products/product_details_screen.dart';
 import 'package:freshtrack/presentation/products/product_form_screen.dart';
 import 'package:freshtrack/presentation/products/products_screen.dart';
 import 'package:freshtrack/presentation/providers/product_providers.dart';
+import 'package:freshtrack/presentation/providers/settings_providers.dart';
 import 'package:freshtrack/presentation/providers/notification_providers.dart';
 import 'package:freshtrack/domain/notifications/expiration_notification_scheduler.dart';
 import 'package:freshtrack/domain/common/civil_date.dart';
@@ -305,7 +310,59 @@ void main() {
     expect(find.byKey(const Key('product-name')), findsOneWidget);
   });
 
-  testWidgets('il pulsante Aggiungi è visibile anche in Prodotti', (
+  testWidgets(
+    'dashboard vuota mostra il FAB, prodotti vuoti mostrano solo la CTA interna',
+    (tester) async {
+      tester.view.physicalSize = const Size(430, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final repository = FakeProductRepository([]);
+      await tester.pumpWidget(_freshTrackTestApp(repository));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('add-product')), findsOneWidget);
+      expect(find.byTooltip('Aggiungi prodotto'), findsOneWidget);
+      await tester.tap(find.text('Prodotti'));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('add-product')), findsNothing);
+      expect(find.byKey(const Key('empty-products-add')), findsOneWidget);
+      final panelCenter = tester.getCenter(
+        find.byKey(const Key('empty-products-panel')),
+      );
+      final availableCenter =
+          (tester.getBottomLeft(find.text('0 prodotti')).dy +
+              tester.getTopLeft(find.byType(NavigationBar)).dy) /
+          2;
+      expect(panelCenter.dy, moreOrLessEquals(availableCenter, epsilon: 32));
+    },
+  );
+
+  testWidgets('FAB apre il form e indietro torna alla dashboard vuota', (
+    tester,
+  ) async {
+    final repository = FakeProductRepository([]);
+    addTearDown(repository.dispose);
+    await tester.pumpWidget(_freshTrackTestApp(repository));
+    await tester.pumpAndSettle();
+
+    final fab = find.byKey(const Key('add-product'));
+    expect(fab, findsOneWidget);
+    expect(tester.getSize(fab).height, greaterThanOrEqualTo(48));
+    expect(find.byTooltip('Aggiungi prodotto'), findsOneWidget);
+    expect(find.bySemanticsLabel('Aggiungi'), findsOneWidget);
+    await tester.tap(fab);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Nuovo prodotto'), findsOneWidget);
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('dashboard-summary')), findsOneWidget);
+    expect(fab, findsOneWidget);
+  });
+
+  testWidgets('il FAB segue Dashboard, Prodotti e Impostazioni', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(430, 900);
@@ -313,17 +370,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     final repository = FakeProductRepository([_product('Latte')]);
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          productRepositoryProvider.overrideWithValue(repository),
-          expirationNotificationSchedulerProvider.overrideWithValue(
-            _FakeNotificationScheduler(),
-          ),
-        ],
-        child: const FreshTrackApp(),
-      ),
-    );
+    await tester.pumpWidget(_freshTrackTestApp(repository));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('add-product')), findsOneWidget);
@@ -333,6 +380,137 @@ void main() {
     await tester.tap(find.text('Impostazioni'));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('add-product')), findsNothing);
+  });
+
+  testWidgets('ricerca senza risultati non mostra la CTA interna', (
+    tester,
+  ) async {
+    final repository = FakeProductRepository([_product('Latte')]);
+    await tester.pumpWidget(
+      _testApp(const Scaffold(body: ProductsScreen()), repository),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(SearchBar), 'pasta');
+    await tester.pump();
+
+    expect(find.text('Nessun risultato'), findsOneWidget);
+    expect(find.byKey(const Key('empty-products-add')), findsNothing);
+  });
+
+  testWidgets('categoria senza risultati non mostra la CTA interna', (
+    tester,
+  ) async {
+    final repository = FakeProductRepository([_product('Latte')]);
+    await tester.pumpWidget(
+      _testApp(const Scaffold(body: ProductsScreen()), repository),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Categoria'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Farmaci'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Nessun risultato'), findsOneWidget);
+    expect(find.byKey(const Key('empty-products-add')), findsNothing);
+  });
+
+  testWidgets('expirationDate senza risultati non mostra la CTA interna', (
+    tester,
+  ) async {
+    final repository = FakeProductRepository([_product('Latte')]);
+    final dateWithoutProducts = CivilDate.fromDateTime(
+      DateTime.now(),
+    ).addDays(30);
+    await tester.pumpWidget(
+      _testApp(
+        Scaffold(body: ProductsScreen(expirationDate: dateWithoutProducts)),
+        repository,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Nessun risultato'), findsOneWidget);
+    expect(
+      find.text('Prova a cambiare la ricerca o a rimuovere i filtri.'),
+      findsOneWidget,
+    );
+    expect(find.byKey(const Key('empty-products-add')), findsNothing);
+  });
+
+  testWidgets(
+    'salvare il primo prodotto sostituisce la CTA interna con il FAB',
+    (tester) async {
+      tester.view.physicalSize = const Size(430, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final repository = FakeProductRepository([]);
+      addTearDown(repository.dispose);
+      await tester.pumpWidget(_freshTrackTestApp(repository));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Prodotti'));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('empty-products-add')), findsOneWidget);
+      expect(find.byKey(const Key('add-product')), findsNothing);
+      await tester.tap(find.byKey(const Key('empty-products-add')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('product-name')), 'Latte');
+      await tester.ensureVisible(find.byKey(const Key('save-product')));
+      await tester.tap(find.byKey(const Key('save-product')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Latte'), findsOneWidget);
+      expect(find.byKey(const Key('empty-products-add')), findsNothing);
+      expect(find.byKey(const Key('add-product')), findsOneWidget);
+    },
+  );
+
+  testWidgets('loading ed error non mostrano il FAB', (tester) async {
+    for (final stream in <Stream<List<Product>>>[
+      const Stream.empty(),
+      Stream.error(StateError('database non disponibile')),
+    ]) {
+      final repository = _StreamProductRepository(stream);
+      await tester.pumpWidget(_freshTrackTestApp(repository));
+      await tester.pump();
+      await tester.pump();
+      expect(find.byKey(const Key('add-product')), findsNothing);
+      expect(find.byKey(const Key('empty-products-add')), findsNothing);
+    }
+  });
+
+  testWidgets('doppi tap rapidi su FAB e CTA non sovrappongono due form', (
+    tester,
+  ) async {
+    final repository = FakeProductRepository([]);
+    addTearDown(repository.dispose);
+    await tester.pumpWidget(_freshTrackTestApp(repository));
+    await tester.pumpAndSettle();
+
+    final fab = find.byKey(const Key('add-product'));
+    await tester.tap(fab);
+    await tester.tap(fab, warnIfMissed: false);
+    await tester.pumpAndSettle();
+    expect(find.text('Nuovo prodotto'), findsOneWidget);
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('dashboard-summary')), findsOneWidget);
+
+    await tester.tap(find.text('Prodotti'));
+    await tester.pumpAndSettle();
+    final cta = find.byKey(const Key('empty-products-add'));
+    await tester.tap(cta);
+    await tester.tap(cta, warnIfMissed: false);
+    await tester.pumpAndSettle();
+    expect(find.text('Nuovo prodotto'), findsOneWidget);
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('empty-products-add')), findsOneWidget);
   });
 
   testWidgets('tap sulla freccia apre il dettaglio prodotto', (tester) async {
@@ -464,6 +642,17 @@ Widget _testApp(Widget home, ProductRepository repository) => ProviderScope(
   child: MaterialApp(home: home),
 );
 
+Widget _freshTrackTestApp(ProductRepository repository) => ProviderScope(
+  overrides: [
+    productRepositoryProvider.overrideWithValue(repository),
+    expirationNotificationSchedulerProvider.overrideWithValue(
+      _FakeNotificationScheduler(),
+    ),
+    appSettingsRepositoryProvider.overrideWithValue(_FakeSettingsRepository()),
+  ],
+  child: const FreshTrackApp(),
+);
+
 Product _product(
   String name, {
   int daysUntilExpiration = 2,
@@ -491,9 +680,13 @@ Product _product(
 class FakeProductRepository implements ProductRepository {
   FakeProductRepository(this.products);
   final List<Product> products;
+  final _changes = StreamController<List<Product>>.broadcast();
 
   @override
-  Stream<List<Product>> watchAll() => Stream.value(List.unmodifiable(products));
+  Stream<List<Product>> watchAll() async* {
+    yield List.unmodifiable(products);
+    yield* _changes.stream;
+  }
 
   @override
   Future<List<Product>> getAll() async => List.unmodifiable(products);
@@ -506,14 +699,57 @@ class FakeProductRepository implements ProductRepository {
   Future<void> save(Product product) async {
     products.removeWhere((p) => p.id == product.id);
     products.add(product);
+    _changes.add(List.unmodifiable(products));
   }
 
   @override
-  Future<void> delete(String id) async =>
-      products.removeWhere((p) => p.id == id);
+  Future<void> delete(String id) async {
+    products.removeWhere((p) => p.id == id);
+    _changes.add(List.unmodifiable(products));
+  }
 
   @override
-  Future<void> clear() async => products.clear();
+  Future<void> clear() async {
+    products.clear();
+    _changes.add(const []);
+  }
+
+  Future<void> dispose() => _changes.close();
+}
+
+class _StreamProductRepository implements ProductRepository {
+  const _StreamProductRepository(this.stream);
+
+  final Stream<List<Product>> stream;
+
+  @override
+  Stream<List<Product>> watchAll() => stream;
+
+  @override
+  Future<List<Product>> getAll() async => const [];
+
+  @override
+  Future<Product?> getById(String id) async => null;
+
+  @override
+  Future<void> save(Product product) async {}
+
+  @override
+  Future<void> delete(String id) async {}
+
+  @override
+  Future<void> clear() async {}
+}
+
+class _FakeSettingsRepository implements AppSettingsRepository {
+  @override
+  Future<AppSettings> load() async => AppSettings.defaults;
+
+  @override
+  Future<void> save(AppSettings settings) async {}
+
+  @override
+  Future<void> clear() async {}
 }
 
 class _FakeNotificationScheduler implements ExpirationNotificationScheduler {

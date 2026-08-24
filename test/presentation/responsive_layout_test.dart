@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:freshtrack/core/app.dart';
 import 'package:freshtrack/domain/common/civil_date.dart';
 import 'package:freshtrack/domain/notifications/expiration_notification_scheduler.dart';
 import 'package:freshtrack/domain/products/product.dart';
@@ -109,6 +111,117 @@ void main() {
         expect(tester.takeException(), isNull);
       }
     });
+  }
+
+  const shellSizes = [
+    Size(320, 568),
+    Size(360, 640),
+    Size(412, 915),
+    Size(640, 360),
+    Size(915, 412),
+  ];
+  for (final size in shellSizes) {
+    for (final scale in [1.0, 1.5, 2.0]) {
+      testWidgets(
+        'MainShell vuota $size font $scale mantiene FAB, CTA e bottom bar separati',
+        (tester) async {
+          tester.view.physicalSize = size;
+          tester.view.devicePixelRatio = 1;
+          tester.platformDispatcher.textScaleFactorTestValue = scale;
+          addTearDown(tester.view.resetPhysicalSize);
+          addTearDown(tester.view.resetDevicePixelRatio);
+          addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+          await tester.pumpWidget(
+            ProviderScope(
+              overrides: [
+                productRepositoryProvider.overrideWithValue(_Repository([])),
+                expirationNotificationSchedulerProvider.overrideWithValue(
+                  _Scheduler(),
+                ),
+                appSettingsRepositoryProvider.overrideWithValue(
+                  _SettingsRepository(),
+                ),
+              ],
+              child: const FreshTrackApp(),
+            ),
+          );
+          await tester.pumpAndSettle();
+
+          final fab = find.byKey(const Key('add-product'));
+          final navigationBar = find.byType(NavigationBar);
+          expect(fab, findsOneWidget);
+          expect(navigationBar, findsOneWidget);
+          expect(
+            tester.getRect(fab).bottom,
+            lessThanOrEqualTo(tester.getRect(navigationBar).top),
+          );
+
+          await tester.tap(find.byIcon(Icons.inventory_2_outlined));
+          await tester.pumpAndSettle();
+
+          final panel = find.byKey(const Key('empty-products-panel'));
+          final cta = find.byKey(const Key('empty-products-add'));
+          expect(fab, findsNothing);
+          final navigationTop = tester.getRect(navigationBar).top;
+          final panelInitiallyVisible = panel.evaluate().isNotEmpty;
+          if (panelInitiallyVisible) {
+            final headerBottom = tester
+                .getBottomLeft(find.text('0 prodotti'))
+                .dy;
+            final initialPanelRect = tester.getRect(panel);
+            if (initialPanelRect.height <= navigationTop - headerBottom) {
+              final availableCenter = (headerBottom + navigationTop) / 2;
+              expect(
+                initialPanelRect.center.dy,
+                moreOrLessEquals(availableCenter, epsilon: 44),
+              );
+            }
+          } else {
+            final productsScrollable = find
+                .descendant(
+                  of: find.byKey(const Key('products-scroll')),
+                  matching: find.byType(Scrollable),
+                )
+                .first;
+            await tester.scrollUntilVisible(
+              cta,
+              80,
+              scrollable: productsScrollable,
+            );
+            await tester.pump();
+          }
+
+          expect(panel, findsOneWidget);
+          expect(cta, findsOneWidget);
+          expect(tester.getSize(cta).height, greaterThanOrEqualTo(48));
+          await tester.ensureVisible(cta);
+          await tester.pump();
+          final ctaRect = tester.getRect(cta);
+          expect(ctaRect.top, greaterThanOrEqualTo(0));
+          expect(ctaRect.bottom, lessThanOrEqualTo(navigationTop));
+          expect(find.bySemanticsLabel('Aggiungi prodotto'), findsOneWidget);
+
+          for (final text in [
+            'La dispensa è vuota',
+            'Inizia registrando una scadenza.',
+            'Aggiungi prodotto',
+          ]) {
+            final paragraph = tester.renderObject<RenderParagraph>(
+              find.text(text),
+            );
+            expect(paragraph.didExceedMaxLines, isFalse, reason: text);
+          }
+
+          await tester.drag(
+            find.byKey(const Key('products-scroll')),
+            const Offset(0, -48),
+          );
+          await tester.pump();
+          expect(tester.takeException(), isNull);
+        },
+      );
+    }
   }
 }
 
