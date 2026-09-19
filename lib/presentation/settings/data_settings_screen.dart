@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
@@ -12,6 +13,8 @@ import 'package:freshtrack/presentation/providers/product_providers.dart';
 import 'package:freshtrack/presentation/providers/settings_providers.dart';
 import 'package:freshtrack/shared/widgets/glass_surface.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class DataSettingsScreen extends ConsumerStatefulWidget {
   const DataSettingsScreen({super.key});
@@ -37,8 +40,8 @@ class _DataSettingsScreenState extends ConsumerState<DataSettingsScreen> {
             'Protect your inventory',
           ),
           description: context.tr(
-            'Il backup include prodotti, preferenze e foto. Salvalo dove preferisci e potrai ripristinarlo anche dopo una reinstallazione.',
-            'The backup includes products, preferences and photos. Save it wherever you prefer and restore it even after reinstalling.',
+            'Il backup include prodotti, preferenze e foto. Salvalo o condividilo con un altro telefono di casa, poi ripristinalo anche dopo una reinstallazione. FreshTrack resta su un dispositivo: non c’è un account famiglia.',
+            'The backup includes products, preferences and photos. Save it or share it with another household phone, then restore it even after reinstalling. FreshTrack stays on one device: there is no family account.',
           ),
         ),
         const SizedBox(height: 20),
@@ -60,6 +63,17 @@ class _DataSettingsScreenState extends ConsumerState<DataSettingsScreen> {
                   'A ZIP file with inventory, settings and photos',
                 ),
                 onTap: _busy ? null : _createBackup,
+              ),
+              const _DataDivider(),
+              _DataAction(
+                key: const Key('share-backup'),
+                icon: Icons.share_outlined,
+                title: context.tr('Condividi backup', 'Share backup'),
+                subtitle: context.tr(
+                  'Invialo a un altro telefono, a Drive o a una chat',
+                  'Send it to another phone, Drive or a chat',
+                ),
+                onTap: _busy ? null : _shareBackup,
               ),
               const _DataDivider(),
               _DataAction(
@@ -148,6 +162,39 @@ class _DataSettingsScreenState extends ConsumerState<DataSettingsScreen> {
             context.tr(
               'Backup salvato. Conservalo in un luogo sicuro.',
               'Backup saved. Keep it in a safe place.',
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  Future<void> _shareBackup() async {
+    await _run(
+      context.tr('Preparazione del backup…', 'Preparing backup…'),
+      () async {
+        final service = ref.read(freshTrackBackupServiceProvider);
+        final appVersion = await ref.read(appVersionProvider.future);
+        final bytes = await service.createBackup(appVersion: appVersion);
+        if (!mounted) return;
+        final directory = await getTemporaryDirectory();
+        final fileName = 'freshtrack-backup-${_fileTimestamp()}.zip';
+        final file = File('${directory.path}/$fileName');
+        await file.writeAsBytes(bytes, flush: true);
+        final result = await SharePlus.instance.share(
+          ShareParams(
+            files: [
+              XFile(file.path, mimeType: 'application/zip', name: fileName),
+            ],
+            subject: 'FreshTrack backup',
+          ),
+        );
+        if (!mounted) return;
+        if (result.status == ShareResultStatus.success && mounted) {
+          _message(
+            context.tr(
+              'Sull’altro telefono apri FreshTrack e usa Ripristina backup.',
+              'On the other phone open FreshTrack and use Restore backup.',
             ),
           );
         }

@@ -4,6 +4,21 @@ Tutte le modifiche rilevanti di FreshTrack sono documentate in questo file.
 
 ## [1.0.0] - In preparazione
 
+### Promemoria, scansione e casa, build 12 — 19 settembre 2026
+
+- I promemoria persi o ritardati da Android vengono recuperati all’apertura
+  dell’app; nelle Impostazioni puoi inviare una prova e, se lo concedi, usare
+  allarmi esatti (`SCHEDULE_EXACT_ALARM`) con ripiego sull’orario approssimato.
+- Scanner barcode con zoom automatico, torcia, riquadro più stretto, foto dalla
+  galleria e inserimento manuale; messaggi più chiari quando Open Food Facts
+  non contiene medicinali o marche locali.
+- Lettura della scadenza guidata: inquadra la riga della data, ritaglio della
+  fascia e riprova se il riconoscimento fallisce.
+- Condivisione del backup ZIP verso un altro telefono o Drive; schede Store e
+  testi in-app chiariscono che FreshTrack è per un dispositivo, senza account
+  famiglia.
+- Suite completa: 197 test superati, analisi pulita, candidato Play `1.0.0+12`.
+
 ### Candidato globale bilingue, build 11 — 15 settembre 2026
 
 - Interfaccia completa in italiano e inglese: italiano quando la lingua primaria

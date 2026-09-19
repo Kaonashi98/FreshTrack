@@ -55,6 +55,7 @@ class SharedPreferencesAppSettingsRepository implements AppSettingsRepository {
     notificationMinute:
         ((data['minute'] as int?) ?? AppSettings.defaults.notificationMinute)
             .clamp(0, 59),
+    preferExactNotificationTime: data['exact'] == true,
   );
 
   @override
@@ -70,6 +71,7 @@ class SharedPreferencesAppSettingsRepository implements AppSettingsRepository {
         'days': settings.notificationDaysBefore,
         'hour': settings.notificationHour,
         'minute': settings.notificationMinute,
+        'exact': settings.preferExactNotificationTime,
       }),
     );
   });

@@ -13,6 +13,7 @@ import 'package:freshtrack/domain/products/product.dart';
 import 'package:freshtrack/domain/products/product_repository.dart';
 import 'package:freshtrack/domain/settings/app_settings.dart';
 import 'package:freshtrack/presentation/providers/notification_providers.dart';
+import '../support/fake_expiration_notification_scheduler.dart';
 
 void main() {
   test(
@@ -156,7 +157,7 @@ class _Repository implements ProductRepository {
   Stream<List<Product>> watchAll() => Stream.value(products);
 }
 
-class _Scheduler implements ExpirationNotificationScheduler {
+class _Scheduler extends FakeExpirationNotificationScheduler {
   final snapshots = <List<Product>>[];
   int _concurrentCalls = 0;
   int maximumConcurrentCalls = 0;
@@ -168,6 +169,7 @@ class _Scheduler implements ExpirationNotificationScheduler {
     required int minute,
     required int daysBefore,
     String languageCode = 'it',
+    bool preferExactTimes = false,
   }) async {
     _concurrentCalls++;
     if (_concurrentCalls > maximumConcurrentCalls) {

@@ -144,6 +144,27 @@ void main() {
     expect(advance.date, CivilDate(2026, 3, 28));
   });
 
+  test('recupera i promemoria di oggi dopo l’orario configurato', () {
+    final missed = planner.missedToday(
+      [
+        _product('Latte', DateTime(2026, 8, 4)),
+        _product('Yogurt', DateTime(2026, 8, 7)),
+      ],
+      now: DateTime(2026, 8, 4, 10),
+      daysBefore: 3,
+    );
+
+    expect(missed, hasLength(2));
+    expect(missed.first.title, 'Latte scade oggi');
+    expect(missed.last.title, 'Yogurt scade tra 3 giorni');
+    expect(
+      planner.missedToday([
+        _product('Latte', DateTime(2026, 8, 4)),
+      ], now: DateTime(2026, 8, 4, 8)),
+      isEmpty,
+    );
+  });
+
   test('1000 prodotti generano piani raggruppati con ID univoci', () {
     final products = List.generate(
       1000,

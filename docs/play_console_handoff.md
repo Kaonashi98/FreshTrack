@@ -1,6 +1,6 @@
 # FreshTrack — Play Console handoff
 
-Prepared for candidate `1.0.0+11` (`io.github.kaonashi98.freshtrack`). This file
+Prepared for candidate `1.0.0+12` (`io.github.kaonashi98.freshtrack`). This file
 contains the repository-backed answers to copy into Play Console. Console labels
 can change; read each displayed question before confirming it.
 
@@ -13,7 +13,7 @@ Console. In Play Console resta solo questo:
 2. Lingua predefinita `en-US`, traduzione `it-IT`.
 3. Email `freshtrack.help@outlook.com`.
 4. URL privacy `https://kaonashi98.github.io/FreshTrack/` dopo aver aperto
-   la pagina e verificato la data 15 settembre 2026 e le sezioni Open Food
+   la pagina e verificato la data 19 settembre 2026 e le sezioni Open Food
    Facts / ML Kit.
 5. Carica `build/app/outputs/bundle/release/app-release.aab` e lascia attivo
    Play App Signing.
@@ -50,7 +50,11 @@ The English and Italian copy is in `play_store_listing_en.md` and
 - Camera: barcode scanning, product photos and expiration-date OCR, only after
   an explicit user action. The camera is not a required hardware feature.
 - Notifications: local expiration reminders. Users can use the inventory
-  without granting notification permission.
+  without granting notification permission. Missed reminders are recovered when
+  the app is opened.
+- Exact alarms (`SCHEDULE_EXACT_ALARM`): optional, only if the user enables a
+  more precise reminder time. If denied, reminders stay around the chosen hour.
+  Do not declare `USE_EXACT_ALARM`.
 - Completed boot: restores locally scheduled reminders after device restart.
 - Internet: optional Open Food Facts lookups and technical traffic produced by
   Google ML Kit components.
@@ -147,8 +151,8 @@ policy.
 - Complete content rating using the actual app behavior: no violence, gambling,
   sexual content, social features or user-to-user communication.
 - Select all Google Play-supported countries/regions for worldwide availability.
-- Leave Play App Signing enabled and upload the `1.0.0+11` AAB.
-- If Play Console reports that version code 11 has already been used, increase
+- Leave Play App Signing enabled and upload the `1.0.0+12` AAB.
+- If Play Console reports that version code 12 has already been used, increase
   the build number and regenerate every release artifact.
 - If production access is locked for this app/account, complete the closed test
   shown by Play Console before requesting production access.

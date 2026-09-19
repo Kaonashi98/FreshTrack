@@ -4,7 +4,7 @@ import 'package:freshtrack/l10n/app_strings.dart';
 class PrivacyPolicyScreen extends StatelessWidget {
   const PrivacyPolicyScreen({super.key});
 
-  static const lastUpdated = '15 settembre 2026';
+  static const lastUpdated = '19 settembre 2026';
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
     ),
     (
       'Permessi',
-      'La fotocamera viene usata solo su tua richiesta per scansionare un codice a barre, fotografare un prodotto o leggere una scadenza. In alternativa puoi scegliere una foto con il selettore di sistema. Le notifiche servono per i promemoria; il permesso di avvio completato consente ad Android di ripristinarli dopo un riavvio.',
+      'La fotocamera viene usata solo su tua richiesta per scansionare un codice a barre, fotografare un prodotto o leggere una scadenza. In alternativa puoi scegliere una foto con il selettore di sistema. Le notifiche servono per i promemoria; su richiesta puoi consentire allarmi più puntuali. Il permesso di avvio completato consente ad Android di ripristinarli dopo un riavvio.',
     ),
     (
       'Funzioni online opzionali',
@@ -48,7 +48,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
     ),
     (
       'Backup e condivisione',
-      'Backup ZIP e CSV vengono creati solo su tua richiesta e salvati nella posizione scelta tramite Android. Non sono cifrati da FreshTrack: conservali in un luogo sicuro. Il backup Android e il trasferimento automatico tra dispositivi sono disabilitati.',
+      'Backup ZIP e CSV vengono creati solo su tua richiesta. Puoi salvarli con Android o condividerli verso un altro telefono, Drive o una chat. Non sono cifrati da FreshTrack: conservali in un luogo sicuro. Il backup Android e il trasferimento automatico tra dispositivi sono disabilitati. Non c’è un account famiglia: copi l’inventario solo se condividi tu il file.',
     ),
     (
       'Controllo',
@@ -62,7 +62,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
       'Contatti',
       'Per richieste relative alla privacy o all’assistenza: freshtrack.help@outlook.com. Sviluppatore: Nicola Zingaro.',
     ),
-    ('Ultimo aggiornamento', '15 settembre 2026'),
+    ('Ultimo aggiornamento', '19 settembre 2026'),
   ];
 
   static const _englishSections = <(String, String)>[
@@ -72,7 +72,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
     ),
     (
       'Permissions',
-      'The camera is used only at your request to scan a barcode, photograph a product or read an expiration date. Alternatively, you can choose a photo with the system picker. Notifications are used for reminders; the completed-boot permission allows Android to restore them after a restart.',
+      'The camera is used only at your request to scan a barcode, photograph a product or read an expiration date. Alternatively, you can choose a photo with the system picker. Notifications are used for reminders; you can optionally allow more precise alarms. The completed-boot permission allows Android to restore them after a restart.',
     ),
     (
       'Optional online features',
@@ -84,7 +84,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
     ),
     (
       'Backup and sharing',
-      'ZIP backups and CSV files are created only at your request and saved to the location you choose through Android. FreshTrack does not encrypt them: keep them in a safe place. Android backup and automatic transfer between devices are disabled.',
+      'ZIP backups and CSV files are created only at your request. You can save them through Android or share them to another phone, Drive or a chat. FreshTrack does not encrypt them: keep them in a safe place. Android backup and automatic transfer between devices are disabled. There is no family account: the inventory is copied only if you share the file.',
     ),
     (
       'Control',
@@ -98,7 +98,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
       'Contact',
       'For privacy or support requests: freshtrack.help@outlook.com. Developer: Nicola Zingaro.',
     ),
-    ('Last updated', 'September 15, 2026'),
+    ('Last updated', 'September 19, 2026'),
   ];
 }
 

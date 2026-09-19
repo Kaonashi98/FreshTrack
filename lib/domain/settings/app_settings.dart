@@ -25,6 +25,7 @@ class AppSettings {
     required this.notificationDaysBefore,
     required this.notificationHour,
     required this.notificationMinute,
+    this.preferExactNotificationTime = false,
   });
 
   static const defaults = AppSettings(
@@ -33,6 +34,7 @@ class AppSettings {
     notificationDaysBefore: 0,
     notificationHour: 9,
     notificationMinute: 0,
+    preferExactNotificationTime: false,
   );
 
   final AppThemePreference themePreference;
@@ -40,6 +42,7 @@ class AppSettings {
   final int notificationDaysBefore;
   final int notificationHour;
   final int notificationMinute;
+  final bool preferExactNotificationTime;
 
   AppSettings copyWith({
     AppThemePreference? themePreference,
@@ -47,6 +50,7 @@ class AppSettings {
     int? notificationDaysBefore,
     int? notificationHour,
     int? notificationMinute,
+    bool? preferExactNotificationTime,
   }) => AppSettings(
     themePreference: themePreference ?? this.themePreference,
     languagePreference: languagePreference ?? this.languagePreference,
@@ -54,5 +58,7 @@ class AppSettings {
         notificationDaysBefore ?? this.notificationDaysBefore,
     notificationHour: notificationHour ?? this.notificationHour,
     notificationMinute: notificationMinute ?? this.notificationMinute,
+    preferExactNotificationTime:
+        preferExactNotificationTime ?? this.preferExactNotificationTime,
   );
 }

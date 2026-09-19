@@ -158,16 +158,70 @@ class _NotificationSettingsScreenState
                       context.tr('Ora delle notifiche', 'Notification time'),
                       style: TextStyle(fontWeight: FontWeight.w700),
                     ),
-                    subtitle: Text(
-                      context.tr(
-                        '${_timeLabel(settings)} · Android può ritardare l’avviso di alcuni minuti.',
-                        '${_timeLabel(settings)} · Android may delay the alert by a few minutes.',
-                      ),
-                    ),
+                    subtitle: Text(_timeSubtitle(settings)),
                     trailing: const Icon(Icons.chevron_right_rounded),
                     onTap: () => _configure(() => _selectTime(settings)),
                   ),
+                  const SizedBox(height: 8),
+                  Divider(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.outlineVariant.withValues(alpha: .28),
+                  ),
+                  SwitchListTile(
+                    key: const Key('exact-notification-time'),
+                    contentPadding: EdgeInsets.zero,
+                    secondary: Icon(
+                      Icons.alarm_on_outlined,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    title: Text(
+                      context.tr('Orario più puntuale', 'More precise time'),
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                    subtitle: Text(
+                      context.tr(
+                        'Chiede ad Android il permesso per allarmi esatti. Se lo rifiuti, gli avvisi restano verso l’orario scelto.',
+                        'Asks Android for exact-alarm permission. If you decline, alerts still arrive around the chosen time.',
+                      ),
+                    ),
+                    value: settings.preferExactNotificationTime,
+                    onChanged: (value) =>
+                        _configure(() => _setExactPreference(value)),
+                  ),
                 ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              context.tr('Verifica', 'Check'),
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 10),
+            GlassSurface(
+              padding: const EdgeInsets.all(16),
+              child: ListTile(
+                key: const Key('test-notification'),
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(
+                  Icons.notification_add_outlined,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                title: Text(
+                  context.tr(
+                    'Invia un promemoria di prova',
+                    'Send a test reminder',
+                  ),
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+                subtitle: Text(
+                  context.tr(
+                    'Programma un avviso tra circa un minuto, per controllare che il telefono li mostri.',
+                    'Schedules an alert in about one minute, so you can check that the phone shows them.',
+                  ),
+                ),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: _checkingPermission ? null : _sendTestReminder,
               ),
             ),
           ],
@@ -185,8 +239,8 @@ class _NotificationSettingsScreenState
     }
     if (_notificationsEnabled == true) {
       return context.tr(
-        'Attivi. Gli avvisi restano sul dispositivo.',
-        'Enabled. Alerts stay on your device.',
+        'Attivi e solo sul dispositivo. Se il telefono ritarda l’avviso, FreshTrack lo recupera alla prossima apertura.',
+        'Enabled and on-device only. If the phone delays an alert, FreshTrack recovers it the next time you open the app.',
       );
     }
     if (_notificationsEnabled == false) {
@@ -216,6 +270,20 @@ class _NotificationSettingsScreenState
   String _timeLabel(AppSettings settings) =>
       '${settings.notificationHour.toString().padLeft(2, '0')}:'
       '${settings.notificationMinute.toString().padLeft(2, '0')}';
+
+  String _timeSubtitle(AppSettings settings) {
+    final time = _timeLabel(settings);
+    if (settings.preferExactNotificationTime) {
+      return context.tr(
+        '$time · allarmi esatti se Android li consente; altrimenti verso quest’ora.',
+        '$time · exact alarms if Android allows them; otherwise around this time.',
+      );
+    }
+    return context.tr(
+      '$time · Android può ritardare l’avviso di alcuni minuti. Apri l’app durante il giorno per recuperare un promemoria perso.',
+      '$time · Android may delay the alert by a few minutes. Open the app during the day to recover a missed reminder.',
+    );
+  }
 
   Future<void> _refreshPermission() async {
     if (mounted) setState(() => _checkingPermission = true);
@@ -263,8 +331,70 @@ class _NotificationSettingsScreenState
           'Permission not granted. You can enable it in Android settings.',
         ),
       );
+      await ref
+          .read(expirationNotificationSchedulerProvider)
+          .openSystemNotificationSettings();
     }
     return granted ?? false;
+  }
+
+  Future<void> _setExactPreference(bool enabled) async {
+    await ref
+        .read(appSettingsProvider.notifier)
+        .setPreferExactNotificationTime(enabled);
+    if (!enabled || !mounted) return;
+    final scheduler = ref.read(expirationNotificationSchedulerProvider);
+    var allowed = false;
+    try {
+      allowed = await scheduler.requestExactNotificationPermission();
+      allowed = allowed || await scheduler.canScheduleExactNotifications();
+    } catch (_) {
+      allowed = false;
+    }
+    if (!mounted) return;
+    if (!allowed) {
+      await scheduler.openExactAlarmSettings();
+      if (!mounted) return;
+      _message(
+        context.tr(
+          'Per l’orario puntuale concedi gli allarmi esatti a FreshTrack. Finché restano disattivati useremo l’orario approssimato.',
+          'To use a precise time, allow exact alarms for FreshTrack. Until then, alerts stay around the chosen hour.',
+        ),
+      );
+    }
+  }
+
+  Future<void> _sendTestReminder() async {
+    if (_notificationsEnabled != true) {
+      final confirmed = await _confirmPermission();
+      if (!confirmed || !mounted) return;
+      if (!await _requestPermission() || !mounted) return;
+    }
+    try {
+      await ref
+          .read(expirationNotificationSchedulerProvider)
+          .scheduleTestReminder(
+            delay: const Duration(minutes: 1),
+            languageCode: context.strings.languageCode,
+          );
+      if (mounted) {
+        _message(
+          context.tr(
+            'Promemoria di prova tra circa un minuto. Se non arriva, controlla le notifiche di FreshTrack e il risparmio energetico.',
+            'Test reminder in about one minute. If it does not arrive, check FreshTrack notifications and battery saving.',
+          ),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        _message(
+          context.tr(
+            'Non è stato possibile programmare la prova. Riprova tra poco.',
+            'The test reminder could not be scheduled. Try again shortly.',
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _configure(Future<void> Function() configure) async {

@@ -31,7 +31,7 @@
 
       <section id="english" lang="en">
         <h2>English</h2>
-        <p><strong>Last updated:</strong> September 15, 2026.</p>
+        <p><strong>Last updated:</strong> September 19, 2026.</p>
         <p>FreshTrack is an offline-first application. It does not require an account, display advertising, or use data for profiling. Your inventory is stored in the app's private storage and is not sent to the developer.</p>
         <p>Internet access is used only for optional product lookups through Open Food Facts and for the technical data automatically collected by Google ML Kit SDKs, as described below.</p>
 
@@ -49,6 +49,7 @@
           <li><strong>Camera:</strong> used only when you start a barcode scan, take a product photo, or photograph a date for text recognition.</li>
           <li><strong>Internet:</strong> used for optional Open Food Facts lookups and by Google ML Kit components.</li>
           <li><strong>Notifications:</strong> used to show local expiration reminders.</li>
+          <li><strong>Exact alarms (optional):</strong> used only if you enable a more precise reminder time, to schedule alerts at the chosen hour. If the permission is missing, FreshTrack continues with alerts around that time.</li>
           <li><strong>Completed boot:</strong> allows Android to restore local reminders after a restart.</li>
         </ul>
         <p>Photos and files may also be selected through the Android system picker without granting the app general access to shared storage.</p>
@@ -62,8 +63,8 @@
         <p>Google ML Kit SDKs may nevertheless automatically transmit technical device and app information, per-installation identifiers, performance metrics, API configuration, feature input and output sizes, feature versions, event types and error codes over HTTPS. Google states that it uses this data for diagnostics, usage analytics, operation and service improvement, and does not share it with third parties. This data does not include your inventory or the contents of the images being analyzed. See the <a href="https://developers.google.com/ml-kit/android-data-disclosure">ML Kit Data Safety guide</a> and <a href="https://developers.google.com/ml-kit/terms">terms</a>.</p>
 
         <h3>Backup, restore and export</h3>
-        <p>FreshTrack can create a ZIP backup containing products, preferences and photographs, and a CSV file containing inventory data. Files are created only at your request and saved to a location you choose through Android. FreshTrack does not encrypt them, so keep them in a secure place. If you choose a cloud destination in the system picker, storage is governed by that provider.</p>
-        <p>Android automatic backup and automatic device-to-device transfer are disabled. A manually created backup can be restored after reinstalling the app.</p>
+        <p>FreshTrack can create a ZIP backup containing products, preferences and photographs, and a CSV file containing inventory data. Files are created only at your request. You can save them through Android or share them to another phone, Drive or a chat. FreshTrack does not encrypt them, so keep them in a secure place. If you choose a cloud destination, storage is governed by that provider.</p>
+        <p>Android automatic backup and automatic device-to-device transfer are disabled. A manually created backup can be restored after reinstalling the app. There is no family account: the inventory stays on one device until you share the file.</p>
 
         <h3>Sharing and your controls</h3>
         <p>The developer does not receive or sell your inventory. Open Food Facts lookups and exports are initiated by you; ML Kit technical data may be transmitted automatically when the related features are used. From <strong>Settings &gt; Data and backup</strong>, you can export, restore or permanently delete products, images and preferences.</p>
@@ -80,7 +81,7 @@
 
       <section id="italiano" lang="it">
         <h2>Italiano</h2>
-        <p><strong>Ultimo aggiornamento:</strong> 15 settembre 2026.</p>
+        <p><strong>Ultimo aggiornamento:</strong> 19 settembre 2026.</p>
         <p>FreshTrack è un'applicazione offline-first. Non richiede un account, non mostra pubblicità e non usa i dati per profilazione. L'inventario è conservato nello spazio privato dell'app e non viene inviato allo sviluppatore.</p>
         <p>La connessione Internet è usata soltanto per la ricerca facoltativa di prodotti su Open Food Facts e per i dati tecnici raccolti automaticamente dagli SDK Google ML Kit descritti di seguito.</p>
 
@@ -98,6 +99,7 @@
           <li><strong>Fotocamera:</strong> usata solo quando l'utente avvia la scansione di un codice a barre, scatta una foto o fotografa una data per il riconoscimento del testo.</li>
           <li><strong>Internet:</strong> usato per la ricerca facoltativa su Open Food Facts e dalle componenti Google ML Kit.</li>
           <li><strong>Notifiche:</strong> usate per mostrare promemoria locali.</li>
+          <li><strong>Allarmi esatti (facoltativo):</strong> usati solo se attivi un orario più puntuale, per programmare gli avvisi all’ora scelta. Se il permesso manca, FreshTrack continua con avvisi verso quell’orario.</li>
           <li><strong>Avvio completato:</strong> consente ad Android di ripristinare i promemoria dopo un riavvio.</li>
         </ul>
         <p>Foto e file possono essere scelti tramite il selettore di sistema senza concedere all'app un accesso generale alla memoria condivisa.</p>
@@ -111,8 +113,8 @@
         <p>Gli SDK Google ML Kit possono tuttavia trasmettere tramite HTTPS informazioni tecniche sul dispositivo e sull'app, identificatori per installazione, metriche delle prestazioni, configurazione delle API, dimensioni di input e output, versioni delle funzioni, eventi e codici di errore. Google dichiara di usarli per diagnostica, analisi dell'utilizzo, funzionamento e miglioramento del servizio e di non condividerli con terze parti. Questi dati non includono l'inventario o il contenuto delle immagini. Consulta la <a href="https://developers.google.com/ml-kit/android-data-disclosure">guida Data Safety di ML Kit</a> e i <a href="https://developers.google.com/ml-kit/terms">termini</a>.</p>
 
         <h3>Backup, ripristino ed esportazione</h3>
-        <p>FreshTrack può creare un backup ZIP con prodotti, preferenze e foto e un CSV con i dati dell'inventario. I file vengono creati solo su richiesta e salvati nella posizione scelta tramite Android. FreshTrack non li cifra: conservali in un luogo sicuro. Se scegli una destinazione cloud, la conservazione è regolata dal fornitore selezionato.</p>
-        <p>Il backup Android automatico e il trasferimento automatico tra dispositivi sono disabilitati. Un backup manuale può essere ripristinato dopo una reinstallazione.</p>
+        <p>FreshTrack può creare un backup ZIP con prodotti, preferenze e foto e un CSV con i dati dell'inventario. I file vengono creati solo su richiesta. Puoi salvarli tramite Android o condividerli verso un altro telefono, Drive o una chat. FreshTrack non li cifra: conservali in un luogo sicuro. Se scegli una destinazione cloud, la conservazione è regolata dal fornitore selezionato.</p>
+        <p>Il backup Android automatico e il trasferimento automatico tra dispositivi sono disabilitati. Un backup manuale può essere ripristinato dopo una reinstallazione. Non esiste un account famiglia: l'inventario resta su un dispositivo finché non condividi tu il file.</p>
 
         <h3>Condivisione e controllo dell'utente</h3>
         <p>Lo sviluppatore non riceve né vende l'inventario. Le ricerche Open Food Facts e le esportazioni sono avviate dall'utente; i dati tecnici di ML Kit possono essere trasmessi quando vengono usate le relative funzioni. Da <strong>Impostazioni &gt; Dati e backup</strong> puoi esportare, ripristinare o cancellare definitivamente prodotti, immagini e preferenze.</p>

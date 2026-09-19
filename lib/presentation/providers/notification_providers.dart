@@ -47,6 +47,7 @@ class NotificationSynchronizationService {
         hour: settings.notificationHour,
         minute: settings.notificationMinute,
         daysBefore: settings.notificationDaysBefore,
+        preferExactTimes: settings.preferExactNotificationTime,
         languageCode:
             settings.languagePreference.languageCode ??
             (PlatformDispatcher.instance.locales.isNotEmpty &&

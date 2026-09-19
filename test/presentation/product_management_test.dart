@@ -17,6 +17,7 @@ import 'package:freshtrack/presentation/products/product_form_screen.dart';
 import 'package:freshtrack/presentation/providers/notification_providers.dart';
 import 'package:freshtrack/presentation/providers/product_providers.dart';
 import 'package:freshtrack/presentation/providers/settings_providers.dart';
+import '../support/fake_expiration_notification_scheduler.dart';
 import 'package:freshtrack/shared/widgets/product_card.dart';
 import 'package:go_router/go_router.dart';
 
@@ -866,7 +867,7 @@ class _MemoryProductRepository implements ProductRepository {
   Future<List<Product>> getAll() async => List.unmodifiable(products);
 }
 
-class _FakeNotificationScheduler implements ExpirationNotificationScheduler {
+class _FakeNotificationScheduler extends FakeExpirationNotificationScheduler {
   _FakeNotificationScheduler({
     this.enabled = true,
     this.failStatusCheck = false,
@@ -908,6 +909,7 @@ class _FakeNotificationScheduler implements ExpirationNotificationScheduler {
     required int minute,
     required int daysBefore,
     String languageCode = 'it',
+    bool preferExactTimes = false,
   }) async {
     if (failSynchronization) {
       throw StateError('Sincronizzazione non disponibile');
@@ -960,6 +962,7 @@ class _AuditBlockingScheduler extends _FakeNotificationScheduler {
     required int minute,
     required int daysBefore,
     String languageCode = 'it',
+    bool preferExactTimes = false,
   }) async {
     started = true;
     await release.future;

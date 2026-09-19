@@ -4,7 +4,7 @@
 
 ## Italiano
 
-Ultimo aggiornamento: 15 settembre 2026.
+Ultimo aggiornamento: 19 settembre 2026.
 
 FreshTrack è un'applicazione offline-first. Non richiede un account, non mostra
 pubblicità e non usa i dati per profilazione. L'inventario è conservato nello
@@ -34,6 +34,9 @@ non cancella tutti i dati o non disinstalla l'app.
 - **Internet:** usato per la ricerca facoltativa su Open Food Facts e dalle
   componenti Google ML Kit.
 - **Notifiche:** usate per mostrare promemoria locali sulle scadenze.
+- **Allarmi esatti (facoltativo):** usati solo se attivi “Orario più puntuale”
+  nelle impostazioni, per programmare i promemoria all’ora scelta. Se il
+  permesso manca, FreshTrack continua con avvisi verso quell’orario.
 - **Avvio completato:** consente ad Android di ripristinare i promemoria locali
   dopo un riavvio.
 
@@ -79,15 +82,17 @@ FreshTrack permette di creare manualmente:
 - un backup ZIP con prodotti, preferenze e fotografie;
 - un file CSV con i dati dell'inventario.
 
-I file vengono creati soltanto su richiesta e salvati nella posizione scelta
-dall'utente tramite Android. Non sono cifrati da FreshTrack: vanno conservati in
-un luogo sicuro. FreshTrack non li carica automaticamente su server esterni. Se
-l'utente sceglie una destinazione cloud nel selettore di sistema, la
-conservazione è regolata dal fornitore selezionato.
+I file vengono creati soltanto su richiesta. Puoi salvarli nella posizione
+scelta tramite Android oppure condividerli verso un altro telefono, Drive o una
+chat. Non sono cifrati da FreshTrack: vanno conservati in un luogo sicuro.
+FreshTrack non li carica automaticamente su server esterni. Se l'utente sceglie
+una destinazione cloud nel selettore di sistema o nel foglio di condivisione,
+la conservazione è regolata dal fornitore selezionato.
 
 Il backup Android automatico e il trasferimento automatico dei dati dell'app tra
 dispositivi sono disabilitati. Un backup creato manualmente può essere
-ripristinato dopo una reinstallazione.
+ripristinato dopo una reinstallazione. Non esiste un account famiglia: l'inventario
+resta su un dispositivo finché non condividi tu il file.
 
 ## Condivisione e controllo dell'utente
 
@@ -123,7 +128,7 @@ Sviluppatore: Nicola Zingaro.
 
 ## English
 
-Last updated: September 15, 2026.
+Last updated: September 19, 2026.
 
 FreshTrack is an offline-first application. It does not require an account,
 display advertising, or use data for profiling. Your inventory is stored in the
@@ -152,6 +157,9 @@ or uninstall the app.
 - **Internet:** used for optional Open Food Facts lookups and by Google ML Kit
   components.
 - **Notifications:** used to show local expiration reminders.
+- **Exact alarms (optional):** used only if you enable “More precise time” in
+  settings, to schedule reminders at the chosen hour. If the permission is
+  missing, FreshTrack continues with alerts around that time.
 - **Completed boot:** allows Android to restore local reminders after a restart.
 
 Photos and files may also be selected through the Android system picker without
@@ -194,14 +202,16 @@ FreshTrack can manually create:
 - a ZIP backup containing products, preferences and photographs;
 - a CSV file containing inventory data.
 
-Files are created only at your request and saved to a location you choose
-through Android. FreshTrack does not encrypt them, so keep them in a secure
-place. FreshTrack does not automatically upload them to external servers. If you
-choose a cloud destination in the system picker, storage is governed by that
+Files are created only at your request. You can save them to a location you
+choose through Android or share them to another phone, Drive or a chat.
+FreshTrack does not encrypt them, so keep them in a secure place. FreshTrack
+does not automatically upload them to external servers. If you choose a cloud
+destination in the system picker or share sheet, storage is governed by that
 provider.
 
 Android automatic backup and automatic device-to-device transfer are disabled.
-A manually created backup can be restored after reinstalling the app.
+A manually created backup can be restored after reinstalling the app. There is
+no family account: the inventory stays on one device until you share the file.
 
 ### Sharing and your controls
 

@@ -18,6 +18,7 @@ void main() {
     registerFallbackValue(const NotificationDetails());
     registerFallbackValue(time_zone.TZDateTime(time_zone.UTC, 2026));
     registerFallbackValue(AndroidScheduleMode.inexactAllowWhileIdle);
+    registerFallbackValue(AndroidScheduleMode.exactAllowWhileIdle);
   });
 
   setUp(() {
@@ -44,6 +45,15 @@ void main() {
         scheduledDate: any(named: 'scheduledDate'),
         notificationDetails: any(named: 'notificationDetails'),
         androidScheduleMode: any(named: 'androidScheduleMode'),
+        payload: any(named: 'payload'),
+      ),
+    ).thenAnswer((_) async {});
+    when(
+      () => plugin.show(
+        id: any(named: 'id'),
+        title: any(named: 'title'),
+        body: any(named: 'body'),
+        notificationDetails: any(named: 'notificationDetails'),
         payload: any(named: 'payload'),
       ),
     ).thenAnswer((_) async {});
@@ -296,6 +306,82 @@ void main() {
     );
     expect(result.failed, 1);
     expect(result.isComplete, isFalse);
+  });
+
+  test('consegna i promemoria di oggi persi una sola volta', () async {
+    when(
+      () => plugin.pendingNotificationRequests(),
+    ).thenAnswer((_) async => const []);
+    final scheduler = LocalExpirationNotificationScheduler(
+      plugin: plugin,
+      preferences: SharedPreferencesAsync(),
+      localTimeZoneIdentifier: () async => 'Europe/Rome',
+      clock: () => DateTime(2026, 12, 20, 10),
+    );
+    addTearDown(scheduler.dispose);
+    final first = await scheduler.synchronize(
+      [_product(CivilDate(2026, 12, 20))],
+      hour: 9,
+      minute: 0,
+      daysBefore: 0,
+    );
+    final second = await scheduler.synchronize(
+      [_product(CivilDate(2026, 12, 20))],
+      hour: 9,
+      minute: 0,
+      daysBefore: 0,
+    );
+    expect(first.catchUpDelivered, 1);
+    expect(second.catchUpDelivered, 0);
+    verify(
+      () => plugin.show(
+        id: any(named: 'id'),
+        title: 'Latte scade oggi',
+        body: any(named: 'body'),
+        notificationDetails: any(named: 'notificationDetails'),
+        payload: 'expiry-date:2026-12-20',
+      ),
+    ).called(1);
+  });
+
+  test('usa allarmi esatti quando richiesti, con ripiego', () async {
+    when(
+      () => plugin.pendingNotificationRequests(),
+    ).thenAnswer((_) async => const []);
+    when(
+      () => plugin.zonedSchedule(
+        id: any(named: 'id'),
+        title: any(named: 'title'),
+        body: any(named: 'body'),
+        scheduledDate: any(named: 'scheduledDate'),
+        notificationDetails: any(named: 'notificationDetails'),
+        androidScheduleMode: any(named: 'androidScheduleMode'),
+        payload: any(named: 'payload'),
+      ),
+    ).thenAnswer((invocation) async {
+      final mode =
+          invocation.namedArguments[#androidScheduleMode]
+              as AndroidScheduleMode;
+      if (mode == AndroidScheduleMode.exactAllowWhileIdle) {
+        throw StateError('exact denied');
+      }
+    });
+    final scheduler = LocalExpirationNotificationScheduler(
+      plugin: plugin,
+      preferences: SharedPreferencesAsync(),
+      localTimeZoneIdentifier: () async => 'Europe/Rome',
+      clock: () => DateTime(2026, 1, 1, 8),
+    );
+    addTearDown(scheduler.dispose);
+    final result = await scheduler.synchronize(
+      [_product(CivilDate(2026, 12, 20))],
+      hour: 9,
+      minute: 0,
+      daysBefore: 0,
+      preferExactTimes: true,
+    );
+    expect(result.scheduled, 1);
+    expect(result.failed, 0);
   });
 }
 

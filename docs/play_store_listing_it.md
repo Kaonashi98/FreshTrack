@@ -23,13 +23,15 @@ Funzioni principali:
 
 - gestione offline di alimenti, bevande, medicinali e prodotti personali;
 - promemoria locali nel giorno della scadenza e, se lo imposti, nei giorni
-  precedenti (verso l’orario scelto; Android può ritardarli di alcuni minuti);
+  precedenti (verso l’orario scelto; Android può ritardarli, ma FreshTrack li
+  recupera all’apertura e può usare allarmi più puntuali se li consenti);
 - foto da fotocamera o galleria;
-- scansione barcode con ricerca opzionale su Open Food Facts e inserimento
-  manuale sempre disponibile;
-- lettura sul dispositivo della scadenza da una foto, con conferma obbligatoria;
-- backup completo di prodotti, preferenze e foto, con anteprima prima del
-  ripristino;
+- scansione barcode con zoom, torcia, foto o codice inserito a mano, ricerca
+  opzionale su Open Food Facts e inserimento sempre disponibile;
+- lettura sul dispositivo della scadenza da una foto ravvicinata, con conferma
+  obbligatoria;
+- backup completo di prodotti, preferenze e foto, con salvataggio, condivisione
+  verso un altro telefono e anteprima prima del ripristino;
 - esportazione CSV per Excel e Fogli Google;
 - categorie dedicate ad alimenti, bevande, farmaci e cura personale;
 - stato consumato, utilizzato o buttato con possibilità di ripristino;
@@ -45,16 +47,20 @@ Il riconoscimento del testo avviene sul dispositivo; gli SDK Google ML Kit
 possono trasmettere informazioni tecniche e diagnostiche, ma non il contenuto
 delle immagini o dell'inventario.
 
+FreshTrack è pensata per un telefono in casa. Non c’è un elenco famiglia né un
+account cloud: per copiare l’inventario su un altro dispositivo usa Condividi
+backup, poi Ripristina sull’altro telefono.
+
 FreshTrack è uno strumento di organizzazione personale. Non è un dispositivo
 medico e non diagnostica, tratta, cura o previene alcuna patologia. Per pareri
 medici, diagnosi o trattamenti, consulta un medico, un farmacista o un altro
 professionista sanitario qualificato.
 
-## Note di rilascio 1.0.0 (build 11)
+## Note di rilascio 1.0.0 (build 12)
 
-Prima versione pubblica di FreshTrack: inventario offline-first, aggiunta rapida,
-barcode, lettura assistita della scadenza, backup, CSV, foto, promemoria, temi e
-interfaccia italiana/inglese.
+Promemoria recuperati all’apertura, prova notifica, allarmi esatti opzionali,
+scanner e lettura data più guidati, condivisione backup per un altro telefono
+di casa, interfaccia italiana/inglese.
 
 ## Risorse Play Console
 

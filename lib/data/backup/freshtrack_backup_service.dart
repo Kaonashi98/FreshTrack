@@ -563,6 +563,7 @@ class FreshTrackBackupService {
     'notificationDaysBefore': settings.notificationDaysBefore,
     'notificationHour': settings.notificationHour,
     'notificationMinute': settings.notificationMinute,
+    'preferExactNotificationTime': settings.preferExactNotificationTime,
   };
 
   static AppSettings _settingsFromJson(Map<String, dynamic> json) =>
@@ -580,6 +581,8 @@ class FreshTrackBackupService {
         ),
         notificationHour: (json['notificationHour'] as int).clamp(0, 23),
         notificationMinute: (json['notificationMinute'] as int).clamp(0, 59),
+        preferExactNotificationTime:
+            json['preferExactNotificationTime'] == true,
       );
 
   static bool _safeArchivePath(String value) {

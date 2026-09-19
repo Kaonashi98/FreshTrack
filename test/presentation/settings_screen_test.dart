@@ -22,6 +22,7 @@ import 'package:freshtrack/presentation/settings/appearance_settings_screen.dart
 import 'package:freshtrack/presentation/settings/data_settings_screen.dart';
 import 'package:freshtrack/presentation/settings/notification_settings_screen.dart';
 import 'package:freshtrack/presentation/settings/settings_screen.dart';
+import '../support/fake_expiration_notification_scheduler.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 void main() {
@@ -244,7 +245,7 @@ void main() {
 
     expect(scheduler.permissionRequests, 1);
     expect(
-      find.text('Attivi. Gli avvisi restano sul dispositivo.'),
+      find.textContaining('Attivi e solo sul dispositivo.'),
       findsOneWidget,
     );
   });
@@ -356,7 +357,7 @@ Widget _app(
   ),
 );
 
-class _FakeNotificationScheduler implements ExpirationNotificationScheduler {
+class _FakeNotificationScheduler extends FakeExpirationNotificationScheduler {
   _FakeNotificationScheduler({
     this.enabled = true,
     this.grantPermission = true,
@@ -393,6 +394,7 @@ class _FakeNotificationScheduler implements ExpirationNotificationScheduler {
     required int minute,
     required int daysBefore,
     String languageCode = 'it',
+    bool preferExactTimes = false,
   }) async {
     synchronizeCalls++;
     return const NotificationSynchronizationResult();

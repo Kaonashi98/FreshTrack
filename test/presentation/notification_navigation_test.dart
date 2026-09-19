@@ -14,6 +14,7 @@ import 'package:freshtrack/domain/settings/app_settings_repository.dart';
 import 'package:freshtrack/presentation/providers/notification_providers.dart';
 import 'package:freshtrack/presentation/providers/product_providers.dart';
 import 'package:freshtrack/presentation/providers/settings_providers.dart';
+import '../support/fake_expiration_notification_scheduler.dart';
 
 void main() {
   testWidgets('il tap sulla notifica apre i prodotti della relativa data', (
@@ -98,7 +99,7 @@ class _FakeSettingsRepository implements AppSettingsRepository {
   Future<void> clear() async {}
 }
 
-class _FakeScheduler implements ExpirationNotificationScheduler {
+class _FakeScheduler extends FakeExpirationNotificationScheduler {
   final _openedDates = StreamController<CivilDate>.broadcast();
 
   void open(DateTime date) => _openedDates.add(CivilDate.fromDateTime(date));
@@ -122,6 +123,7 @@ class _FakeScheduler implements ExpirationNotificationScheduler {
     required int minute,
     required int daysBefore,
     String languageCode = 'it',
+    bool preferExactTimes = false,
   }) async => const NotificationSynchronizationResult();
 
   @override

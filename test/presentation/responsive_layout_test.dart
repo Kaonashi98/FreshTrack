@@ -23,6 +23,7 @@ import 'package:freshtrack/presentation/providers/notification_providers.dart';
 import 'package:freshtrack/presentation/providers/product_providers.dart';
 import 'package:freshtrack/presentation/providers/settings_providers.dart';
 import 'package:freshtrack/presentation/settings/settings_screen.dart';
+import '../support/fake_expiration_notification_scheduler.dart';
 
 void main() {
   for (final entry in <String, Widget>{
@@ -281,7 +282,7 @@ class _SettingsRepository implements AppSettingsRepository {
   Future<void> save(AppSettings settings) async {}
 }
 
-class _Scheduler implements ExpirationNotificationScheduler {
+class _Scheduler extends FakeExpirationNotificationScheduler {
   @override
   Future<bool> areNotificationsEnabled() async => true;
   @override
@@ -299,6 +300,7 @@ class _Scheduler implements ExpirationNotificationScheduler {
     required int minute,
     required int daysBefore,
     String languageCode = 'it',
+    bool preferExactTimes = false,
   }) async => const NotificationSynchronizationResult();
 }
 

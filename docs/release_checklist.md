@@ -3,8 +3,8 @@
 ## Verifiche automatiche
 
 - [x] File Dart modificati formattati con `dart format`.
-- [x] `flutter analyze --no-pub lib test` sulla build 11: nessun problema.
-- [x] Suite completa build 11: 191 test superati, inclusi lingua automatica e
+- [x] `flutter analyze --no-pub lib test` sulla build 12: nessun problema.
+- [x] Suite completa build 12: 197 test superati, inclusi lingua automatica e
       manuale, notifiche inglesi, Open Food Facts localizzato, privacy bilingue,
       CSV, backup, scanner, layout e controlli dei contenuti Play.
 - [x] Interfaccia completa italiano/inglese: italiano quando la prima lingua del
@@ -22,9 +22,9 @@
 - [x] Regressioni per i 15 problemi dell'audit, sicurezza ZIP, rollback,
       serializzazione delle scritture e cambio del giorno.
 - [x] `./gradlew :app:lintRelease` rieseguito sulla build 11: `BUILD SUCCESSFUL`.
-- [x] APK e AAB release `1.0.0+11` generati e firmati. AAB del 19 settembre
-      2026: 89.189.621 byte, SHA-256
-      `86644BE292E8AF4898350EA1DCAAB2F05AC503C48A436E5AEAD54DF286620386`,
+- [x] AAB release `1.0.0+12` generato e firmato. AAB del 19 settembre
+      2026: 92.119.423 byte, SHA-256
+      `75ECAE97CF5F6544A7C7D306FA1FE3D316882C1393B6902DC1C90BBE48A52983`,
       `jarsigner` verificato, percorso
       `build/app/outputs/bundle/release/app-release.aab`.
 - [x] Firma APK v2 verificata con `apksigner`; firma AAB verificata con
@@ -32,7 +32,7 @@
 - [x] APK allineato con `zipalign -c -P 16`; configurazione AAB confermata come
       `PAGE_ALIGNMENT_16K` da bundletool.
 - [x] Min SDK 24, target/compile SDK 36 verificati.
-- [ ] Verificare il bundle release build 11 su un dispositivo o emulatore con
+- [ ] Verificare il bundle release build 12 su un dispositivo o emulatore con
       pagine da 16 KB; le prove sui vecchi artefatti non valgono per questo
       candidato.
 - [x] Backup Android e traffico HTTP non cifrato disabilitati.
@@ -43,7 +43,7 @@ Dettagli, impronte dei pacchetti e limiti delle prove sono nel
 [resoconto del 6 settembre 2026](correzioni_audit_2026-09-06.md).
 La base grafica del candidato è descritta nella
 [revisione di colori e leggibilità build 10](ui_leggibilita_build10_2026-09-08.md);
-le differenze globali della build 11 sono riepilogate nel `CHANGELOG.md`.
+le differenze globali della build 12 sono riepilogate nel `CHANGELOG.md`.
 Il collaudo approfondito precedente è documentato nel
 [collaudo Pixel 8 build 7](emulator_qa_build7_2026-09-07.md), ripreso dopo la
 riapertura dell'emulatore. Le prove hanno verificato inventario, immagini,
@@ -57,11 +57,12 @@ pacchetti store su dispositivo fisico; i relativi punti restano aperti sotto.
 - [x] Package ID definitivo: `io.github.kaonashi98.freshtrack`.
 - [x] Codice pubblicato senza licenza open-source, con tutti i diritti riservati.
 - [x] Indirizzo di assistenza professionale: `freshtrack.help@outlook.com`.
-- [x] Preparare l'informativa bilingue aggiornata del 15 settembre 2026 con
-      Open Food Facts, dati tecnici ML Kit, backup, permessi e disclaimer medico.
-- [ ] Pubblicare su GitHub Pages l'informativa aggiornata del 15 settembre 2026 e
+- [x] Preparare l'informativa bilingue aggiornata del 19 settembre 2026 con
+      Open Food Facts, dati tecnici ML Kit, backup, condivisione, allarmi esatti
+      facoltativi, permessi e disclaimer medico.
+- [ ] Pubblicare su GitHub Pages l'informativa aggiornata del 19 settembre 2026 e
       verificare `https://kaonashi98.github.io/FreshTrack/` dopo il
-      `git push origin main` del commit `f75cfe6`.
+      `git push origin main` della build 12.
 - [x] Controllare che nessun file `.jks`, `key.properties` o `local.properties`
       sia tracciato da Git.
 - [ ] Attivare GitHub Actions e verificare che la workflow `Flutter CI` sia verde.
@@ -106,7 +107,8 @@ pacchetti store su dispositivo fisico; i relativi punti restano aperti sotto.
 - [ ] Caricare in Play Console le composizioni, l'icona e la feature graphic.
 - [ ] Dichiarare che l'app non contiene pubblicità.
 - [ ] Compilare target audience, classificazione dei contenuti e Data safety.
-- [ ] Dichiarare correttamente Notifiche, Fotocamera e la connessione opzionale
+- [ ] Dichiarare correttamente Notifiche, Fotocamera, allarmi esatti facoltativi
+      (`SCHEDULE_EXACT_ALARM`, non `USE_EXACT_ALARM`) e la connessione opzionale
       a Open Food Facts per la ricerca barcode.
 - [ ] Dichiarare nella Data Safety i dati tecnici trasmessi da Google ML Kit,
       verificando categorie, finalità e trattamento contro la documentazione

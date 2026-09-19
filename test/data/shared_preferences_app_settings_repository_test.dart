@@ -70,6 +70,20 @@ void main() {
       AppLanguagePreference.english,
     );
   });
+
+  test('conserva la preferenza degli allarmi esatti', () async {
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.withData({});
+    final repository = SharedPreferencesAppSettingsRepository(
+      SharedPreferencesAsync(),
+    );
+
+    await repository.save(
+      AppSettings.defaults.copyWith(preferExactNotificationTime: true),
+    );
+
+    expect((await repository.load()).preferExactNotificationTime, isTrue);
+  });
 }
 
 Matcher get _hasDefaultSettings => isA<AppSettings>()
@@ -97,4 +111,9 @@ Matcher get _hasDefaultSettings => isA<AppSettings>()
       (settings) => settings.notificationMinute,
       'notificationMinute',
       AppSettings.defaults.notificationMinute,
+    )
+    .having(
+      (settings) => settings.preferExactNotificationTime,
+      'preferExactNotificationTime',
+      false,
     );

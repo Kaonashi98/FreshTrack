@@ -68,6 +68,12 @@ class AppSettingsController extends AsyncNotifier<AppSettings> {
     );
   }
 
+  Future<void> setPreferExactNotificationTime(bool value) async {
+    await _update(
+      (current) => current.copyWith(preferExactNotificationTime: value),
+    );
+  }
+
   Future<void> reset() async {
     final repository = ref.read(appSettingsRepositoryProvider);
     await mutationLockFor(repository).run(() async {

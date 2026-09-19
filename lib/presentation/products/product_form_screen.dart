@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freshtrack/data/media/product_image_storage.dart';
 import 'package:freshtrack/data/products/open_food_facts_service.dart';
@@ -161,23 +162,44 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                         const SizedBox(height: 4),
                         Align(
                           alignment: Alignment.centerLeft,
-                          child: TextButton.icon(
-                            key: const Key('scan-barcode'),
-                            onPressed: _scanningBarcode ? null : _scanBarcode,
-                            icon: _scanningBarcode
-                                ? const SizedBox.square(
-                                    dimension: 18,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : const Icon(Icons.qr_code_scanner_rounded),
-                            label: Text(
-                              context.tr(
-                                'Scansiona il codice',
-                                'Scan the code',
+                          child: Wrap(
+                            spacing: 8,
+                            runSpacing: 4,
+                            children: [
+                              TextButton.icon(
+                                key: const Key('scan-barcode'),
+                                onPressed: _scanningBarcode
+                                    ? null
+                                    : _scanBarcode,
+                                icon: _scanningBarcode
+                                    ? const SizedBox.square(
+                                        dimension: 18,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : const Icon(Icons.qr_code_scanner_rounded),
+                                label: Text(
+                                  context.tr(
+                                    'Scansiona il codice',
+                                    'Scan the code',
+                                  ),
+                                ),
                               ),
-                            ),
+                              TextButton.icon(
+                                key: const Key('enter-barcode'),
+                                onPressed: _scanningBarcode
+                                    ? null
+                                    : _enterBarcodeManually,
+                                icon: const Icon(Icons.pin_outlined),
+                                label: Text(
+                                  context.tr(
+                                    'Inserisci il codice',
+                                    'Enter the code',
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         if (_barcode case final barcode?) ...[
@@ -572,6 +594,21 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     final generation = _formGeneration;
     final barcode = await context.push<String>('/products/scan-barcode');
     if (barcode == null || !mounted || generation != _formGeneration) return;
+    await _applyBarcode(barcode, generation);
+  }
+
+  Future<void> _enterBarcodeManually() async {
+    if (_scanningBarcode || _saving) return;
+    final generation = _formGeneration;
+    final barcode = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => const _ManualProductBarcodeDialog(),
+    );
+    if (barcode == null || !mounted || generation != _formGeneration) return;
+    await _applyBarcode(barcode, generation);
+  }
+
+  Future<void> _applyBarcode(String barcode, int generation) async {
     setState(() {
       _barcode = barcode;
       _scanningBarcode = true;
@@ -580,9 +617,10 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     final localProducts = ref.read(productsProvider).value ?? const <Product>[];
     Product? localMatch;
     for (final product in localProducts) {
-      if (product.barcode == barcode) {
+      if (product.barcode != barcode) continue;
+      if (localMatch == null ||
+          product.updatedAt.isAfter(localMatch.updatedAt)) {
         localMatch = product;
-        break;
       }
     }
     if (localMatch != null) {
@@ -638,8 +676,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       case BarcodeLookupStatus.notFound:
         _showMessage(
           context.tr(
-            'Barcode acquisito. Inserisci il nome manualmente.',
-            'Barcode captured. Enter the name manually.',
+            'Codice salvato. Medicinali e marche locali spesso non sono nel catalogo online: inserisci il nome a mano.',
+            'Code saved. Medicines and local brands are often missing from the online catalog: enter the name yourself.',
           ),
         );
       case BarcodeLookupStatus.unavailable:
@@ -654,116 +692,195 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
 
   Future<void> _scanExpirationDate() async {
     final generation = _formGeneration;
-    final source = await showModalBottomSheet<ImageSource>(
-      context: context,
-      showDragHandle: true,
-      builder: (sheetContext) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.photo_camera_outlined),
-                title: Text(
+    while (mounted && !_saving && generation == _formGeneration) {
+      if (!mounted) return;
+      final source = await showModalBottomSheet<_ExpirationCaptureSource>(
+        context: context,
+        showDragHandle: true,
+        builder: (sheetContext) => SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
                   context.tr(
-                    'Fotografa la scadenza',
-                    'Photograph expiration date',
+                    'Inquadra da vicino solo la riga della data, dritta e ben illuminata. Evita riflessi e testo intorno.',
+                    'Frame only the date line, close, straight and well lit. Avoid glare and surrounding text.',
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                ListTile(
+                  leading: const Icon(Icons.photo_camera_outlined),
+                  title: Text(
+                    context.tr(
+                      'Fotografa la scadenza',
+                      'Photograph expiration date',
+                    ),
+                  ),
+                  onTap: () => Navigator.pop(
+                    sheetContext,
+                    _ExpirationCaptureSource.camera,
                   ),
                 ),
-                onTap: () => Navigator.pop(sheetContext, ImageSource.camera),
-              ),
-              ListTile(
-                leading: const Icon(Icons.photo_library_outlined),
-                title: Text(context.tr('Scegli una foto', 'Choose a photo')),
-                onTap: () => Navigator.pop(sheetContext, ImageSource.gallery),
-              ),
-            ],
+                ListTile(
+                  leading: const Icon(Icons.photo_library_outlined),
+                  title: Text(context.tr('Scegli una foto', 'Choose a photo')),
+                  onTap: () => Navigator.pop(
+                    sheetContext,
+                    _ExpirationCaptureSource.gallery,
+                  ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.event_outlined),
+                  title: Text(
+                    context.tr(
+                      'Inserisci la data a mano',
+                      'Enter the date manually',
+                    ),
+                  ),
+                  onTap: () => Navigator.pop(
+                    sheetContext,
+                    _ExpirationCaptureSource.manual,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    );
-    if (source == null || !mounted) return;
-    setState(() => _readingExpirationDate = true);
-    try {
-      final image = await _imagePicker.pickImage(
-        source: source,
-        maxWidth: 2200,
-        maxHeight: 2200,
-        imageQuality: 92,
       );
-      if (image == null || !mounted) return;
-      final candidates = await ref
-          .read(expirationDateOcrServiceProvider)
-          .recognize(image.path);
-      if (!mounted || generation != _formGeneration) return;
-      if (candidates.isEmpty) {
-        _showMessage(
-          context.tr(
-            'Nessuna data riconosciuta. Prova con una foto più nitida.',
-            'No date recognized. Try a clearer photo.',
-          ),
-        );
+      if (source == null || !mounted || generation != _formGeneration) return;
+      if (source == _ExpirationCaptureSource.manual) {
+        await _pickDate(purchase: false);
         return;
       }
-      final selected = await showDialog<CivilDate>(
-        context: context,
-        builder: (dialogContext) => SimpleDialog(
-          title: Text(
-            context.tr('Conferma la scadenza', 'Confirm expiration date'),
-          ),
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 10),
-              child: Text(
-                context.tr(
-                  'Controlla sempre la confezione: FreshTrack non salva automaticamente la data.',
-                  'Always check the packaging: FreshTrack does not save the date automatically.',
-                ),
-                style: TextStyle(
-                  color: Theme.of(dialogContext).colorScheme.onSurfaceVariant,
+      setState(() => _readingExpirationDate = true);
+      try {
+        final image = await _imagePicker.pickImage(
+          source: source == _ExpirationCaptureSource.camera
+              ? ImageSource.camera
+              : ImageSource.gallery,
+          maxWidth: 2200,
+          maxHeight: 2200,
+          imageQuality: 92,
+        );
+        if (image == null || !mounted) return;
+        final candidates = await ref
+            .read(expirationDateOcrServiceProvider)
+            .recognize(image.path);
+        if (!mounted || generation != _formGeneration) return;
+        if (candidates.isEmpty) {
+          final retry = await _confirmOcrRetry();
+          if (retry == _OcrRetryChoice.retry && mounted) continue;
+          if (retry == _OcrRetryChoice.manual && mounted) {
+            await _pickDate(purchase: false);
+          }
+          return;
+        }
+        final selected = await showDialog<CivilDate>(
+          context: context,
+          builder: (dialogContext) => SimpleDialog(
+            title: Text(
+              context.tr('Conferma la scadenza', 'Confirm expiration date'),
+            ),
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 10),
+                child: Text(
+                  context.tr(
+                    'Controlla sempre la confezione: FreshTrack non salva automaticamente la data.',
+                    'Always check the packaging: FreshTrack does not save the date automatically.',
+                  ),
+                  style: TextStyle(
+                    color: Theme.of(dialogContext).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
-            ),
-            for (final candidate in candidates.take(8))
-              SimpleDialogOption(
-                key: Key('ocr-date-${candidate.date}'),
-                onPressed: () => Navigator.pop(dialogContext, candidate.date),
-                child: ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.event_available_outlined),
-                  title: Text(
-                    DateFormat.yMd(
-                      context.strings.languageCode,
-                    ).format(candidate.date.toLocalDateTime()),
-                  ),
-                  subtitle: Text(
-                    context.tr(
-                      'Testo rilevato: ${candidate.source.trim()}',
-                      'Detected text: ${candidate.source.trim()}',
+              for (final candidate in candidates.take(8))
+                SimpleDialogOption(
+                  key: Key('ocr-date-${candidate.date}'),
+                  onPressed: () => Navigator.pop(dialogContext, candidate.date),
+                  child: ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.event_available_outlined),
+                    title: Text(
+                      DateFormat.yMd(
+                        context.strings.languageCode,
+                      ).format(candidate.date.toLocalDateTime()),
+                    ),
+                    subtitle: Text(
+                      context.tr(
+                        'Testo rilevato: ${candidate.source.trim()}',
+                        'Detected text: ${candidate.source.trim()}',
+                      ),
                     ),
                   ),
                 ),
-              ),
-          ],
-        ),
-      );
-      if (selected != null && mounted && generation == _formGeneration) {
-        setState(() => _expirationDate = selected.toLocalDateTime());
-      }
-    } catch (_) {
-      if (mounted) {
-        _showMessage(
-          context.tr(
-            'Non è stato possibile leggere la scadenza dalla foto.',
-            'The expiration date could not be read from the photo.',
+            ],
           ),
         );
+        if (selected != null && mounted && generation == _formGeneration) {
+          setState(() => _expirationDate = selected.toLocalDateTime());
+        }
+        return;
+      } catch (_) {
+        if (mounted) {
+          _showMessage(
+            context.tr(
+              'Non è stato possibile leggere la scadenza dalla foto.',
+              'The expiration date could not be read from the photo.',
+            ),
+          );
+        }
+        final retry = mounted
+            ? await _confirmOcrRetry()
+            : _OcrRetryChoice.cancel;
+        if (retry == _OcrRetryChoice.retry && mounted) continue;
+        if (retry == _OcrRetryChoice.manual && mounted) {
+          await _pickDate(purchase: false);
+        }
+        return;
+      } finally {
+        if (mounted) setState(() => _readingExpirationDate = false);
       }
-    } finally {
-      if (mounted) setState(() => _readingExpirationDate = false);
     }
   }
+
+  Future<_OcrRetryChoice> _confirmOcrRetry() async =>
+      await showDialog<_OcrRetryChoice>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          scrollable: true,
+          title: Text(
+            context.tr('Nessuna data riconosciuta', 'No date recognized'),
+          ),
+          content: Text(
+            context.tr(
+              'Avvicina solo la riga della data, dritta e nitida, oppure inseriscila a mano.',
+              'Move closer to just the date line, keep it straight and sharp, or enter it manually.',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () =>
+                  Navigator.pop(dialogContext, _OcrRetryChoice.cancel),
+              child: Text(context.tr('Annulla', 'Cancel')),
+            ),
+            FilledButton.tonal(
+              onPressed: () =>
+                  Navigator.pop(dialogContext, _OcrRetryChoice.manual),
+              child: Text(context.tr('Inserisci a mano', 'Enter manually')),
+            ),
+            FilledButton(
+              onPressed: () =>
+                  Navigator.pop(dialogContext, _OcrRetryChoice.retry),
+              child: Text(context.tr('Riprova', 'Try again')),
+            ),
+          ],
+        ),
+      ) ??
+      _OcrRetryChoice.cancel;
 
   Future<void> _pickImage(ImageSource source) async {
     setState(() => _selectingImage = true);
@@ -1222,4 +1339,75 @@ class _FormSection extends StatelessWidget {
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: children,
   );
+}
+
+enum _ExpirationCaptureSource { camera, gallery, manual }
+
+enum _OcrRetryChoice { retry, manual, cancel }
+
+class _ManualProductBarcodeDialog extends StatefulWidget {
+  const _ManualProductBarcodeDialog();
+
+  @override
+  State<_ManualProductBarcodeDialog> createState() =>
+      _ManualProductBarcodeDialogState();
+}
+
+class _ManualProductBarcodeDialogState
+    extends State<_ManualProductBarcodeDialog> {
+  final _controller = TextEditingController();
+  String? _error;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    scrollable: true,
+    title: Text(context.tr('Inserisci il codice', 'Enter the code')),
+    content: TextField(
+      key: const Key('manual-barcode-field'),
+      controller: _controller,
+      autofocus: true,
+      keyboardType: TextInputType.number,
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+        LengthLimitingTextInputFormatter(maxProductBarcodeLength),
+      ],
+      decoration: InputDecoration(
+        labelText: context.tr('Codice a barre', 'Barcode'),
+        errorText: _error,
+      ),
+      onSubmitted: (_) => _submit(),
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.pop(context),
+        child: Text(context.tr('Annulla', 'Cancel')),
+      ),
+      FilledButton(
+        key: const Key('confirm-manual-barcode'),
+        onPressed: _submit,
+        child: Text(context.tr('Usa codice', 'Use code')),
+      ),
+    ],
+  );
+
+  void _submit() {
+    final value = _controller.text.replaceAll(RegExp(r'\D'), '');
+    if (value.length < minProductBarcodeLength ||
+        value.length > maxProductBarcodeLength) {
+      setState(() {
+        _error = context.tr(
+          'Inserisci da $minProductBarcodeLength a $maxProductBarcodeLength cifre.',
+          'Enter $minProductBarcodeLength to $maxProductBarcodeLength digits.',
+        );
+      });
+      return;
+    }
+    Navigator.pop(context, value);
+  }
 }

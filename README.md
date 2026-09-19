@@ -29,23 +29,28 @@ riconosciuto o inventario.
   acquisto, descrizione e foto restano in una sezione facoltativa.
 - Suggerimenti dai prodotti già usati, duplicazione e azione “Salva e aggiungi
   un altro” per inserire più articoli con meno passaggi.
-- Scansione barcode con ricerca opzionale su Open Food Facts e compilazione
+- Scansione barcode con zoom automatico, torcia, foto dalla galleria o codice
+  inserito a mano; ricerca opzionale su Open Food Facts e compilazione
   manuale sempre disponibile in assenza di rete.
-- Riconoscimento sul dispositivo della data da una foto, sempre sottoposta alla
-  conferma dell'utente.
+- Riconoscimento sul dispositivo della data da una foto ravvicinata, sempre
+  sottoposta alla conferma dell'utente, con riprova se la lettura fallisce.
 - Creazione e modifica dei prodotti con foto da fotocamera o galleria.
 - Azioni per segnare i prodotti come consumati, utilizzati o buttati, con
   ripristino allo stato disponibile.
 - Modifica ed eliminazione definitiva con flussi di conferma.
 - Indicatori visivi per prodotti freschi, in scadenza e scaduti.
-- Notifiche locali nel giorno della scadenza; preavviso e orario sono configurabili. Android può ritardare l’orario di alcuni minuti.
+- Notifiche locali nel giorno della scadenza; preavviso e orario sono configurabili.
+  Android può ritardare l’orario: all’apertura FreshTrack recupera i promemoria
+  persi, e puoi chiedere allarmi più puntuali o inviare una prova.
 - Apertura dell'elenco corretto toccando una notifica.
 - Tema chiaro, scuro o di sistema.
 - Lingua automatica: italiano sui dispositivi in italiano, inglese su tutti gli
   altri; selezione manuale Sistema, Italiano o English dalle Impostazioni.
-- Backup ZIP manuale con prodotti, preferenze e foto, ripristino con anteprima e
+- Backup ZIP manuale con prodotti, preferenze e foto; puoi salvarlo o
+  condividerlo con un altro telefono di casa, poi ripristinarlo con anteprima e
   scelta tra unione o sostituzione. L'unione conserva la versione più recente
-  di ogni prodotto e, a parità di data, mantiene quella attuale.
+  di ogni prodotto e, a parità di data, mantiene quella attuale. Non c’è un
+  account famiglia: l’inventario resta su un dispositivo finché non lo copi tu.
 - Esportazione CSV compatibile con Excel e Fogli Google.
 - Impostazioni divise in aree semplici e cancellazione completa protetta dalla
   possibilità di creare prima un backup.

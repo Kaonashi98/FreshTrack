@@ -17,6 +17,7 @@ import 'package:freshtrack/presentation/products/products_screen.dart';
 import 'package:freshtrack/presentation/providers/product_providers.dart';
 import 'package:freshtrack/presentation/providers/settings_providers.dart';
 import 'package:freshtrack/presentation/providers/notification_providers.dart';
+import '../support/fake_expiration_notification_scheduler.dart';
 import 'package:freshtrack/domain/notifications/expiration_notification_scheduler.dart';
 import 'package:freshtrack/domain/common/civil_date.dart';
 import 'package:go_router/go_router.dart';
@@ -1002,7 +1003,7 @@ class _FakeSettingsRepository implements AppSettingsRepository {
   Future<void> clear() async {}
 }
 
-class _FakeNotificationScheduler implements ExpirationNotificationScheduler {
+class _FakeNotificationScheduler extends FakeExpirationNotificationScheduler {
   @override
   Stream<CivilDate> get openedExpirationDates => const Stream.empty();
 
@@ -1025,5 +1026,6 @@ class _FakeNotificationScheduler implements ExpirationNotificationScheduler {
     required int minute,
     required int daysBefore,
     String languageCode = 'it',
+    bool preferExactTimes = false,
   }) async => const NotificationSynchronizationResult();
 }

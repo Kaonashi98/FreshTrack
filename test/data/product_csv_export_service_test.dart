@@ -79,7 +79,7 @@ void main() {
     );
 
     expect(text, contains('"Name";"Category";"Quantity"'));
-    expect(text, contains('"Milk";"Food";"2";"pz"'));
+    expect(text, contains('"Milk";"Food";"2";"pcs"'));
   });
 }
 
