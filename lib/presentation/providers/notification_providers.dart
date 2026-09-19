@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:ui';
+import 'package:freshtrack/domain/common/async_mutex.dart';
 import 'package:freshtrack/data/notifications/local_expiration_notification_scheduler.dart';
 import 'package:freshtrack/domain/notifications/expiration_notification_scheduler.dart';
 import 'package:freshtrack/domain/products/product_repository.dart';
@@ -18,7 +20,7 @@ final notificationSynchronizationProvider =
       return NotificationSynchronizationService(
         ref.read(productRepositoryProvider),
         ref.read(expirationNotificationSchedulerProvider),
-        () => ref.read(appSettingsProvider.future),
+        () => ref.read(appSettingsRepositoryProvider).load(),
       );
     });
 
@@ -37,13 +39,21 @@ class NotificationSynchronizationService {
   Future<NotificationSynchronizationResult> synchronizeLatest() {
     late NotificationSynchronizationResult result;
     final operation = _tail.catchError((_) {}).then((_) async {
-      final products = await _repository.getAll();
-      final settings = await _loadSettings();
+      final (products, settings) = await mutationLockFor(
+        _repository,
+      ).run(() async => (await _repository.getAll(), await _loadSettings()));
       result = await _scheduler.synchronize(
         products,
         hour: settings.notificationHour,
         minute: settings.notificationMinute,
         daysBefore: settings.notificationDaysBefore,
+        languageCode:
+            settings.languagePreference.languageCode ??
+            (PlatformDispatcher.instance.locales.isNotEmpty &&
+                    PlatformDispatcher.instance.locales.first.languageCode ==
+                        'it'
+                ? 'it'
+                : 'en'),
       );
     });
     _tail = operation;

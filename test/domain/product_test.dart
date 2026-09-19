@@ -24,6 +24,14 @@ void main() {
       );
     },
   );
+
+  test('le unità corte restano italiane in IT e inglesi in EN', () {
+    expect(MeasurementUnit.pieces.localizedLabel('it'), 'pz');
+    expect(MeasurementUnit.pieces.localizedLabel('en'), 'pcs');
+    expect(MeasurementUnit.packs.localizedLabel('it'), 'confezioni');
+    expect(MeasurementUnit.packs.localizedLabel('en'), 'packs');
+    expect(MeasurementUnit.grams.localizedLabel('en'), 'g');
+  });
 }
 
 Product _product() => Product(

@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:freshtrack/domain/common/civil_date.dart';
+import 'package:freshtrack/domain/common/async_mutex.dart';
 import 'package:freshtrack/domain/notifications/expiration_notification_planner.dart';
 import 'package:freshtrack/domain/notifications/expiration_notification_scheduler.dart';
 import 'package:freshtrack/domain/products/product.dart';
@@ -44,12 +45,17 @@ class LocalExpirationNotificationScheduler
 
   Future<CivilDate?>? _initialization;
   bool _timeZonesInitialized = false;
+  final _synchronizations = AsyncMutex();
 
   @override
   Stream<CivilDate> get openedExpirationDates => _openedDates.stream;
 
   @override
-  Future<CivilDate?> initialize() => _initialization ??= _initialize();
+  Future<CivilDate?> initialize() => _initialization ??= _initialize()
+      .catchError((Object error, StackTrace stack) {
+        _initialization = null;
+        Error.throwWithStackTrace(error, stack);
+      });
 
   Future<CivilDate?> _initialize() async {
     const settings = InitializationSettings(
@@ -99,6 +105,23 @@ class LocalExpirationNotificationScheduler
     required int hour,
     required int minute,
     required int daysBefore,
+    String languageCode = 'it',
+  }) => _synchronizations.run(
+    () => _synchronize(
+      List.of(products),
+      hour: hour,
+      minute: minute,
+      daysBefore: daysBefore,
+      languageCode: languageCode,
+    ),
+  );
+
+  Future<NotificationSynchronizationResult> _synchronize(
+    List<Product> products, {
+    required int hour,
+    required int minute,
+    required int daysBefore,
+    required String languageCode,
   }) async {
     await initialize();
     final timeZoneIdentifier = await _refreshLocalTimeZone();
@@ -109,6 +132,7 @@ class LocalExpirationNotificationScheduler
       notificationHour: hour,
       notificationMinute: minute,
       daysBefore: daysBefore,
+      languageCode: languageCode,
     );
     // Some Android vendors impose a 500-alarm limit. Keep a conservative
     // reserve for the OS and other app features, retaining the nearest plans.
@@ -170,11 +194,13 @@ class LocalExpirationNotificationScheduler
           title: plan.title,
           body: plan.body,
           scheduledDate: scheduledDate,
-          notificationDetails: const NotificationDetails(
+          notificationDetails: NotificationDetails(
             android: AndroidNotificationDetails(
               _channelId,
-              _channelName,
-              channelDescription: _channelDescription,
+              languageCode == 'it' ? _channelName : 'Today’s expirations',
+              channelDescription: languageCode == 'it'
+                  ? _channelDescription
+                  : 'Alerts for products that reach their expiration date.',
               importance: Importance.high,
               priority: Priority.high,
               category: AndroidNotificationCategory.reminder,

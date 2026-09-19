@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:freshtrack/domain/common/async_mutex.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:freshtrack/data/database/app_database.dart' hide Product;
@@ -15,6 +17,47 @@ void main() {
   });
 
   tearDown(() => database.close());
+
+  test(
+    'le scritture SQLite attendono il ripristino e riprendono senza perdita',
+    () async {
+      final started = Completer<void>();
+      final release = Completer<void>();
+      final restore = mutationLockFor(repository).run(() async {
+        started.complete();
+        await release.future;
+        await repository.replaceAll([_product('backup')]);
+      });
+      await started.future;
+      final adding = repository.save(_product('nuovo'));
+      release.complete();
+      await Future.wait([restore, adding]);
+      expect(
+        (await repository.getAll()).map((p) => p.id),
+        containsAll(['backup', 'nuovo']),
+      );
+    },
+  );
+  test('rifiuta quantità non valide senza alterare il database', () async {
+    await repository.save(_product('valido'));
+    for (final value in [
+      -1.0,
+      0.0,
+      double.nan,
+      double.infinity,
+      1000000001.0,
+    ]) {
+      await expectLater(
+        repository.save(_product('errato').copyWith(quantity: value)),
+        throwsFormatException,
+      );
+    }
+    await expectLater(
+      repository.replaceAll([_product('errato').copyWith(quantity: -1)]),
+      throwsFormatException,
+    );
+    expect((await repository.getAll()).single.id, 'valido');
+  });
 
   test('salva, legge e aggiorna un prodotto', () async {
     final product = _product('latte');

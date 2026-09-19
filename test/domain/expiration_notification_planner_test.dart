@@ -31,6 +31,20 @@ void main() {
     expect(plans.single.body, 'Usalo o consumalo oggi per evitare sprechi.');
   });
 
+  test('crea notifiche completamente in inglese', () {
+    final plans = planner.create(
+      [_product('Milk', DateTime(2026, 8, 10))],
+      now: DateTime(2026, 8, 1, 8),
+      daysBefore: 1,
+      languageCode: 'en',
+    );
+
+    expect(plans.last.title, 'Milk expires today');
+    expect(plans.last.body, 'Use or consume it today to avoid waste.');
+    expect(plans.first.title, 'Milk expires in 1 day');
+    expect(plans.first.body, 'Expiration date 08/10/2026');
+  });
+
   test('i farmaci usano un testo senza invito a consumare', () {
     final plans = planner.create([
       _product(
@@ -43,7 +57,7 @@ void main() {
     expect(plans.single.title, 'Insulina scade oggi');
     expect(
       plans.single.body,
-      'Controlla la scadenza. FreshTrack non sostituisce il parere di un medico o di un farmacista.',
+      'Controlla la scadenza. FreshTrack non è un dispositivo medico: per pareri o trattamenti consulta un professionista sanitario.',
     );
   });
 

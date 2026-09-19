@@ -5,8 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freshtrack/core/router/app_router.dart';
 import 'package:freshtrack/domain/common/civil_date.dart';
 import 'package:freshtrack/domain/notifications/expiration_notification_scheduler.dart';
-import 'package:freshtrack/domain/products/product.dart';
-import 'package:freshtrack/domain/settings/app_settings.dart';
 import 'package:freshtrack/presentation/providers/notification_providers.dart';
 import 'package:freshtrack/presentation/providers/product_providers.dart';
 import 'package:freshtrack/presentation/providers/settings_providers.dart';
@@ -25,8 +23,7 @@ class _NotificationCoordinatorState
     extends ConsumerState<NotificationCoordinator>
     with WidgetsBindingObserver {
   StreamSubscription<CivilDate>? _openedDateSubscription;
-  Future<void> _synchronization = Future.value();
-  List<Product> _latestProducts = const [];
+  bool _productsLoaded = false;
 
   @override
   void initState() {
@@ -40,18 +37,18 @@ class _NotificationCoordinatorState
     ref.listenManual(
       productsProvider,
       (_, next) => next.whenData((products) {
-        _latestProducts = products;
+        _productsLoaded = true;
         final settings = ref.read(appSettingsProvider).value;
         if (settings != null) {
-          _queueSynchronization(scheduler, products, settings);
+          _queueSynchronization();
         }
       }),
       fireImmediately: true,
     );
     ref.listenManual(appSettingsProvider, (_, settings) {
-      settings.whenData(
-        (value) => _queueSynchronization(scheduler, _latestProducts, value),
-      );
+      settings.whenData((_) {
+        if (_productsLoaded) _queueSynchronization();
+      });
     });
   }
 
@@ -88,32 +85,19 @@ class _NotificationCoordinatorState
     }
   }
 
-  void _queueSynchronization(
-    ExpirationNotificationScheduler scheduler,
-    List<Product> products,
-    AppSettings settings,
-  ) {
-    _synchronization = _synchronization.then(
-      (_) => _synchronize(scheduler, products, settings),
+  void _queueSynchronization() {
+    unawaited(
+      ref
+          .read(notificationSynchronizationProvider)
+          .synchronizeLatest()
+          .then<void>(
+            (_) {},
+            onError: (Object error, StackTrace stackTrace) {
+              debugPrint('Sincronizzazione notifiche non riuscita: $error');
+              debugPrintStack(stackTrace: stackTrace);
+            },
+          ),
     );
-  }
-
-  Future<void> _synchronize(
-    ExpirationNotificationScheduler scheduler,
-    List<Product> products,
-    AppSettings settings,
-  ) async {
-    try {
-      await scheduler.synchronize(
-        products,
-        hour: settings.notificationHour,
-        minute: settings.notificationMinute,
-        daysBefore: settings.notificationDaysBefore,
-      );
-    } catch (error, stackTrace) {
-      debugPrint('Sincronizzazione notifiche non riuscita: $error');
-      debugPrintStack(stackTrace: stackTrace);
-    }
   }
 
   void _openExpirationDate(CivilDate date) {

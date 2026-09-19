@@ -63,7 +63,7 @@ def generate(background: Path, logo: Path, icon_source: Path, output: Path) -> N
     )
     draw.text(
         (394, 286),
-        "Dati sempre sul dispositivo.",
+        "Inventario sempre sul dispositivo.",
         font=_font(28),
         fill="#D8E4F8",
     )

@@ -40,6 +40,7 @@ void main() {
     await repository.save(
       AppSettings.defaults.copyWith(
         themePreference: AppThemePreference.light,
+        languagePreference: AppLanguagePreference.english,
         notificationDaysBefore: 6,
         notificationHour: 18,
         notificationMinute: 30,
@@ -50,6 +51,25 @@ void main() {
 
     expect(await repository.load(), _hasDefaultSettings);
   });
+
+  test('conserva la preferenza della lingua', () async {
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.withData({});
+    final repository = SharedPreferencesAppSettingsRepository(
+      SharedPreferencesAsync(),
+    );
+
+    await repository.save(
+      AppSettings.defaults.copyWith(
+        languagePreference: AppLanguagePreference.english,
+      ),
+    );
+
+    expect(
+      (await repository.load()).languagePreference,
+      AppLanguagePreference.english,
+    );
+  });
 }
 
 Matcher get _hasDefaultSettings => isA<AppSettings>()
@@ -57,6 +77,11 @@ Matcher get _hasDefaultSettings => isA<AppSettings>()
       (settings) => settings.themePreference,
       'themePreference',
       AppSettings.defaults.themePreference,
+    )
+    .having(
+      (settings) => settings.languagePreference,
+      'languagePreference',
+      AppSettings.defaults.languagePreference,
     )
     .having(
       (settings) => settings.notificationDaysBefore,

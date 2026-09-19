@@ -33,6 +33,7 @@ abstract interface class ExpirationNotificationScheduler {
     required int hour,
     required int minute,
     required int daysBefore,
+    String languageCode = 'it',
   });
 
   Stream<CivilDate> get openedExpirationDates;

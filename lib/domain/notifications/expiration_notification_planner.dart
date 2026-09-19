@@ -30,6 +30,7 @@ class ExpirationNotificationPlanner {
     int notificationHour = defaultNotificationHour,
     int notificationMinute = defaultNotificationMinute,
     int daysBefore = 0,
+    String languageCode = 'it',
   }) {
     final expiryGroups = <CivilDate, List<Product>>{};
     final advanceGroups = <(CivilDate, CivilDate, int), List<Product>>{};
@@ -68,9 +69,9 @@ class ExpirationNotificationPlanner {
     final plans =
         <ExpirationNotificationPlan>[
           for (final entry in expiryGroups.entries)
-            _expiryPlan(entry.key, entry.value),
+            _expiryPlan(entry.key, entry.value, languageCode),
           for (final entry in advanceGroups.entries)
-            _advancePlan(entry.key, entry.value),
+            _advancePlan(entry.key, entry.value, languageCode),
         ]..sort((first, second) {
           final dateComparison = first.date.compareTo(second.date);
           return dateComparison != 0
@@ -88,8 +89,10 @@ class ExpirationNotificationPlanner {
   ExpirationNotificationPlan _expiryPlan(
     CivilDate expirationDate,
     List<Product> products,
+    String languageCode,
   ) {
     final count = products.length;
+    final english = languageCode != 'it';
     return ExpirationNotificationPlan(
       id:
           expirationDate.year * 10000 +
@@ -97,9 +100,15 @@ class ExpirationNotificationPlanner {
           expirationDate.day,
       date: expirationDate,
       title: count == 1
-          ? '${products.single.name} scade oggi'
+          ? english
+                ? '${products.single.name} expires today'
+                : '${products.single.name} scade oggi'
+          : english
+          ? '$count products expire today'
           : '$count prodotti scadono oggi',
-      body: count == 1 ? _expiryBody(products.single) : _productNames(products),
+      body: count == 1
+          ? _expiryBody(products.single, english)
+          : _productNames(products, english),
       payload: '$payloadPrefix${_isoDate(expirationDate)}',
     );
   }
@@ -107,9 +116,11 @@ class ExpirationNotificationPlanner {
   ExpirationNotificationPlan _advancePlan(
     (CivilDate, CivilDate, int) key,
     List<Product> products,
+    String languageCode,
   ) {
     final (notificationDate, expirationDate, daysBefore) = key;
     final count = products.length;
+    final english = languageCode != 'it';
     return ExpirationNotificationPlan(
       // The negative namespace cannot collide with positive expiry IDs.
       // One pre-alert per expiration date is active for the global setting.
@@ -119,26 +130,40 @@ class ExpirationNotificationPlanner {
               expirationDate.day),
       date: notificationDate,
       title: count == 1
-          ? '${products.single.name} scade tra $daysBefore ${daysBefore == 1 ? 'giorno' : 'giorni'}'
+          ? english
+                ? '${products.single.name} expires in $daysBefore ${daysBefore == 1 ? 'day' : 'days'}'
+                : '${products.single.name} scade tra $daysBefore ${daysBefore == 1 ? 'giorno' : 'giorni'}'
+          : english
+          ? '$count products expire in $daysBefore days'
           : '$count prodotti scadono tra $daysBefore giorni',
       body: count == 1
-          ? 'Scadenza ${_displayDate(expirationDate)}'
-          : _productNames(products),
+          ? english
+                ? 'Expiration date ${_displayDate(expirationDate, true)}'
+                : 'Scadenza ${_displayDate(expirationDate, false)}'
+          : _productNames(products, english),
       payload: '$payloadPrefix${_isoDate(expirationDate)}',
     );
   }
 
-  String _expiryBody(Product product) {
+  String _expiryBody(Product product, bool english) {
     if (product.category == ProductCategory.medicines) {
-      return 'Controlla la scadenza. FreshTrack non sostituisce il parere di un medico o di un farmacista.';
+      return english
+          ? 'Check the expiration date. FreshTrack is not a medical device: consult a healthcare professional for advice or treatment.'
+          : 'Controlla la scadenza. FreshTrack non è un dispositivo medico: per pareri o trattamenti consulta un professionista sanitario.';
     }
-    return 'Usalo o consumalo oggi per evitare sprechi.';
+    return english
+        ? 'Use or consume it today to avoid waste.'
+        : 'Usalo o consumalo oggi per evitare sprechi.';
   }
 
-  String _productNames(List<Product> products) {
+  String _productNames(List<Product> products, bool english) {
     final names = products.take(3).map((product) => product.name).join(', ');
     final remaining = products.length - 3;
-    return remaining > 0 ? '$names e altri $remaining' : names;
+    return remaining > 0
+        ? english
+              ? '$names and $remaining more'
+              : '$names e altri $remaining'
+        : names;
   }
 
   bool _isFutureSchedule(CivilDate date, DateTime now, int hour, int minute) {
@@ -150,7 +175,9 @@ class ExpirationNotificationPlanner {
 
   String _isoDate(CivilDate date) => date.toIso8601String();
 
-  String _displayDate(CivilDate date) =>
-      '${date.day.toString().padLeft(2, '0')}/'
-      '${date.month.toString().padLeft(2, '0')}/${date.year}';
+  String _displayDate(CivilDate date, bool english) => english
+      ? '${date.month.toString().padLeft(2, '0')}/'
+            '${date.day.toString().padLeft(2, '0')}/${date.year}'
+      : '${date.day.toString().padLeft(2, '0')}/'
+            '${date.month.toString().padLeft(2, '0')}/${date.year}';
 }

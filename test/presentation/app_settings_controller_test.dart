@@ -71,7 +71,7 @@ class _DelayedSettingsRepository implements AppSettingsRepository {
   Future<void> clear() async {}
 
   @override
-  Future<AppSettings> load() => restore.future;
+  Future<AppSettings> load() async => saved ?? await restore.future;
 
   @override
   Future<void> save(AppSettings settings) async {

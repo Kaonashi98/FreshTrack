@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:freshtrack/domain/common/async_mutex.dart';
 import 'package:freshtrack/domain/settings/app_settings.dart';
 import 'package:freshtrack/domain/settings/app_settings_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -5,66 +8,78 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SharedPreferencesAppSettingsRepository implements AppSettingsRepository {
   SharedPreferencesAppSettingsRepository(this._preferences);
 
-  static const _themeKey = 'settings.theme';
-  static const _notificationDaysKey = 'settings.notification_days';
-  static const _notificationHourKey = 'settings.notification_hour';
-  static const _notificationMinuteKey = 'settings.notification_minute';
-  static const _defaultsVersionKey = 'settings.defaults_version';
-  static const _currentDefaultsVersion = 3;
-
+  static const _snapshotKey = 'settings.snapshot.v1';
+  static const _legacyKeys = [
+    'settings.theme',
+    'settings.language',
+    'settings.notification_days',
+    'settings.notification_hour',
+    'settings.notification_minute',
+    'settings.defaults_version',
+  ];
   final SharedPreferencesAsync _preferences;
 
   @override
-  Future<AppSettings> load() async {
-    final storedTheme = await _preferences.getString(_themeKey);
-    final storedDays = await _preferences.getInt(_notificationDaysKey);
-    final storedHour = await _preferences.getInt(_notificationHourKey);
-    final storedMinute = await _preferences.getInt(_notificationMinuteKey);
-    final defaultsVersion = await _preferences.getInt(_defaultsVersionKey) ?? 1;
-    // A defaults-version bump must never overwrite an explicit user choice.
-    final notificationDays =
-        storedDays ?? AppSettings.defaults.notificationDaysBefore;
-    if (defaultsVersion < _currentDefaultsVersion) {
-      await _preferences.setInt(_notificationDaysKey, notificationDays);
-      await _preferences.setInt(_defaultsVersionKey, _currentDefaultsVersion);
+  Future<AppSettings> load() => mutationLockFor(this).run(() async {
+    final snapshot = await _preferences.getString(_snapshotKey);
+    if (snapshot != null) {
+      final data = jsonDecode(snapshot) as Map<String, dynamic>;
+      return _decode(data);
     }
-    return AppSettings(
-      themePreference: AppThemePreference.values.firstWhere(
-        (value) => value.name == storedTheme,
-        orElse: () => AppSettings.defaults.themePreference,
-      ),
-      notificationDaysBefore: notificationDays.clamp(0, 30),
-      notificationHour: (storedHour ?? AppSettings.defaults.notificationHour)
-          .clamp(0, 23),
-      notificationMinute:
-          (storedMinute ?? AppSettings.defaults.notificationMinute).clamp(
-            0,
-            59,
-          ),
-    );
-  }
+    return _decode({
+      'theme': await _preferences.getString(_legacyKeys[0]),
+      'language': await _preferences.getString(_legacyKeys[1]),
+      'days': await _preferences.getInt(_legacyKeys[2]),
+      'hour': await _preferences.getInt(_legacyKeys[3]),
+      'minute': await _preferences.getInt(_legacyKeys[4]),
+    });
+  });
+
+  AppSettings _decode(Map<String, dynamic> data) => AppSettings(
+    themePreference: AppThemePreference.values.firstWhere(
+      (value) => value.name == data['theme'],
+      orElse: () => AppSettings.defaults.themePreference,
+    ),
+    languagePreference: AppLanguagePreference.values.firstWhere(
+      (value) => value.name == data['language'],
+      orElse: () => AppSettings.defaults.languagePreference,
+    ),
+    notificationDaysBefore:
+        ((data['days'] as int?) ?? AppSettings.defaults.notificationDaysBefore)
+            .clamp(0, 30),
+    notificationHour:
+        ((data['hour'] as int?) ?? AppSettings.defaults.notificationHour).clamp(
+          0,
+          23,
+        ),
+    notificationMinute:
+        ((data['minute'] as int?) ?? AppSettings.defaults.notificationMinute)
+            .clamp(0, 59),
+  );
 
   @override
-  Future<void> save(AppSettings settings) async {
-    await _preferences.setString(_themeKey, settings.themePreference.name);
-    await _preferences.setInt(
-      _notificationDaysKey,
-      settings.notificationDaysBefore,
+  Future<void> save(
+    AppSettings settings,
+  ) => mutationLockFor(this).run(() async {
+    // One platform write commits the entire snapshot; values cannot interleave.
+    await _preferences.setString(
+      _snapshotKey,
+      jsonEncode({
+        'theme': settings.themePreference.name,
+        'language': settings.languagePreference.name,
+        'days': settings.notificationDaysBefore,
+        'hour': settings.notificationHour,
+        'minute': settings.notificationMinute,
+      }),
     );
-    await _preferences.setInt(_notificationHourKey, settings.notificationHour);
-    await _preferences.setInt(
-      _notificationMinuteKey,
-      settings.notificationMinute,
-    );
-    await _preferences.setInt(_defaultsVersionKey, _currentDefaultsVersion);
-  }
+  });
 
   @override
-  Future<void> clear() async {
-    await _preferences.remove(_themeKey);
-    await _preferences.remove(_notificationDaysKey);
-    await _preferences.remove(_notificationHourKey);
-    await _preferences.remove(_notificationMinuteKey);
-    await _preferences.remove(_defaultsVersionKey);
-  }
+  Future<void> clear() => mutationLockFor(this).run(() async {
+    // Keep the current snapshot authoritative until legacy cleanup succeeds.
+    for (final key in _legacyKeys) {
+      await _preferences.remove(key);
+    }
+    await _preferences.remove(_snapshotKey);
+  });
 }

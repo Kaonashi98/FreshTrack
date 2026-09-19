@@ -1,95 +1,131 @@
-<!DOCTYPE html>
-<html lang="it">
+<!doctype html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Informativa sulla privacy — FreshTrack</title>
+    <meta name="description" content="FreshTrack privacy policy in English and Italian." />
+    <title>FreshTrack Privacy Policy / Informativa sulla privacy</title>
     <style>
-      body {
-        margin: 0;
-        font-family: Segoe UI, system-ui, sans-serif;
-        line-height: 1.55;
-        color: #172033;
-        background: #f6f9ff;
-      }
-      main {
-        max-width: 720px;
-        margin: 0 auto;
-        padding: 32px 20px 64px;
-      }
-      h1,
-      h2 {
-        line-height: 1.25;
-      }
-      a {
-        color: #2563eb;
+      :root { color-scheme: light dark; font-family: "Segoe UI", system-ui, sans-serif; line-height: 1.6; }
+      body { margin: 0; color: #172033; background: #f6f9ff; }
+      main { max-width: 780px; margin: 0 auto; padding: 32px 20px 72px; }
+      h1, h2, h3 { line-height: 1.25; }
+      h2 { margin-top: 48px; padding-top: 24px; border-top: 1px solid #cbd5e1; }
+      a { color: #075985; }
+      .language-nav { display: flex; gap: 12px; margin: 24px 0; }
+      .language-nav a { padding: 8px 14px; border: 1px solid #94a3b8; border-radius: 999px; font-weight: 700; text-decoration: none; }
+      @media (prefers-color-scheme: dark) {
+        body { color: #e2e8f0; background: #0f172a; }
+        a { color: #7dd3fc; }
+        h2 { border-color: #475569; }
       }
     </style>
   </head>
   <body>
     <main>
-      <h1>Informativa sulla privacy di FreshTrack</h1>
-      <p>Ultimo aggiornamento: 23 agosto 2026.</p>
-      <p>
-        FreshTrack è un'applicazione offline-first. Non crea account, non
-        integra strumenti pubblicitari o di analisi e non invia dati personali
-        a server esterni.
-      </p>
-      <h2>Dati trattati</h2>
-      <p>L'app può memorizzare esclusivamente sul dispositivo:</p>
-      <ul>
-        <li>informazioni inserite sui prodotti;</li>
-        <li>date di acquisto e scadenza;</li>
-        <li>fotografie selezionate o scattate dall'utente;</li>
-        <li>preferenze relative a tema e notifiche.</li>
-      </ul>
-      <h2>Permessi Android</h2>
-      <ul>
-        <li>
-          <strong>Fotocamera:</strong> usata soltanto quando l'utente sceglie
-          di fotografare un prodotto.
-        </li>
-        <li>
-          <strong>Notifiche:</strong> usate per mostrare promemoria locali
-          sulle scadenze.
-        </li>
-        <li>
-          <strong>Avvio completato:</strong> consente ad Android di
-          ripristinare i promemoria locali dopo un riavvio.
-        </li>
-      </ul>
-      <h2>Condivisione e conservazione</h2>
-      <p>
-        FreshTrack non vende, condivide o trasferisce dati a terzi. Il backup
-        Android automatico e il trasferimento dei dati dell'app tra dispositivi
-        sono disabilitati. I dati rimangono finché l'utente non elimina un
-        prodotto, cancella tutti i dati dalle impostazioni o disinstalla l'app.
-      </p>
-      <h2>Controllo dell'utente</h2>
-      <p>
-        Dalla schermata Impostazioni è possibile cancellare definitivamente
-        prodotti, immagini e preferenze dell'app. È inoltre possibile revocare
-        i permessi dalle impostazioni Android.
-      </p>
-      <h2>Uso dell'app</h2>
-      <p>
-        FreshTrack è uno strumento di organizzazione personale. Non fornisce
-        consigli medici e non sostituisce il parere di un medico o di un
-        farmacista.
-      </p>
-      <h2>Modifiche</h2>
-      <p>
-        Eventuali aggiornamenti di questa informativa saranno pubblicati
-        insieme a una nuova versione dell'app e su questa pagina.
-      </p>
-      <h2>Contatti</h2>
-      <p>
-        Per richieste relative alla privacy o all'assistenza:
-        <a href="mailto:freshtrack.help@outlook.com"
-          >freshtrack.help@outlook.com</a
-        >.
-      </p>
-      <p>Sviluppatore: Nicola Zingaro.</p>
+      <h1>FreshTrack Privacy Policy</h1>
+      <nav class="language-nav" aria-label="Language / Lingua">
+        <a href="#english" lang="en">English</a>
+        <a href="#italiano" lang="it">Italiano</a>
+      </nav>
+
+      <section id="english" lang="en">
+        <h2>English</h2>
+        <p><strong>Last updated:</strong> September 15, 2026.</p>
+        <p>FreshTrack is an offline-first application. It does not require an account, display advertising, or use data for profiling. Your inventory is stored in the app's private storage and is not sent to the developer.</p>
+        <p>Internet access is used only for optional product lookups through Open Food Facts and for the technical data automatically collected by Google ML Kit SDKs, as described below.</p>
+
+        <h3>Data stored on your device</h3>
+        <ul>
+          <li>product information you enter, including an optional barcode;</li>
+          <li>purchase and expiration dates;</li>
+          <li>photographs you select or take;</li>
+          <li>theme, language and notification preferences.</li>
+        </ul>
+        <p>This data remains on the device until you delete a product, clear all app data, or uninstall the app.</p>
+
+        <h3>Android permissions</h3>
+        <ul>
+          <li><strong>Camera:</strong> used only when you start a barcode scan, take a product photo, or photograph a date for text recognition.</li>
+          <li><strong>Internet:</strong> used for optional Open Food Facts lookups and by Google ML Kit components.</li>
+          <li><strong>Notifications:</strong> used to show local expiration reminders.</li>
+          <li><strong>Completed boot:</strong> allows Android to restore local reminders after a restart.</li>
+        </ul>
+        <p>Photos and files may also be selected through the Android system picker without granting the app general access to shared storage.</p>
+
+        <h3>Barcode lookup</h3>
+        <p>Only when you request a lookup does FreshTrack send the barcode and request language to Open Food Facts over HTTPS to retrieve product data. The service also receives ordinary connection data, such as the IP address and the User-Agent containing the app name and version. FreshTrack does not send photographs, dates or your complete inventory. If the service is unavailable, manual entry remains available.</p>
+        <p>Product data comes from the collaborative <a href="https://world.openfoodfacts.org/">Open Food Facts</a> database, distributed under the <a href="https://opendatacommons.org/licenses/odbl/1-0/">Open Database License (ODbL)</a>.</p>
+
+        <h3>Photos, text recognition and Google ML Kit</h3>
+        <p>Selected images are copied to the app's private storage. Text recognition that suggests an expiration date runs on the device; images, recognized text and the suggested date are not sent to Google. You must review and confirm the date.</p>
+        <p>Google ML Kit SDKs may nevertheless automatically transmit technical device and app information, per-installation identifiers, performance metrics, API configuration, feature input and output sizes, feature versions, event types and error codes over HTTPS. Google states that it uses this data for diagnostics, usage analytics, operation and service improvement, and does not share it with third parties. This data does not include your inventory or the contents of the images being analyzed. See the <a href="https://developers.google.com/ml-kit/android-data-disclosure">ML Kit Data Safety guide</a> and <a href="https://developers.google.com/ml-kit/terms">terms</a>.</p>
+
+        <h3>Backup, restore and export</h3>
+        <p>FreshTrack can create a ZIP backup containing products, preferences and photographs, and a CSV file containing inventory data. Files are created only at your request and saved to a location you choose through Android. FreshTrack does not encrypt them, so keep them in a secure place. If you choose a cloud destination in the system picker, storage is governed by that provider.</p>
+        <p>Android automatic backup and automatic device-to-device transfer are disabled. A manually created backup can be restored after reinstalling the app.</p>
+
+        <h3>Sharing and your controls</h3>
+        <p>The developer does not receive or sell your inventory. Open Food Facts lookups and exports are initiated by you; ML Kit technical data may be transmitted automatically when the related features are used. From <strong>Settings &gt; Data and backup</strong>, you can export, restore or permanently delete products, images and preferences.</p>
+
+        <h3>Use of the app</h3>
+        <p>FreshTrack is a personal organization tool. It is not a medical device and does not diagnose, treat, cure or prevent any disease. For medical advice, diagnosis or treatment, consult a doctor, pharmacist or other qualified healthcare professional.</p>
+
+        <h3>Changes</h3>
+        <p>Updates to this policy will be published with a new app version and on this page.</p>
+
+        <h3>Contact</h3>
+        <p>For privacy or support requests: <a href="mailto:freshtrack.help@outlook.com">freshtrack.help@outlook.com</a>.<br />Developer: Nicola Zingaro.</p>
+      </section>
+
+      <section id="italiano" lang="it">
+        <h2>Italiano</h2>
+        <p><strong>Ultimo aggiornamento:</strong> 15 settembre 2026.</p>
+        <p>FreshTrack è un'applicazione offline-first. Non richiede un account, non mostra pubblicità e non usa i dati per profilazione. L'inventario è conservato nello spazio privato dell'app e non viene inviato allo sviluppatore.</p>
+        <p>La connessione Internet è usata soltanto per la ricerca facoltativa di prodotti su Open Food Facts e per i dati tecnici raccolti automaticamente dagli SDK Google ML Kit descritti di seguito.</p>
+
+        <h3>Dati conservati sul dispositivo</h3>
+        <ul>
+          <li>informazioni sui prodotti, incluso l'eventuale codice a barre;</li>
+          <li>date di acquisto e scadenza;</li>
+          <li>fotografie selezionate o scattate dall'utente;</li>
+          <li>preferenze relative a tema, lingua e notifiche.</li>
+        </ul>
+        <p>Questi dati restano sul dispositivo finché l'utente non elimina un prodotto, non cancella tutti i dati o non disinstalla l'app.</p>
+
+        <h3>Permessi Android</h3>
+        <ul>
+          <li><strong>Fotocamera:</strong> usata solo quando l'utente avvia la scansione di un codice a barre, scatta una foto o fotografa una data per il riconoscimento del testo.</li>
+          <li><strong>Internet:</strong> usato per la ricerca facoltativa su Open Food Facts e dalle componenti Google ML Kit.</li>
+          <li><strong>Notifiche:</strong> usate per mostrare promemoria locali.</li>
+          <li><strong>Avvio completato:</strong> consente ad Android di ripristinare i promemoria dopo un riavvio.</li>
+        </ul>
+        <p>Foto e file possono essere scelti tramite il selettore di sistema senza concedere all'app un accesso generale alla memoria condivisa.</p>
+
+        <h3>Ricerca tramite codice a barre</h3>
+        <p>Solo quando l'utente richiede una ricerca, FreshTrack invia il codice a barre e la lingua della richiesta a Open Food Facts tramite HTTPS. Il servizio riceve anche i normali dati tecnici della connessione, come l'indirizzo IP e lo User-Agent con nome e versione dell'app. FreshTrack non invia fotografie, date o l'intero inventario. Se il servizio non è disponibile, l'inserimento manuale resta utilizzabile.</p>
+        <p>I dati provengono dal database collaborativo <a href="https://world.openfoodfacts.org/">Open Food Facts</a>, distribuito con licenza <a href="https://opendatacommons.org/licenses/odbl/1-0/">ODbL</a>.</p>
+
+        <h3>Foto, riconoscimento del testo e Google ML Kit</h3>
+        <p>Le immagini vengono copiate nello spazio privato dell'app. Il riconoscimento del testo avviene sul dispositivo; immagini, testo e data proposta non vengono inviati a Google. La data deve essere controllata e confermata dall'utente.</p>
+        <p>Gli SDK Google ML Kit possono tuttavia trasmettere tramite HTTPS informazioni tecniche sul dispositivo e sull'app, identificatori per installazione, metriche delle prestazioni, configurazione delle API, dimensioni di input e output, versioni delle funzioni, eventi e codici di errore. Google dichiara di usarli per diagnostica, analisi dell'utilizzo, funzionamento e miglioramento del servizio e di non condividerli con terze parti. Questi dati non includono l'inventario o il contenuto delle immagini. Consulta la <a href="https://developers.google.com/ml-kit/android-data-disclosure">guida Data Safety di ML Kit</a> e i <a href="https://developers.google.com/ml-kit/terms">termini</a>.</p>
+
+        <h3>Backup, ripristino ed esportazione</h3>
+        <p>FreshTrack può creare un backup ZIP con prodotti, preferenze e foto e un CSV con i dati dell'inventario. I file vengono creati solo su richiesta e salvati nella posizione scelta tramite Android. FreshTrack non li cifra: conservali in un luogo sicuro. Se scegli una destinazione cloud, la conservazione è regolata dal fornitore selezionato.</p>
+        <p>Il backup Android automatico e il trasferimento automatico tra dispositivi sono disabilitati. Un backup manuale può essere ripristinato dopo una reinstallazione.</p>
+
+        <h3>Condivisione e controllo dell'utente</h3>
+        <p>Lo sviluppatore non riceve né vende l'inventario. Le ricerche Open Food Facts e le esportazioni sono avviate dall'utente; i dati tecnici di ML Kit possono essere trasmessi quando vengono usate le relative funzioni. Da <strong>Impostazioni &gt; Dati e backup</strong> puoi esportare, ripristinare o cancellare definitivamente prodotti, immagini e preferenze.</p>
+
+        <h3>Uso dell'app</h3>
+        <p>FreshTrack è uno strumento di organizzazione personale. Non è un dispositivo medico e non diagnostica, tratta, cura o previene alcuna patologia. Per pareri medici, diagnosi o trattamenti, consulta un medico, un farmacista o un professionista sanitario qualificato.</p>
+
+        <h3>Modifiche</h3>
+        <p>Gli aggiornamenti di questa informativa saranno pubblicati insieme a una nuova versione dell'app e su questa pagina.</p>
+
+        <h3>Contatti</h3>
+        <p>Per richieste relative alla privacy o all'assistenza: <a href="mailto:freshtrack.help@outlook.com">freshtrack.help@outlook.com</a>.<br />Sviluppatore: Nicola Zingaro.</p>
+      </section>
     </main>
   </body>
 </html>

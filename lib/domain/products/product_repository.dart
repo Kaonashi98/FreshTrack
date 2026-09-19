@@ -5,6 +5,7 @@ abstract interface class ProductRepository {
   Future<List<Product>> getAll();
   Future<Product?> getById(String id);
   Future<void> save(Product product);
+  Future<void> replaceAll(List<Product> products);
   Future<void> delete(String id);
   Future<void> clear();
 }

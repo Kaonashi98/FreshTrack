@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:freshtrack/core/app.dart';
 import 'package:freshtrack/core/router/app_router.dart';
-import 'package:freshtrack/core/theme/app_theme.dart';
 import 'package:freshtrack/domain/products/product.dart';
 import 'package:freshtrack/domain/products/product_repository.dart';
 import 'package:freshtrack/domain/settings/app_settings.dart';
@@ -22,6 +22,129 @@ import 'package:freshtrack/domain/common/civil_date.dart';
 import 'package:go_router/go_router.dart';
 
 void main() {
+  testWidgets('filtri rapidi distinguono scadenze, scaduti e archivio', (
+    tester,
+  ) async {
+    final repository = FakeProductRepository([
+      _product('Oggi disponibile', daysUntilExpiration: 0),
+      _product('Gia scaduto', daysUntilExpiration: -1),
+      _product('Piu avanti', daysUntilExpiration: 20),
+      _product(
+        'Gia utilizzato',
+        daysUntilExpiration: -1,
+      ).copyWith(status: ProductStatus.consumed),
+    ]);
+    addTearDown(repository.dispose);
+    await tester.pumpWidget(
+      _testApp(const Scaffold(body: ProductsScreen()), repository),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('status-filter-dueSoon')));
+    await tester.pumpAndSettle();
+    expect(find.text('Oggi disponibile'), findsOneWidget);
+    expect(find.text('Gia scaduto'), findsNothing);
+    await tester.tap(find.byKey(const Key('status-filter-expired')));
+    await tester.pumpAndSettle();
+    expect(find.text('Gia scaduto'), findsOneWidget);
+    expect(find.text('Gia utilizzato'), findsNothing);
+    await tester.tap(find.byKey(const Key('status-filter-archived')));
+    await tester.pumpAndSettle();
+    expect(find.text('Gia utilizzato'), findsOneWidget);
+    expect(find.text('Gia scaduto'), findsNothing);
+  });
+  testWidgets('azzera ricerca e categoria quando non ci sono risultati', (
+    tester,
+  ) async {
+    final repository = FakeProductRepository([
+      _product('Latte', category: ProductCategory.beverages),
+      _product('Pasta'),
+    ]);
+    await tester.pumpWidget(
+      _testApp(const Scaffold(body: ProductsScreen()), repository),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Categoria'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Bevande'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(SearchBar), 'inesistente');
+    await tester.pumpAndSettle();
+    expect(find.text('Nessun risultato'), findsOneWidget);
+    final reset = find.byKey(const Key('empty-reset-product-filters'));
+    await tester.ensureVisible(reset);
+    await tester.tap(reset);
+    await tester.pumpAndSettle();
+    expect(find.text('Pasta'), findsOneWidget);
+    expect(find.text('Latte'), findsOneWidget);
+    expect(find.byKey(const Key('reset-product-filters')), findsNothing);
+    expect(
+      tester.widget<SearchBar>(find.byType(SearchBar)).controller!.text,
+      isEmpty,
+    );
+  });
+
+  testWidgets('mostra tutti mantiene il contesto delle scadenze vicine', (
+    tester,
+  ) async {
+    final repository = FakeProductRepository([
+      for (var i = 1; i <= 4; i++)
+        _product('Vicino $i', daysUntilExpiration: i),
+      _product('Lontano', daysUntilExpiration: 30),
+    ]);
+    await tester.pumpWidget(
+      _testApp(const Scaffold(body: DashboardScreen()), repository),
+    );
+    await tester.pumpAndSettle();
+    final more = find.byKey(const Key('show-all-priorities'));
+    await tester.ensureVisible(more);
+    await tester.pumpAndSettle();
+    await tester.tap(more);
+    await tester.pumpAndSettle();
+    expect(find.text('Prodotti in scadenza'), findsOneWidget);
+    expect(find.text('Vicino 4'), findsOneWidget);
+    expect(find.text('Lontano'), findsNothing);
+  });
+
+  testWidgets('dashboard richiama gli scaduti anche senza scadenze vicine', (
+    tester,
+  ) async {
+    final repository = FakeProductRepository([
+      _product('Da controllare', daysUntilExpiration: -2),
+    ]);
+    await tester.pumpWidget(
+      _testApp(const Scaffold(body: DashboardScreen()), repository),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Nessuna urgenza'), findsNothing);
+    await tester.tap(find.byKey(const Key('review-expired-products')));
+    await tester.pumpAndSettle();
+    expect(find.text('Prodotti scaduti'), findsOneWidget);
+    expect(find.text('Da controllare'), findsOneWidget);
+  });
+
+  testWidgets('regressione: tutte le categorie rimuove un filtro gia attivo', (
+    tester,
+  ) async {
+    final repository = FakeProductRepository([
+      _product('Latte', category: ProductCategory.beverages),
+      _product('Pasta', category: ProductCategory.food),
+    ]);
+    await tester.pumpWidget(
+      _testApp(const Scaffold(body: ProductsScreen()), repository),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Categoria'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Bevande'));
+    await tester.pumpAndSettle();
+    expect(find.text('Latte'), findsOneWidget);
+    expect(find.text('Pasta'), findsNothing);
+    await tester.tap(find.text('Bevande'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Tutte le categorie'));
+    await tester.pumpAndSettle();
+    expect(find.text('Pasta'), findsOneWidget);
+  });
   testWidgets('dashboard mostra indicatori e prodotto in scadenza', (
     tester,
   ) async {
@@ -32,12 +155,52 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('dashboard-logo')), findsNothing);
-    expect(find.text('Totali'), findsOneWidget);
+    expect(find.text('Cosa scade?'), findsOneWidget);
+    expect(find.text('FreshTrack'), findsNothing);
+    expect(find.byKey(const Key('open-settings')), findsOneWidget);
     expect(find.text('Consumati'), findsNothing);
     expect(find.text('Meno sprechi, più valore a ciò che hai.'), findsNothing);
-    expect(find.text('Priorità'), findsOneWidget);
+    expect(find.text('Nei prossimi giorni'), findsOneWidget);
     expect(find.byKey(const Key('dashboard-summary')), findsOneWidget);
     expect(find.text('Latte'), findsOneWidget);
+  });
+
+  testWidgets('le priorità conservano la quantità decimale esatta', (
+    tester,
+  ) async {
+    final repository = FakeProductRepository([
+      _product(
+        'Farmaco',
+        category: ProductCategory.medicines,
+      ).copyWith(quantity: 0.25),
+    ]);
+    addTearDown(repository.dispose);
+    await tester.pumpWidget(
+      _testApp(const Scaffold(body: DashboardScreen()), repository),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('0.25 pz'), findsOneWidget);
+    expect(find.textContaining('0.3 pz'), findsNothing);
+  });
+
+  testWidgets('dashboard usa le icone delle nuove categorie', (tester) async {
+    final repository = FakeProductRepository([
+      _product('Succo', category: ProductCategory.beverages),
+      _product('Crema solare', category: ProductCategory.personalCare),
+    ]);
+    await tester.pumpWidget(
+      _testApp(const Scaffold(body: DashboardScreen()), repository),
+    );
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(
+      find.byKey(const Key('dashboard-stat-due-soon')),
+    );
+    await tester.tap(find.byKey(const Key('dashboard-stat-due-soon')));
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(Icons.local_drink_rounded), findsWidgets);
+    expect(find.byIcon(Icons.spa_rounded), findsWidgets);
   });
 
   testWidgets(
@@ -63,11 +226,7 @@ void main() {
       expect(find.text('Fuori finestra'), findsNothing);
       expect(find.text('Scaduto'), findsNothing);
       expect(find.byKey(const Key('show-all-priorities')), findsOneWidget);
-      expect(find.text('Mostra tutti'), findsOneWidget);
-      expect(
-        find.text('C’è un altro prodotto in scadenza nei prossimi 7 giorni.'),
-        findsOneWidget,
-      );
+      expect(find.text('Mostra altri 1'), findsOneWidget);
       expect(
         tester.getTopLeft(find.text('Primo')).dy,
         lessThan(tester.getTopLeft(find.text('Secondo')).dy),
@@ -102,11 +261,17 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [productRepositoryProvider.overrideWithValue(repository)],
-        child: MaterialApp.router(routerConfig: router),
+        child: MaterialApp.router(
+          locale: const Locale('it'),
+          supportedLocales: const [Locale('it'), Locale('en')],
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
+          routerConfig: router,
+        ),
       ),
     );
     await tester.pumpAndSettle();
 
+    await tester.ensureVisible(find.byKey(const Key('dashboard-stat-total')));
     await tester.tap(find.byKey(const Key('dashboard-stat-total')));
     await tester.pumpAndSettle();
 
@@ -125,6 +290,9 @@ void main() {
       );
       await tester.pumpAndSettle();
 
+      await tester.ensureVisible(
+        find.byKey(const Key('dashboard-stat-due-soon')),
+      );
       await tester.tap(find.byKey(const Key('dashboard-stat-due-soon')));
       await tester.pumpAndSettle();
 
@@ -154,6 +322,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    await tester.ensureVisible(find.byKey(const Key('dashboard-stat-expired')));
     await tester.tap(find.byKey(const Key('dashboard-stat-expired')));
     await tester.pumpAndSettle();
     expect(find.text('Prodotti scaduti'), findsOneWidget);
@@ -184,6 +353,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    await tester.ensureVisible(find.byKey(const Key('dashboard-stat-expired')));
     await tester.tap(find.byKey(const Key('dashboard-stat-expired')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('delete-all-expired')));
@@ -195,7 +365,7 @@ void main() {
     expect(repository.products, isEmpty);
     expect(find.text('Nessun prodotto scaduto'), findsOneWidget);
   });
-  testWidgets('la scadenza di oggi è sempre evidenziata in rosso', (
+  testWidgets('la scadenza di oggi ha etichetta esplicita e colore ambra', (
     tester,
   ) async {
     final repository = FakeProductRepository([
@@ -207,7 +377,7 @@ void main() {
     await tester.pumpAndSettle();
 
     final label = tester.widget<Text>(find.textContaining('Scade oggi'));
-    expect(label.style?.color, AppTheme.danger);
+    expect(label.style?.color, const Color(0xFF865017));
   });
   testWidgets('lista ricerca i prodotti per nome', (tester) async {
     final repository = FakeProductRepository([
@@ -224,7 +394,8 @@ void main() {
     expect(find.text('Stato'), findsNothing);
     await tester.tap(find.text('Categoria'));
     await tester.pumpAndSettle();
-    expect(find.text('Cura personale'), findsNothing);
+    expect(find.text('Bevande'), findsOneWidget);
+    expect(find.text('Cura personale'), findsOneWidget);
     expect(find.text('Pulizia'), findsNothing);
     expect(find.text('Altro'), findsNothing);
     await tester.tap(find.text('Tutte le categorie'));
@@ -268,118 +439,165 @@ void main() {
     await tester.pump();
 
     expect(tester.takeException(), isNull);
+    await tester.scrollUntilVisible(
+      find.text('Latte'),
+      80,
+      scrollable: find
+          .descendant(
+            of: find.byKey(const Key('products-scroll')),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    await tester.pumpAndSettle();
     expect(find.text('Latte'), findsOneWidget);
   });
 
-  testWidgets('inventario vuoto permette di aggiungere subito un prodotto', (
+  testWidgets('la tastiera non sovrappone il FAB alla ricerca vuota', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(430, 900);
+    tester.view.physicalSize = const Size(411, 914);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    final repository = FakeProductRepository([]);
-    final router = GoRouter(
-      initialLocation: '/products',
-      routes: [
-        GoRoute(
-          path: '/products',
-          builder: (_, _) => const Scaffold(body: ProductsScreen()),
-        ),
-        GoRoute(
-          path: '/products/new',
-          builder: (_, _) => const ProductFormScreen(),
-        ),
-      ],
-    );
-    addTearDown(router.dispose);
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [productRepositoryProvider.overrideWithValue(repository)],
-        child: MaterialApp.router(routerConfig: router),
-      ),
-    );
+    addTearDown(tester.view.resetViewInsets);
+    final repository = FakeProductRepository([_product('Latte')]);
+    addTearDown(repository.dispose);
+    await tester.pumpWidget(_freshTrackTestApp(repository));
     await tester.pumpAndSettle();
-
-    expect(find.byKey(const Key('empty-products-add')), findsOneWidget);
-    await tester.tap(find.byKey(const Key('empty-products-add')));
+    await tester.tap(find.text('Prodotti'));
     await tester.pumpAndSettle();
+    expect(find.byKey(const Key('add-product')), findsOneWidget);
 
-    expect(find.text('Nuovo prodotto'), findsOneWidget);
-    expect(find.byKey(const Key('product-name')), findsOneWidget);
+    await tester.enterText(find.byType(SearchBar), 'inesistente');
+    tester.view.viewInsets = const FakeViewPadding(bottom: 314);
+    await tester.pumpAndSettle();
+    expect(find.text('Nessun risultato'), findsOneWidget);
+    expect(find.byKey(const Key('add-product')), findsNothing);
+    expect(find.text('Azzera filtri').hitTestable(), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    await tester.tap(find.text('Azzera filtri'));
+    tester.view.resetViewInsets();
+    await tester.pumpAndSettle();
+    expect(find.text('Latte'), findsOneWidget);
+    expect(find.byKey(const Key('add-product')), findsOneWidget);
   });
 
-  testWidgets(
-    'dashboard vuota mostra il FAB, prodotti vuoti mostrano solo la CTA interna',
-    (tester) async {
-      tester.view.physicalSize = const Size(430, 900);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      final repository = FakeProductRepository([]);
-      await tester.pumpWidget(_freshTrackTestApp(repository));
-      await tester.pumpAndSettle();
-
-      expect(find.byKey(const Key('add-product')), findsOneWidget);
-      expect(find.byTooltip('Aggiungi prodotto'), findsOneWidget);
-      await tester.tap(find.text('Prodotti'));
-      await tester.pumpAndSettle();
-
-      expect(find.byKey(const Key('add-product')), findsNothing);
-      expect(find.byKey(const Key('empty-products-add')), findsOneWidget);
-      final panelCenter = tester.getCenter(
-        find.byKey(const Key('empty-products-panel')),
-      );
-      final availableCenter =
-          (tester.getBottomLeft(find.text('0 prodotti')).dy +
-              tester.getTopLeft(find.byType(NavigationBar)).dy) /
-          2;
-      expect(panelCenter.dy, moreOrLessEquals(availableCenter, epsilon: 32));
-    },
-  );
-
-  testWidgets('FAB apre il form e indietro torna alla dashboard vuota', (
+  testWidgets('inventario vuoto aggiunge dalla barra senza duplicare azioni', (
     tester,
   ) async {
     final repository = FakeProductRepository([]);
     addTearDown(repository.dispose);
     await tester.pumpWidget(_freshTrackTestApp(repository));
     await tester.pumpAndSettle();
-
-    final fab = find.byKey(const Key('add-product'));
-    expect(fab, findsOneWidget);
-    expect(tester.getSize(fab).height, greaterThanOrEqualTo(48));
-    expect(find.byTooltip('Aggiungi prodotto'), findsOneWidget);
-    expect(find.bySemanticsLabel('Aggiungi'), findsOneWidget);
-    await tester.tap(fab);
-    await tester.pumpAndSettle();
-
-    expect(find.text('Nuovo prodotto'), findsOneWidget);
-    await tester.binding.handlePopRoute();
-    await tester.pumpAndSettle();
-    expect(find.byKey(const Key('dashboard-summary')), findsOneWidget);
-    expect(fab, findsOneWidget);
-  });
-
-  testWidgets('il FAB segue Dashboard, Prodotti e Impostazioni', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(430, 900);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    final repository = FakeProductRepository([_product('Latte')]);
-    await tester.pumpWidget(_freshTrackTestApp(repository));
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const Key('add-product')), findsOneWidget);
     await tester.tap(find.text('Prodotti'));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('add-product')), findsOneWidget);
-    await tester.tap(find.text('Impostazioni'));
+    expect(find.byKey(const Key('empty-products-add')), findsNothing);
+    await tester.tap(find.byKey(const Key('add-product')));
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key('add-product')), findsNothing);
+    expect(find.text('Da dove iniziamo?'), findsOneWidget);
+    expect(find.byKey(const Key('add-by-barcode')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('add-manually')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('product-name')), findsOneWidget);
+    expect(find.byKey(const Key('main-navigation')), findsNothing);
+  });
+
+  testWidgets(
+    'testata senza marchio usa lo spazio superiore e mantiene impostazioni a destra',
+    (tester) async {
+      tester.view.physicalSize = const Size(412, 915);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final repository = FakeProductRepository([]);
+      addTearDown(repository.dispose);
+      await tester.pumpWidget(_freshTrackTestApp(repository));
+      await tester.pumpAndSettle();
+      expect(find.text('FreshTrack'), findsNothing);
+      final date = tester.getRect(find.byKey(const Key('dashboard-summary')));
+      final settings = tester.getRect(find.byKey(const Key('open-settings')));
+      expect(date.top, lessThan(25));
+      expect(settings.top, moreOrLessEquals(date.top, epsilon: 1));
+      expect(settings.right, greaterThan(380));
+      expect(tester.getTopLeft(find.text('Cosa scade?')).dy, lessThan(50));
+      await tester.tap(find.byKey(const Key('open-settings')));
+      await tester.pumpAndSettle();
+      expect(find.text('Impostazioni'), findsOneWidget);
+      expect(find.byKey(const Key('add-product')), findsNothing);
+    },
+  );
+
+  testWidgets('Aggiungi apre la scelta e indietro torna a Oggi', (
+    tester,
+  ) async {
+    final repository = FakeProductRepository([]);
+    addTearDown(repository.dispose);
+    await tester.pumpWidget(_freshTrackTestApp(repository));
+    await tester.pumpAndSettle();
+    final add = find.byKey(const Key('add-product'));
+    expect(tester.getSize(add).height, greaterThanOrEqualTo(48));
+    await tester.tap(add);
+    await tester.pumpAndSettle();
+    expect(find.text('Da dove iniziamo?'), findsOneWidget);
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('dashboard-summary')), findsOneWidget);
+  });
+
+  testWidgets('azione rapida aggiorna il prodotto e Annulla lo ripristina', (
+    tester,
+  ) async {
+    final repository = _SecondPrecisionRepository([
+      _product('Yogurt', daysUntilExpiration: 0),
+    ]);
+    addTearDown(repository.dispose);
+    await tester.pumpWidget(_freshTrackTestApp(repository));
+    await tester.pumpAndSettle();
+    final complete = find.byKey(const Key('complete-today-Yogurt'));
+    await tester.ensureVisible(complete);
+    await tester.tap(complete);
+    await tester.pumpAndSettle();
+    expect(repository.products.single.status, ProductStatus.consumed);
+    expect(complete, findsNothing);
+    await tester.tap(find.text('Annulla'));
+    await tester.pumpAndSettle();
+    expect(repository.products.single.status, ProductStatus.available);
+    expect(complete, findsOneWidget);
+  });
+
+  testWidgets('Annulla non sovrascrive modifiche successive al prodotto', (
+    tester,
+  ) async {
+    final repository = FakeProductRepository([
+      _product(
+        'Crema',
+        daysUntilExpiration: 0,
+        category: ProductCategory.personalCare,
+      ),
+    ]);
+    addTearDown(repository.dispose);
+    await tester.pumpWidget(_freshTrackTestApp(repository));
+    await tester.pumpAndSettle();
+    expect(find.text('Segna utilizzato'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('complete-today-Crema')));
+    await tester.pumpAndSettle();
+    await repository.save(
+      repository.products.single.copyWith(
+        status: ProductStatus.discarded,
+        updatedAt: DateTime.now().add(const Duration(seconds: 1)),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Annulla'));
+    await tester.pumpAndSettle();
+    expect(repository.products.single.status, ProductStatus.discarded);
+    expect(
+      find.textContaining('Il prodotto è stato modificato'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('ricerca senza risultati non mostra la CTA interna', (
@@ -439,34 +657,36 @@ void main() {
     expect(find.byKey(const Key('empty-products-add')), findsNothing);
   });
 
-  testWidgets(
-    'salvare il primo prodotto sostituisce la CTA interna con il FAB',
-    (tester) async {
-      tester.view.physicalSize = const Size(430, 900);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      final repository = FakeProductRepository([]);
-      addTearDown(repository.dispose);
-      await tester.pumpWidget(_freshTrackTestApp(repository));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Prodotti'));
-      await tester.pumpAndSettle();
-
-      expect(find.byKey(const Key('empty-products-add')), findsOneWidget);
-      expect(find.byKey(const Key('add-product')), findsNothing);
-      await tester.tap(find.byKey(const Key('empty-products-add')));
-      await tester.pumpAndSettle();
-      await tester.enterText(find.byKey(const Key('product-name')), 'Latte');
-      await tester.ensureVisible(find.byKey(const Key('save-product')));
-      await tester.tap(find.byKey(const Key('save-product')));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Latte'), findsOneWidget);
-      expect(find.byKey(const Key('empty-products-add')), findsNothing);
-      expect(find.byKey(const Key('add-product')), findsOneWidget);
-    },
-  );
+  testWidgets('salva e riapre il percorso di aggiunta anche dopo Indietro', (
+    tester,
+  ) async {
+    final repository = FakeProductRepository([]);
+    addTearDown(repository.dispose);
+    await tester.pumpWidget(_freshTrackTestApp(repository));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Prodotti'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('add-product')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('add-manually')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('product-name')), 'Latte');
+    await tester.tap(find.byKey(const Key('save-product')));
+    await tester.pumpAndSettle();
+    expect(repository.products.single.name, 'Latte');
+    expect(find.text('Latte'), findsOneWidget);
+    expect(find.byKey(const Key('add-product')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('add-product')));
+    await tester.pumpAndSettle();
+    expect(find.text('Da dove iniziamo?'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('add-manually')));
+    await tester.pumpAndSettle();
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('add-product')));
+    await tester.pumpAndSettle();
+    expect(find.text('Da dove iniziamo?'), findsOneWidget);
+  });
 
   testWidgets('loading ed error non mostrano il FAB', (tester) async {
     for (final stream in <Stream<List<Product>>>[
@@ -479,38 +699,25 @@ void main() {
       await tester.pump();
       expect(find.byKey(const Key('add-product')), findsNothing);
       expect(find.byKey(const Key('empty-products-add')), findsNothing);
+      expect(find.byKey(const Key('open-settings')), findsOneWidget);
     }
   });
 
-  testWidgets('doppi tap rapidi su FAB e CTA non sovrappongono due form', (
+  testWidgets('doppi tap rapidi non sovrappongono due percorsi di aggiunta', (
     tester,
   ) async {
     final repository = FakeProductRepository([]);
     addTearDown(repository.dispose);
     await tester.pumpWidget(_freshTrackTestApp(repository));
     await tester.pumpAndSettle();
-
-    final fab = find.byKey(const Key('add-product'));
-    await tester.tap(fab);
-    await tester.tap(fab, warnIfMissed: false);
+    final add = find.byKey(const Key('add-product'));
+    await tester.tap(add);
+    await tester.tap(add, warnIfMissed: false);
     await tester.pumpAndSettle();
-    expect(find.text('Nuovo prodotto'), findsOneWidget);
-
+    expect(find.text('Da dove iniziamo?'), findsOneWidget);
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('dashboard-summary')), findsOneWidget);
-
-    await tester.tap(find.text('Prodotti'));
-    await tester.pumpAndSettle();
-    final cta = find.byKey(const Key('empty-products-add'));
-    await tester.tap(cta);
-    await tester.tap(cta, warnIfMissed: false);
-    await tester.pumpAndSettle();
-    expect(find.text('Nuovo prodotto'), findsOneWidget);
-
-    await tester.binding.handlePopRoute();
-    await tester.pumpAndSettle();
-    expect(find.byKey(const Key('empty-products-add')), findsOneWidget);
   });
 
   testWidgets('tap sulla freccia apre il dettaglio prodotto', (tester) async {
@@ -539,6 +746,12 @@ void main() {
         overrides: [
           productRepositoryProvider.overrideWithValue(repository),
           routerProvider.overrideWithValue(router),
+          expirationNotificationSchedulerProvider.overrideWithValue(
+            _FakeNotificationScheduler(),
+          ),
+          appSettingsRepositoryProvider.overrideWithValue(
+            _FakeSettingsRepository(),
+          ),
         ],
         child: const FreshTrackApp(),
       ),
@@ -582,6 +795,11 @@ void main() {
     final repository = FakeProductRepository([]);
     await tester.pumpWidget(_testApp(const ProductFormScreen(), repository));
     await tester.pumpAndSettle();
+    expect(find.byKey(const Key('empty-photo-picker')), findsNothing);
+    expect(find.text('Altri dettagli'), findsOneWidget);
+    expect(find.text('Scansiona il codice'), findsOneWidget);
+    await tester.tap(find.text('Altri dettagli'));
+    await tester.pumpAndSettle();
     expect(
       tester.getTopLeft(find.byKey(const Key('product-name'))).dy,
       lessThan(
@@ -597,10 +815,10 @@ void main() {
     expect(find.text('Stato'), findsNothing);
     await tester.tap(find.text('Alimentari').first);
     await tester.pumpAndSettle();
-    expect(find.text('Cura personale'), findsNothing);
+    expect(find.text('Cura personale'), findsOneWidget);
     expect(find.text('Pulizia'), findsNothing);
     expect(find.text('Altro'), findsNothing);
-    expect(find.text('Bevande'), findsNothing);
+    expect(find.text('Bevande'), findsOneWidget);
     expect(find.text('Farmaci'), findsOneWidget);
     await tester.tap(find.text('Farmaci'));
     await tester.pumpAndSettle();
@@ -639,7 +857,12 @@ void main() {
 
 Widget _testApp(Widget home, ProductRepository repository) => ProviderScope(
   overrides: [productRepositoryProvider.overrideWithValue(repository)],
-  child: MaterialApp(home: home),
+  child: MaterialApp(
+    locale: const Locale('it'),
+    supportedLocales: const [Locale('it'), Locale('en')],
+    localizationsDelegates: GlobalMaterialLocalizations.delegates,
+    home: home,
+  ),
 );
 
 Widget _freshTrackTestApp(ProductRepository repository) => ProviderScope(
@@ -657,12 +880,13 @@ Product _product(
   String name, {
   int daysUntilExpiration = 2,
   String? imagePath,
+  ProductCategory category = ProductCategory.food,
 }) {
   final now = DateTime.now();
   return Product(
     id: name,
     name: name,
-    category: ProductCategory.food,
+    category: category,
     quantity: 1,
     unit: MeasurementUnit.pieces,
     purchaseDate: CivilDate.fromDateTime(now),
@@ -714,7 +938,28 @@ class FakeProductRepository implements ProductRepository {
     _changes.add(const []);
   }
 
+  @override
+  Future<void> replaceAll(List<Product> next) async {
+    products
+      ..clear()
+      ..addAll(next);
+    _changes.add(List.unmodifiable(products));
+  }
+
   Future<void> dispose() => _changes.close();
+}
+
+// Mirrors the SQLite timestamp precision instead of retaining microseconds.
+class _SecondPrecisionRepository extends FakeProductRepository {
+  _SecondPrecisionRepository(super.products);
+  @override
+  Future<void> save(Product product) => super.save(
+    product.copyWith(
+      updatedAt: DateTime.fromMillisecondsSinceEpoch(
+        product.updatedAt.millisecondsSinceEpoch ~/ 1000 * 1000,
+      ),
+    ),
+  );
 }
 
 class _StreamProductRepository implements ProductRepository {
@@ -739,11 +984,16 @@ class _StreamProductRepository implements ProductRepository {
 
   @override
   Future<void> clear() async {}
+
+  @override
+  Future<void> replaceAll(List<Product> products) async {}
 }
 
 class _FakeSettingsRepository implements AppSettingsRepository {
   @override
-  Future<AppSettings> load() async => AppSettings.defaults;
+  Future<AppSettings> load() async => AppSettings.defaults.copyWith(
+    languagePreference: AppLanguagePreference.italian,
+  );
 
   @override
   Future<void> save(AppSettings settings) async {}
@@ -774,5 +1024,6 @@ class _FakeNotificationScheduler implements ExpirationNotificationScheduler {
     required int hour,
     required int minute,
     required int daysBefore,
+    String languageCode = 'it',
   }) async => const NotificationSynchronizationResult();
 }

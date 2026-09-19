@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:freshtrack/data/notifications/local_expiration_notification_scheduler.dart';
@@ -48,6 +49,88 @@ void main() {
     ).thenAnswer((_) async {});
   });
 
+  test('regressione: sync concorrenti lasciano lo stato piu recente', () async {
+    final pending = <PendingNotificationRequest>[];
+    final scheduledStarted = Completer<void>();
+    final releaseSchedule = Completer<void>();
+    when(
+      () => plugin.pendingNotificationRequests(),
+    ).thenAnswer((_) async => List.of(pending));
+    when(() => plugin.cancel(id: any(named: 'id'))).thenAnswer((call) async {
+      pending.removeWhere((entry) => entry.id == call.namedArguments[#id]);
+    });
+    when(
+      () => plugin.zonedSchedule(
+        id: any(named: 'id'),
+        title: any(named: 'title'),
+        body: any(named: 'body'),
+        scheduledDate: any(named: 'scheduledDate'),
+        notificationDetails: any(named: 'notificationDetails'),
+        androidScheduleMode: any(named: 'androidScheduleMode'),
+        payload: any(named: 'payload'),
+      ),
+    ).thenAnswer((call) async {
+      scheduledStarted.complete();
+      await releaseSchedule.future;
+      pending.add(
+        PendingNotificationRequest(
+          call.namedArguments[#id] as int,
+          'Latte',
+          'scade',
+          call.namedArguments[#payload] as String?,
+        ),
+      );
+    });
+    final scheduler = LocalExpirationNotificationScheduler(
+      plugin: plugin,
+      preferences: SharedPreferencesAsync(),
+      localTimeZoneIdentifier: () async => 'Europe/Rome',
+    );
+    addTearDown(scheduler.dispose);
+    final oldSync = scheduler.synchronize(
+      [_product(CivilDate(2026, 12, 20))],
+      hour: 9,
+      minute: 0,
+      daysBefore: 0,
+    );
+    await scheduledStarted.future;
+    final newSync = scheduler.synchronize(
+      [],
+      hour: 9,
+      minute: 0,
+      daysBefore: 0,
+    );
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    releaseSchedule.complete();
+    await Future.wait([oldSync, newSync]);
+    expect(
+      pending,
+      isEmpty,
+      reason: 'Il prodotto e stato rimosso durante il precedente allineamento',
+    );
+  });
+  test(
+    'regressione: inizializzazione notifiche recupera dopo errore temporaneo',
+    () async {
+      var attempts = 0;
+      when(
+        () => plugin.initialize(
+          settings: any(named: 'settings'),
+          onDidReceiveNotificationResponse: any(
+            named: 'onDidReceiveNotificationResponse',
+          ),
+        ),
+      ).thenAnswer((_) async {
+        attempts++;
+        if (attempts == 1) throw StateError('errore temporaneo');
+        return true;
+      });
+      final scheduler = LocalExpirationNotificationScheduler(plugin: plugin);
+      addTearDown(scheduler.dispose);
+      await expectLater(scheduler.initialize(), throwsStateError);
+      await expectLater(scheduler.initialize(), completes);
+    },
+  );
   test('non riprogramma richieste già coerenti', () async {
     var pending = <PendingNotificationRequest>[];
     var timeZoneIdentifier = 'Europe/Rome';

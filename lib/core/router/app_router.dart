@@ -4,7 +4,13 @@ import 'package:freshtrack/presentation/dashboard/dashboard_screen.dart';
 import 'package:freshtrack/domain/common/civil_date.dart';
 import 'package:freshtrack/presentation/products/product_details_screen.dart';
 import 'package:freshtrack/presentation/products/product_form_screen.dart';
+import 'package:freshtrack/presentation/products/product_add_screen.dart';
+import 'package:freshtrack/presentation/products/barcode_scanner_screen.dart';
 import 'package:freshtrack/presentation/products/products_screen.dart';
+import 'package:freshtrack/presentation/settings/about_settings_screen.dart';
+import 'package:freshtrack/presentation/settings/appearance_settings_screen.dart';
+import 'package:freshtrack/presentation/settings/data_settings_screen.dart';
+import 'package:freshtrack/presentation/settings/notification_settings_screen.dart';
 import 'package:freshtrack/presentation/settings/privacy_policy_screen.dart';
 import 'package:freshtrack/presentation/settings/settings_screen.dart';
 import 'package:freshtrack/presentation/shell/main_shell.dart';
@@ -15,8 +21,19 @@ final routerProvider = Provider<GoRouter>(
     initialLocation: '/dashboard',
     routes: [
       GoRoute(
+        path: '/products/add',
+        builder: (_, _) => const ProductAddScreen(),
+      ),
+      GoRoute(
         path: '/products/new',
-        builder: (_, _) => const ProductFormScreen(),
+        builder: (_, state) => ProductFormScreen(
+          templateId: state.uri.queryParameters['template'],
+          scanOnOpen: state.uri.queryParameters['scan'] == 'true',
+        ),
+      ),
+      GoRoute(
+        path: '/products/scan-barcode',
+        builder: (_, _) => const BarcodeScannerScreen(),
       ),
       GoRoute(
         path: '/products/:id/edit',
@@ -31,6 +48,22 @@ final routerProvider = Provider<GoRouter>(
       GoRoute(
         path: '/settings/privacy',
         builder: (_, _) => const PrivacyPolicyScreen(),
+      ),
+      GoRoute(
+        path: '/settings/appearance',
+        builder: (_, _) => const AppearanceSettingsScreen(),
+      ),
+      GoRoute(
+        path: '/settings/notifications',
+        builder: (_, _) => const NotificationSettingsScreen(),
+      ),
+      GoRoute(
+        path: '/settings/data',
+        builder: (_, _) => const DataSettingsScreen(),
+      ),
+      GoRoute(
+        path: '/settings/about',
+        builder: (_, _) => const AboutSettingsScreen(),
       ),
       ShellRoute(
         builder: (_, _, child) => MainShell(child: child),

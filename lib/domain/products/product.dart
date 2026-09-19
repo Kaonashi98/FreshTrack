@@ -1,5 +1,11 @@
 import 'package:freshtrack/domain/common/civil_date.dart';
 
+const maxProductNameLength = 160;
+const maxProductDescriptionLength = 1000;
+const maxProductQuantity = 1000000000.0;
+const minProductBarcodeLength = 8;
+const maxProductBarcodeLength = 14;
+
 enum ProductCategory {
   food('Alimentari'),
   beverages('Bevande'),
@@ -12,9 +18,24 @@ enum ProductCategory {
   final String label;
 }
 
+extension ProductCategoryLocalization on ProductCategory {
+  String localizedLabel(String languageCode) => languageCode == 'it'
+      ? label
+      : switch (this) {
+          ProductCategory.food => 'Food',
+          ProductCategory.beverages => 'Beverages',
+          ProductCategory.medicines => 'Medicines',
+          ProductCategory.personalCare => 'Personal care',
+          ProductCategory.cleaning => 'Cleaning',
+          ProductCategory.other => 'Other',
+        };
+}
+
 const selectableProductCategories = [
   ProductCategory.food,
+  ProductCategory.beverages,
   ProductCategory.medicines,
+  ProductCategory.personalCare,
 ];
 
 enum ProductStatus {
@@ -27,6 +48,17 @@ enum ProductStatus {
   final String label;
 }
 
+extension ProductStatusLocalization on ProductStatus {
+  String localizedLabel(String languageCode) => languageCode == 'it'
+      ? label
+      : switch (this) {
+          ProductStatus.available => 'Available',
+          ProductStatus.consumed => 'Consumed',
+          ProductStatus.expired => 'Expired',
+          ProductStatus.discarded => 'Discarded',
+        };
+}
+
 enum MeasurementUnit {
   pieces('pz'),
   grams('g'),
@@ -37,6 +69,16 @@ enum MeasurementUnit {
 
   const MeasurementUnit(this.label);
   final String label;
+}
+
+extension MeasurementUnitLocalization on MeasurementUnit {
+  String localizedLabel(String languageCode) => languageCode == 'it'
+      ? label
+      : switch (this) {
+          MeasurementUnit.pieces => 'pcs',
+          MeasurementUnit.packs => 'packs',
+          _ => label,
+        };
 }
 
 const selectableMeasurementUnits = [
@@ -65,6 +107,7 @@ class Product {
     required this.updatedAt,
     this.description,
     this.imagePath,
+    this.barcode,
   });
 
   final String id;
@@ -76,10 +119,28 @@ class Product {
   final CivilDate purchaseDate;
   final CivilDate expirationDate;
   final String? imagePath;
+  final String? barcode;
   final ProductStatus status;
   final int notificationDaysBefore;
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  String get quantityText => quantity == quantity.truncateToDouble()
+      ? quantity.toInt().toString()
+      : quantity.toString();
+
+  bool get isConsumable =>
+      category == ProductCategory.food || category == ProductCategory.beverages;
+
+  String get statusLabel => status == ProductStatus.consumed && !isConsumable
+      ? 'Utilizzato'
+      : status.label;
+
+  String localizedStatusLabel(String languageCode) {
+    if (languageCode == 'it') return statusLabel;
+    if (status == ProductStatus.consumed && !isConsumable) return 'Used';
+    return status.localizedLabel(languageCode);
+  }
 
   Product copyWith({
     String? id,
@@ -91,6 +152,7 @@ class Product {
     CivilDate? purchaseDate,
     CivilDate? expirationDate,
     Object? imagePath = _unsetProductField,
+    Object? barcode = _unsetProductField,
     ProductStatus? status,
     int? notificationDaysBefore,
     DateTime? createdAt,
@@ -109,6 +171,9 @@ class Product {
     imagePath: identical(imagePath, _unsetProductField)
         ? this.imagePath
         : imagePath as String?,
+    barcode: identical(barcode, _unsetProductField)
+        ? this.barcode
+        : barcode as String?,
     status: status ?? this.status,
     notificationDaysBefore:
         notificationDaysBefore ?? this.notificationDaysBefore,

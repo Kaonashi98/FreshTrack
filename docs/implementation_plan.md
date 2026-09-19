@@ -27,10 +27,14 @@ Il dominio non dipende da Flutter o dal database. La UI osserva stream esposti d
 ## Fase 2 — gestione completa e acquisizione
 
 - Modifica ed eliminazione con conferma dalla UI.
+- Chiusura del ciclo prodotto come consumato, utilizzato o buttato, con
+  ripristino allo stato disponibile.
 - Foto da fotocamera/galleria, copia persistente e cleanup dei file.
 - Visualizzazione completa della foto e azioni essenziali nel dettaglio.
-
-Lo scanner barcode è escluso dalla versione 1.0 e resta nel backlog per un aggiornamento futuro, quando potrà essere consegnato come flusso completo.
+- Aggiunta rapida con suggerimenti, duplicazione e inserimento consecutivo.
+- Scanner barcode con riuso locale, ricerca opzionale su Open Food Facts e
+  inserimento manuale sempre disponibile.
+- Lettura OCR della scadenza sul dispositivo con conferma obbligatoria.
 
 ## Fase 3 — calendario e notifiche
 
@@ -49,7 +53,9 @@ Lo scanner barcode è escluso dalla versione 1.0 e resta nel backlog per un aggi
 
 - Tema chiaro/scuro/sistema persistito.
 - Preavviso predefinito di zero giorni e orario predefinito alle 09:00.
-- Import/export JSON rimandati a una versione successiva.
+- Backup ZIP completo di inventario, preferenze e foto, con anteprima e
+  ripristino Unisci/Sostituisci.
+- Esportazione CSV protetta per Excel e Fogli Google.
 - Cancellazione dati e media con doppia conferma.
 
 ## Fase 6 — hardening e rilascio

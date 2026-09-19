@@ -1,12 +1,22 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:freshtrack/domain/common/async_mutex.dart';
 import 'package:freshtrack/data/settings/shared_preferences_app_settings_repository.dart';
 import 'package:freshtrack/domain/settings/app_settings.dart';
 import 'package:freshtrack/domain/settings/app_settings_repository.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+final packageInfoProvider = FutureProvider<PackageInfo>(
+  (_) => PackageInfo.fromPlatform(),
+);
+
+final appVersionProvider = FutureProvider<String>((ref) async {
+  final info = await ref.watch(packageInfoProvider.future);
+  return '${info.version}+${info.buildNumber}';
+});
+
 final appVersionLabelProvider = FutureProvider<String>((ref) async {
-  final info = await PackageInfo.fromPlatform();
+  final info = await ref.watch(packageInfoProvider.future);
   return 'Versione ${info.version} · build ${info.buildNumber}';
 });
 
@@ -24,33 +34,55 @@ class AppSettingsController extends AsyncNotifier<AppSettings> {
   Future<AppSettings> build() => ref.read(appSettingsRepositoryProvider).load();
 
   Future<void> setThemePreference(AppThemePreference value) async {
-    await _persist((await future).copyWith(themePreference: value));
+    await _update((current) => current.copyWith(themePreference: value));
+  }
+
+  Future<void> setLanguagePreference(AppLanguagePreference value) async {
+    await _update((current) => current.copyWith(languagePreference: value));
   }
 
   Future<void> setNotificationDaysBefore(int value) async {
-    await _persist(
-      (await future).copyWith(notificationDaysBefore: value.clamp(0, 30)),
+    await _update(
+      (current) => current.copyWith(notificationDaysBefore: value.clamp(0, 30)),
     );
   }
+
+  Future<void> adjustNotificationDaysBefore(int delta) => _update(
+    (current) => current.copyWith(
+      notificationDaysBefore: (current.notificationDaysBefore + delta).clamp(
+        0,
+        30,
+      ),
+    ),
+  );
 
   Future<void> setNotificationTime({
     required int hour,
     required int minute,
   }) async {
-    final next = (await future).copyWith(
-      notificationHour: hour.clamp(0, 23),
-      notificationMinute: minute.clamp(0, 59),
+    await _update(
+      (current) => current.copyWith(
+        notificationHour: hour.clamp(0, 23),
+        notificationMinute: minute.clamp(0, 59),
+      ),
     );
-    await _persist(next);
   }
 
   Future<void> reset() async {
-    await ref.read(appSettingsRepositoryProvider).clear();
-    state = const AsyncData(AppSettings.defaults);
+    final repository = ref.read(appSettingsRepositoryProvider);
+    await mutationLockFor(repository).run(() async {
+      await repository.clear();
+      if (ref.mounted) state = const AsyncData(AppSettings.defaults);
+    });
   }
 
-  Future<void> _persist(AppSettings next) async {
-    await ref.read(appSettingsRepositoryProvider).save(next);
-    if (ref.mounted) state = AsyncData(next);
+  Future<void> _update(AppSettings Function(AppSettings) transform) async {
+    final repository = ref.read(appSettingsRepositoryProvider);
+    await future;
+    await mutationLockFor(repository).run(() async {
+      final next = transform(await repository.load());
+      await repository.save(next);
+      if (ref.mounted) state = AsyncData(next);
+    });
   }
 }

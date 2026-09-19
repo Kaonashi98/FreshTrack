@@ -3,6 +3,8 @@ import 'package:freshtrack/data/database/app_database.dart';
 import 'package:freshtrack/domain/common/civil_date.dart';
 import 'package:freshtrack/domain/products/product.dart' as domain;
 import 'package:freshtrack/domain/products/product_repository.dart';
+import 'package:freshtrack/domain/products/product_validation.dart';
+import 'package:freshtrack/domain/common/async_mutex.dart';
 
 class DriftProductRepository implements ProductRepository {
   DriftProductRepository(this._database);
@@ -31,17 +33,43 @@ class DriftProductRepository implements ProductRepository {
   }
 
   @override
-  Future<void> save(domain.Product product) => _database
-      .into(_database.products)
-      .insertOnConflictUpdate(_toCompanion(product));
+  Future<void> save(domain.Product product) =>
+      mutationLockFor(this).run(() async {
+        ProductValidation.requireValid(product);
+        await _database
+            .into(_database.products)
+            .insertOnConflictUpdate(_toCompanion(product));
+      });
 
   @override
-  Future<void> delete(String id) => (_database.delete(
-    _database.products,
-  )..where((row) => row.id.equals(id))).go();
+  Future<void> replaceAll(List<domain.Product> products) =>
+      mutationLockFor(this).run(
+        () => _database.transaction(() async {
+          for (final product in products) {
+            ProductValidation.requireValid(product);
+          }
+          await _database.delete(_database.products).go();
+          if (products.isEmpty) return;
+          await _database.batch((batch) {
+            batch.insertAll(
+              _database.products,
+              products.map(_toCompanion).toList(growable: false),
+            );
+          });
+        }),
+      );
 
   @override
-  Future<void> clear() => _database.delete(_database.products).go();
+  Future<void> delete(String id) => mutationLockFor(this).run(() async {
+    await (_database.delete(
+      _database.products,
+    )..where((row) => row.id.equals(id))).go();
+  });
+
+  @override
+  Future<void> clear() => mutationLockFor(this).run(() async {
+    await _database.delete(_database.products).go();
+  });
 
   domain.Product _toDomain(Product row) => domain.Product(
     id: row.id,
@@ -56,6 +84,7 @@ class DriftProductRepository implements ProductRepository {
       row.expirationDate,
     ),
     imagePath: row.imagePath,
+    barcode: row.barcode,
     status: _statusFromCode(row.statusCode),
     notificationDaysBefore: row.notificationDaysBefore,
     createdAt: row.createdAt,
@@ -79,6 +108,7 @@ class DriftProductRepository implements ProductRepository {
         purchaseDateCivil: Value(product.purchaseDate.toIso8601String()),
         expirationDateCivil: Value(product.expirationDate.toIso8601String()),
         imagePath: Value(product.imagePath),
+        barcode: Value(product.barcode),
         status: _legacyStatusCode(product.status),
         statusCode: Value(product.status.name),
         notificationDaysBefore: Value(product.notificationDaysBefore),

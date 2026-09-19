@@ -9,13 +9,18 @@ import 'package:freshtrack/domain/notifications/expiration_notification_schedule
 import 'package:freshtrack/domain/common/civil_date.dart';
 import 'package:freshtrack/domain/products/product.dart';
 import 'package:freshtrack/domain/products/product_repository.dart';
+import 'package:freshtrack/domain/settings/app_settings.dart';
+import 'package:freshtrack/domain/settings/app_settings_repository.dart';
 import 'package:freshtrack/presentation/providers/notification_providers.dart';
 import 'package:freshtrack/presentation/providers/product_providers.dart';
+import 'package:freshtrack/presentation/providers/settings_providers.dart';
 
 void main() {
   testWidgets('il tap sulla notifica apre i prodotti della relativa data', (
     tester,
   ) async {
+    tester.platformDispatcher.localesTestValue = const [Locale('it', 'IT')];
+    addTearDown(tester.platformDispatcher.clearLocalesTestValue);
     tester.view.physicalSize = const Size(430, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -30,13 +35,16 @@ void main() {
         overrides: [
           productRepositoryProvider.overrideWithValue(repository),
           expirationNotificationSchedulerProvider.overrideWithValue(scheduler),
+          appSettingsRepositoryProvider.overrideWithValue(
+            _FakeSettingsRepository(AppLanguagePreference.system),
+          ),
         ],
         child: const FreshTrackApp(),
       ),
     );
     await tester.pumpAndSettle();
 
-    final appContext = tester.element(find.text('La tua dispensa'));
+    final appContext = tester.element(find.text('Cosa scade?'));
     expect(Localizations.localeOf(appContext).languageCode, 'it');
 
     scheduler.open(date);
@@ -46,6 +54,48 @@ void main() {
     expect(find.byKey(const Key('expiry-date-filter')), findsOneWidget);
     expect(find.text('Latte'), findsOneWidget);
   });
+
+  testWidgets('usa inglese automaticamente per un telefono non italiano', (
+    tester,
+  ) async {
+    tester.platformDispatcher.localesTestValue = const [Locale('fr', 'FR')];
+    addTearDown(tester.platformDispatcher.clearLocalesTestValue);
+    final scheduler = _FakeScheduler();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          productRepositoryProvider.overrideWithValue(_FakeRepository([])),
+          expirationNotificationSchedulerProvider.overrideWithValue(scheduler),
+          appSettingsRepositoryProvider.overrideWithValue(
+            _FakeSettingsRepository(AppLanguagePreference.system),
+          ),
+        ],
+        child: const FreshTrackApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final appContext = tester.element(find.text('What expires next?'));
+    expect(Localizations.localeOf(appContext).languageCode, 'en');
+    expect(find.text('Products'), findsOneWidget);
+  });
+}
+
+class _FakeSettingsRepository implements AppSettingsRepository {
+  _FakeSettingsRepository(this.preference);
+
+  final AppLanguagePreference preference;
+
+  @override
+  Future<AppSettings> load() async =>
+      AppSettings.defaults.copyWith(languagePreference: preference);
+
+  @override
+  Future<void> save(AppSettings settings) async {}
+
+  @override
+  Future<void> clear() async {}
 }
 
 class _FakeScheduler implements ExpirationNotificationScheduler {
@@ -71,6 +121,7 @@ class _FakeScheduler implements ExpirationNotificationScheduler {
     required int hour,
     required int minute,
     required int daysBefore,
+    String languageCode = 'it',
   }) async => const NotificationSynchronizationResult();
 
   @override
@@ -99,6 +150,9 @@ class _FakeRepository implements ProductRepository {
 
   @override
   Future<void> clear() async {}
+
+  @override
+  Future<void> replaceAll(List<Product> products) async {}
 }
 
 Product _product(String name, DateTime expirationDate) => Product(

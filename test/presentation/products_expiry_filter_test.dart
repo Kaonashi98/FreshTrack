@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:freshtrack/domain/products/product.dart';
@@ -26,6 +27,9 @@ void main() {
       ProviderScope(
         overrides: [productRepositoryProvider.overrideWithValue(repository)],
         child: MaterialApp(
+          locale: const Locale('it'),
+          supportedLocales: const [Locale('it'), Locale('en')],
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
           home: Scaffold(
             body: ProductsScreen(
               expirationDate: CivilDate.fromDateTime(selectedDate),
@@ -67,6 +71,9 @@ class _FakeRepository implements ProductRepository {
 
   @override
   Future<void> clear() async {}
+
+  @override
+  Future<void> replaceAll(List<Product> products) async {}
 }
 
 Product _product(

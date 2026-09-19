@@ -22,6 +22,7 @@ final productImageStorageProvider = Provider<ProductImageStorage>(
 final productsProvider = StreamProvider<List<Product>>(
   (ref) => ref.watch(productRepositoryProvider).watchAll(),
 );
-final productByIdProvider = FutureProvider.family<Product?, String>(
-  (ref, id) => ref.watch(productRepositoryProvider).getById(id),
-);
+final productByIdProvider = FutureProvider.family<Product?, String>((ref, id) {
+  ref.watch(productsProvider);
+  return ref.watch(productRepositoryProvider).getById(id);
+});
