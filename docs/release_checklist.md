@@ -70,9 +70,9 @@ pacchetti store su dispositivo fisico; i relativi punti restano aperti sotto.
 - [x] Preparare l'informativa bilingue aggiornata del 7 ottobre 2026 con
       Open Food Facts, dati tecnici ML Kit, backup, condivisione, allarmi esatti
       facoltativi e permessi, senza funzioni relative alla salute.
-- [ ] Pubblicare su GitHub Pages l'informativa aggiornata del 7 ottobre 2026 e
-      verificare `https://kaonashi98.github.io/FreshTrack/` dopo il
-      pubblicazione della versione 1.0.1+13.
+- [x] Pubblicare su GitHub Pages l'informativa aggiornata del 7 ottobre 2026:
+      `https://kaonashi98.github.io/FreshTrack/` ha risposto HTTP 200 con
+      entrambe le date nuove e senza i vecchi disclaimer medici.
 - [x] Controllare che nessun file `.jks`, `key.properties` o `local.properties`
       sia tracciato da Git.
 - [ ] Attivare GitHub Actions e verificare che la workflow `Flutter CI` sia verde.
