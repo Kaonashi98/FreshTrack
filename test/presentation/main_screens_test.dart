@@ -171,8 +171,8 @@ void main() {
   ) async {
     final repository = FakeProductRepository([
       _product(
-        'Farmaco',
-        category: ProductCategory.medicines,
+        'Dentifricio',
+        category: ProductCategory.personalCare,
       ).copyWith(quantity: 0.25),
     ]);
     addTearDown(repository.dispose);
@@ -628,7 +628,7 @@ void main() {
 
     await tester.tap(find.text('Categoria'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Farmaci'));
+    await tester.tap(find.text('Cura personale'));
     await tester.pumpAndSettle();
 
     expect(find.text('Nessun risultato'), findsOneWidget);
@@ -820,10 +820,9 @@ void main() {
     expect(find.text('Pulizia'), findsNothing);
     expect(find.text('Altro'), findsNothing);
     expect(find.text('Bevande'), findsOneWidget);
-    expect(find.text('Farmaci'), findsOneWidget);
-    await tester.tap(find.text('Farmaci'));
+    expect(find.text('Farmaci'), findsNothing);
+    await tester.tap(find.text('Cura personale'));
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key('medicine-disclaimer')), findsOneWidget);
 
     await tester.tap(find.text('pz').first);
     await tester.pumpAndSettle();

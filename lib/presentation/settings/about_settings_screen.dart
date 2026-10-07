@@ -166,21 +166,6 @@ class AboutSettingsScreen extends ConsumerWidget {
         const SizedBox(height: 18),
         GlassSurface(
           padding: const EdgeInsets.all(18),
-          child: Text(
-            context.tr(
-              'FreshTrack è uno strumento di organizzazione personale. Non è un dispositivo medico e non diagnostica, tratta, cura o previene alcuna patologia. Per pareri medici, diagnosi o trattamenti, consulta un medico, un farmacista o un altro professionista sanitario qualificato.',
-              'FreshTrack is a personal organization tool. It is not a medical device and does not diagnose, treat, cure or prevent any disease. For medical advice, diagnosis or treatment, consult a doctor, pharmacist or other qualified healthcare professional.',
-            ),
-            key: const Key('medical-disclaimer'),
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              height: 1.45,
-            ),
-          ),
-        ),
-        const SizedBox(height: 18),
-        GlassSurface(
-          padding: const EdgeInsets.all(18),
           child: Row(
             children: [
               Icon(

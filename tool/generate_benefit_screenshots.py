@@ -186,12 +186,6 @@ def generate(
             subtitle="Le scadenze più vicine restano sempre in primo piano.",
         ),
         ScreenshotSpec(
-            source=root / "docs/screenshots/products.png",
-            filename="02-trova-tutto-al-volo.png",
-            title="Trova tutto al volo",
-            subtitle="Cerca, filtra e aggiorna ogni prodotto in pochi tocchi.",
-        ),
-        ScreenshotSpec(
             source=root / "docs/screenshots/source-current/quick-add.png",
             filename="03-aggiungi-in-pochi-secondi.png",
             title="Aggiungi in pochi secondi",
@@ -210,12 +204,6 @@ def generate(
             filename="01-know-what-to-use-first.png",
             title="Know what to use first",
             subtitle="The closest expiration dates always stay in focus.",
-        ),
-        ScreenshotSpec(
-            source=root / "docs/screenshots/source-release-en/products.png",
-            filename="02-find-everything-fast.png",
-            title="Find everything fast",
-            subtitle="Search, filter and update every product in a few taps.",
         ),
         ScreenshotSpec(
             source=root / "docs/screenshots/source-release-en/quick-add.png",

@@ -169,7 +169,6 @@ class ProductThumbnail extends StatelessWidget {
         switch (product.category) {
           ProductCategory.food => Icons.restaurant_rounded,
           ProductCategory.beverages => Icons.local_drink_rounded,
-          ProductCategory.medicines => Icons.medication_rounded,
           ProductCategory.personalCare => Icons.spa_rounded,
           ProductCategory.cleaning => Icons.cleaning_services_rounded,
           ProductCategory.other => Icons.category_rounded,

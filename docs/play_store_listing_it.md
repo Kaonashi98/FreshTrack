@@ -6,12 +6,12 @@ FreshTrack
 
 ## Descrizione breve
 
-Organizza dispensa e medicinali, ricorda le scadenze e riduci gli sprechi.
+Organizza dispensa e cura personale, ricorda le scadenze e riduci gli sprechi.
 
 ## Descrizione completa
 
 FreshTrack è l’app semplice e privata che ti aiuta a tenere sotto controllo
-alimenti, bevande, farmaci e prodotti per la cura personale, ricordando cosa
+alimenti, bevande e prodotti per la cura personale, ricordando cosa
 usare o consumare prima.
 
 Registra un prodotto partendo da nome e scadenza. Puoi riutilizzare i prodotti
@@ -21,7 +21,7 @@ e ordinamento rendono immediato trovare ciò che serve.
 
 Funzioni principali:
 
-- gestione offline di alimenti, bevande, medicinali e prodotti personali;
+- gestione offline di alimenti, bevande e prodotti personali;
 - promemoria locali nel giorno della scadenza e, se lo imposti, nei giorni
   precedenti (verso l’orario scelto; Android può ritardarli, ma FreshTrack li
   recupera all’apertura e può usare allarmi più puntuali se li consenti);
@@ -33,7 +33,7 @@ Funzioni principali:
 - backup completo di prodotti, preferenze e foto, con salvataggio, condivisione
   verso un altro telefono e anteprima prima del ripristino;
 - esportazione CSV per Excel e Fogli Google;
-- categorie dedicate ad alimenti, bevande, farmaci e cura personale;
+- categorie dedicate ad alimenti, bevande e cura personale;
 - stato consumato, utilizzato o buttato con possibilità di ripristino;
 - ricerca, categorie e ordinamento per scadenza;
 - tema chiaro, scuro o di sistema;
@@ -51,16 +51,11 @@ FreshTrack è pensata per un telefono in casa. Non c’è un elenco famiglia né
 account cloud: per copiare l’inventario su un altro dispositivo usa Condividi
 backup, poi Ripristina sull’altro telefono.
 
-FreshTrack è uno strumento di organizzazione personale. Non è un dispositivo
-medico e non diagnostica, tratta, cura o previene alcuna patologia. Per pareri
-medici, diagnosi o trattamenti, consulta un medico, un farmacista o un altro
-professionista sanitario qualificato.
+## Note di rilascio 1.0.1 (build 13)
 
-## Note di rilascio 1.0.0 (build 12)
-
-Promemoria recuperati all’apertura, prova notifica, allarmi esatti opzionali,
-scanner e lettura data più guidati, condivisione backup per un altro telefono
-di casa, interfaccia italiana/inglese.
+FreshTrack ora si concentra su dispensa, bevande e prodotti per la cura
+personale. I prodotti e i backup esistenti restano disponibili. Sono inclusi
+promemoria, scanner barcode, backup e interfaccia italiana/inglese.
 
 ## Risorse Play Console
 
@@ -94,5 +89,4 @@ di casa, interfaccia italiana/inglese.
   di sistema per le immagini.
 - Pubblico di riferimento: non progettata per i bambini.
 - Categoria: Produttività. Nessuna pubblicità.
-- Dichiarazione app per la salute: selezionare «Gestione di farmaci e cure» per
-  la gestione delle scadenze dei medicinali e dei relativi promemoria.
+- Dichiarazione app per la salute: selezionare «La mia app non ha funzionalità relative alla salute» soltanto dopo aver sostituito la vecchia release in tutti i canali di test.

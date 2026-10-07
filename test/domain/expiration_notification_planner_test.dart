@@ -45,20 +45,17 @@ void main() {
     expect(plans.first.body, 'Expiration date 08/10/2026');
   });
 
-  test('i farmaci usano un testo senza invito a consumare', () {
+  test('i prodotti per la cura personale hanno un promemoria di scadenza', () {
     final plans = planner.create([
       _product(
-        'Insulina',
+        'Dentifricio',
         DateTime(2026, 8, 4),
-        category: ProductCategory.medicines,
+        category: ProductCategory.personalCare,
       ),
     ], now: DateTime(2026, 8, 4, 8));
 
-    expect(plans.single.title, 'Insulina scade oggi');
-    expect(
-      plans.single.body,
-      'Controlla la scadenza. FreshTrack non è un dispositivo medico: per pareri o trattamenti consulta un professionista sanitario.',
-    );
+    expect(plans.single.title, 'Dentifricio scade oggi');
+    expect(plans.single.body, 'Usalo o consumalo oggi per evitare sprechi.');
   });
 
   test('pianifica il preavviso globale, non quello salvato sul prodotto', () {

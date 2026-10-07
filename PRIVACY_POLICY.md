@@ -4,7 +4,7 @@
 
 ## Italiano
 
-Ultimo aggiornamento: 19 settembre 2026.
+Ultimo aggiornamento: 7 ottobre 2026.
 
 FreshTrack è un'applicazione offline-first. Non richiede un account, non mostra
 pubblicità e non usa i dati per profilazione. L'inventario è conservato nello
@@ -105,13 +105,6 @@ Dalla sezione **Impostazioni > Dati e backup** è possibile esportare,
 ripristinare o cancellare definitivamente prodotti, immagini e preferenze. I
 permessi possono essere revocati dalle impostazioni Android.
 
-## Uso dell'app
-
-FreshTrack è uno strumento di organizzazione personale. Non è un dispositivo
-medico e non diagnostica, tratta, cura o previene alcuna patologia. Per pareri
-medici, diagnosi o trattamenti, consulta un medico, un farmacista o un altro
-professionista sanitario qualificato.
-
 ## Modifiche
 
 Eventuali aggiornamenti di questa informativa saranno pubblicati insieme a una
@@ -128,7 +121,7 @@ Sviluppatore: Nicola Zingaro.
 
 ## English
 
-Last updated: September 19, 2026.
+Last updated: October 7, 2026.
 
 FreshTrack is an offline-first application. It does not require an account,
 display advertising, or use data for profiling. Your inventory is stored in the
@@ -222,13 +215,6 @@ automatically when the related features are used.
 From **Settings > Data and backup**, you can export, restore or permanently
 delete products, images and preferences. Permissions can be revoked from Android
 settings.
-
-### Use of the app
-
-FreshTrack is a personal organization tool. It is not a medical device and does
-not diagnose, treat, cure or prevent any disease. For medical advice, diagnosis
-or treatment, consult a doctor, pharmacist or other qualified healthcare
-professional.
 
 ### Changes
 

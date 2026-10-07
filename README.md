@@ -5,7 +5,7 @@
 </p>
 
 FreshTrack è un'app Android offline-first per gestire le scadenze di alimenti,
-bevande, farmaci e prodotti per la cura personale, riducendo sprechi e
+bevande e prodotti per la cura personale, riducendo sprechi e
 dimenticanze.
 
 Il progetto è sviluppato in Flutter con Material 3 e Clean Architecture.
@@ -24,7 +24,7 @@ riconosciuto o inventario.
   azioni rapide consumato/utilizzato con Annulla.
 - Inventario con ricerca, filtri rapidi per scadenze/scaduti/archivio,
   categoria e ordinamento per scadenza, nome o inserimento.
-- Categorie della versione 1.0: Alimentari, Bevande, Farmaci e Cura personale.
+- Categorie principali: Alimentari, Bevande e Cura personale.
 - Aggiunta con scelta tra scansione e inserimento manuale; nome, categoria e scadenza in primo piano; quantità,
   acquisto, descrizione e foto restano in una sezione facoltativa.
 - Suggerimenti dai prodotti già usati, duplicazione e azione “Salva e aggiungi
@@ -183,7 +183,7 @@ Per assistenza: [freshtrack.help@outlook.com](mailto:freshtrack.help@outlook.com
 
 ## Roadmap
 
-La versione 1.0 privilegia una gestione semplice di alimenti, bevande, farmaci
+La versione 1.0 privilegia una gestione semplice di alimenti, bevande
 e prodotti per la cura personale. Sono pianificati per versioni successive:
 
 - calendario mensile delle scadenze;

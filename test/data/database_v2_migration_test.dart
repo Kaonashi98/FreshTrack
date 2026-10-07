@@ -97,7 +97,17 @@ void main() {
       expect(migrated.notificationDaysBefore, 7);
       for (var index = 0; index < 6; index++) {
         final enumProduct = await repository.getById('enum-$index');
-        expect(enumProduct?.category, ProductCategory.values[index]);
+        expect(
+          enumProduct?.category,
+          const [
+            ProductCategory.food,
+            ProductCategory.beverages,
+            ProductCategory.personalCare,
+            ProductCategory.personalCare,
+            ProductCategory.cleaning,
+            ProductCategory.other,
+          ][index],
+        );
         expect(enumProduct?.unit, MeasurementUnit.values[index]);
         expect(enumProduct?.status, ProductStatus.values[index % 4]);
         expect(enumProduct?.notificationDaysBefore, 3);

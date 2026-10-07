@@ -32,7 +32,6 @@ void main() {
       find.text(PrivacyPolicyScreen.lastUpdated),
       400,
     );
-    expect(find.textContaining('organizzazione personale'), findsOneWidget);
     expect(find.textContaining('fotografare un prodotto'), findsOneWidget);
     expect(
       find.textContaining('identificatori per installazione'),
@@ -64,9 +63,9 @@ void main() {
     expect(find.text('Optional online features'), findsOneWidget);
     expect(find.textContaining('request language'), findsOneWidget);
     expect(find.textContaining('per-installation identifiers'), findsOneWidget);
-    expect(find.textContaining('not a medical device'), findsOneWidget);
+    expect(find.textContaining('not a medical device'), findsNothing);
 
-    await tester.scrollUntilVisible(find.text('September 19, 2026'), 400);
-    expect(find.text('September 19, 2026'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('October 7, 2026'), 400);
+    expect(find.text('October 7, 2026'), findsOneWidget);
   });
 }

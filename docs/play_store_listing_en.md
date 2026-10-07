@@ -6,12 +6,12 @@ FreshTrack
 
 ## Short description
 
-Track pantry and medicine expiry dates, get reminders, and reduce waste.
+Track pantry and personal care expiry dates, get reminders, and reduce waste.
 
 ## Full description
 
 FreshTrack is a simple, private app that helps you keep food, drinks,
-medicines and personal care products organized, so you know what to use first.
+and personal care products organized, so you know what to use first.
 
 Add a product starting with its name and expiration date. Reuse previous
 products, duplicate an entry, add several items in a row, or scan a barcode.
@@ -20,7 +20,7 @@ everything easy to find.
 
 Main features:
 
-- offline management of food, drinks, medicines and personal care products;
+- offline management of food, drinks and personal care products;
 - local reminders on the expiration date and, if enabled, a configurable number
   of days beforehand (around your selected time; Android may delay delivery,
   but FreshTrack recovers missed alerts when you open the app and can use more
@@ -33,7 +33,7 @@ Main features:
 - complete backup of products, preferences and photos, with save, share to
   another phone, and a preview before restoring;
 - CSV export for Excel and Google Sheets;
-- dedicated categories for food, drinks, medicines and personal care;
+- dedicated categories for food, drinks and personal care;
 - consumed, used or discarded states, with the option to restore an item;
 - search, category filters and expiration-date sorting;
 - light, dark or system theme;
@@ -49,16 +49,11 @@ FreshTrack is designed for one phone in the household. There is no family list
 or cloud account: to copy the inventory onto another device, use Share backup,
 then Restore on the other phone.
 
-FreshTrack is a personal organization tool. It is not a medical device and does
-not diagnose, treat, cure or prevent any disease. For medical advice, diagnosis
-or treatment, consult a doctor, pharmacist or other qualified healthcare
-professional.
+## Release notes 1.0.1 (build 13)
 
-## Release notes 1.0.0 (build 12)
-
-Missed reminders recovered when you open the app, a test notification, optional
-exact alarms, more guided barcode and date reading, backup sharing for another
-household phone, and a complete Italian/English interface.
+FreshTrack now focuses on pantry, drinks and personal care products. Existing
+entries and backups remain available. Expiry reminders, barcode scanning,
+backups and the Italian/English interface are included.
 
 ## Play Console resources
 

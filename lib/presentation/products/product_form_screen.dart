@@ -322,22 +322,6 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                           onChanged: (value) =>
                               setState(() => _category = value ?? _category),
                         ),
-                        if (_category == ProductCategory.medicines) ...[
-                          const SizedBox(height: 8),
-                          Text(
-                            context.tr(
-                              'FreshTrack serve solo a ricordare la scadenza. Non è un dispositivo medico e non diagnostica, tratta, cura o previene alcuna patologia. Per pareri medici, diagnosi o trattamenti consulta un professionista sanitario.',
-                              'FreshTrack only reminds you about expiration dates. It is not a medical device and does not diagnose, treat, cure or prevent any disease. Consult a healthcare professional for medical advice, diagnosis or treatment.',
-                            ),
-                            key: const Key('medicine-disclaimer'),
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant,
-                                ),
-                          ),
-                        ],
                       ],
                     ),
                     const SizedBox(height: 14),
@@ -676,8 +660,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       case BarcodeLookupStatus.notFound:
         _showMessage(
           context.tr(
-            'Codice salvato. Medicinali e marche locali spesso non sono nel catalogo online: inserisci il nome a mano.',
-            'Code saved. Medicines and local brands are often missing from the online catalog: enter the name yourself.',
+            'Codice salvato. Alcune marche locali spesso non sono nel catalogo online: inserisci il nome a mano.',
+            'Code saved. Some local brands are often missing from the online catalog: enter the name yourself.',
           ),
         );
       case BarcodeLookupStatus.unavailable:

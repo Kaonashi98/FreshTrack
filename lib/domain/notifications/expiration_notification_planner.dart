@@ -151,7 +151,7 @@ class ExpirationNotificationPlanner {
           ? '$count products expire today'
           : '$count prodotti scadono oggi',
       body: count == 1
-          ? _expiryBody(products.single, english)
+          ? _expiryBody(english)
           : _productNames(products, english),
       payload: '$payloadPrefix${_isoDate(expirationDate)}',
     );
@@ -189,12 +189,7 @@ class ExpirationNotificationPlanner {
     );
   }
 
-  String _expiryBody(Product product, bool english) {
-    if (product.category == ProductCategory.medicines) {
-      return english
-          ? 'Check the expiration date. FreshTrack is not a medical device: consult a healthcare professional for advice or treatment.'
-          : 'Controlla la scadenza. FreshTrack non è un dispositivo medico: per pareri o trattamenti consulta un professionista sanitario.';
-    }
+  String _expiryBody(bool english) {
     return english
         ? 'Use or consume it today to avoid waste.'
         : 'Usalo o consumalo oggi per evitare sprechi.';

@@ -530,7 +530,7 @@ class FreshTrackBackupService {
         description: description == null || description.isEmpty
             ? null
             : description,
-        category: ProductCategory.values.byName(json['category'] as String),
+        category: _backupCategory(json['category'] as String),
         quantity: quantity,
         unit: MeasurementUnit.values.byName(json['unit'] as String),
         purchaseDate: _requiredDate(json['purchaseDate']),
@@ -556,6 +556,10 @@ class FreshTrackBackupService {
     if (date == null) throw const FormatException();
     return date;
   }
+
+  static ProductCategory _backupCategory(String value) => value == 'medicines'
+      ? ProductCategory.personalCare
+      : ProductCategory.values.byName(value);
 
   static Map<String, Object> _settingsToJson(AppSettings settings) => {
     'themePreference': settings.themePreference.name,

@@ -119,11 +119,12 @@ class DriftProductRepository implements ProductRepository {
   CivilDate _dateFromCanonical(String value, DateTime legacy) =>
       CivilDate.tryParse(value) ?? CivilDate.fromDateTime(legacy);
 
-  domain.ProductCategory _categoryFromCode(String value) =>
-      domain.ProductCategory.values.firstWhere(
-        (item) => item.name == value,
-        orElse: () => domain.ProductCategory.other,
-      );
+  domain.ProductCategory _categoryFromCode(String value) => value == 'medicines'
+      ? domain.ProductCategory.personalCare
+      : domain.ProductCategory.values.firstWhere(
+          (item) => item.name == value,
+          orElse: () => domain.ProductCategory.other,
+        );
 
   domain.MeasurementUnit _unitFromCode(String value) =>
       domain.MeasurementUnit.values.firstWhere(
@@ -140,7 +141,6 @@ class DriftProductRepository implements ProductRepository {
   int _legacyCategoryCode(domain.ProductCategory value) => switch (value) {
     domain.ProductCategory.food => 0,
     domain.ProductCategory.beverages => 1,
-    domain.ProductCategory.medicines => 2,
     domain.ProductCategory.personalCare => 3,
     domain.ProductCategory.cleaning => 4,
     domain.ProductCategory.other => 5,

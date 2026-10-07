@@ -45,7 +45,7 @@ class AppDatabase extends _$AppDatabase {
       );
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -76,6 +76,19 @@ class AppDatabase extends _$AppDatabase {
               status_code = CASE status
                 WHEN 0 THEN 'available' WHEN 1 THEN 'consumed'
                 WHEN 2 THEN 'expired' WHEN 3 THEN 'discarded' ELSE 'available' END
+        ''');
+      }
+      if (from < 4) {
+        // FreshTrack no longer offers a medicines category. Preserve existing
+        // inventories by moving those items into Personal care rather than
+        // deleting them during the upgrade.
+        await customStatement('''
+          UPDATE products
+          SET category = CASE WHEN category = 2 THEN 3 ELSE category END,
+              category_code = CASE
+                WHEN category_code = 'medicines' THEN 'personalCare'
+                ELSE category_code
+              END
         ''');
       }
     },

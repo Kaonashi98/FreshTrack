@@ -9,7 +9,6 @@ const maxProductBarcodeLength = 14;
 enum ProductCategory {
   food('Alimentari'),
   beverages('Bevande'),
-  medicines('Farmaci'),
   personalCare('Cura personale'),
   cleaning('Pulizia'),
   other('Altro');
@@ -24,7 +23,6 @@ extension ProductCategoryLocalization on ProductCategory {
       : switch (this) {
           ProductCategory.food => 'Food',
           ProductCategory.beverages => 'Beverages',
-          ProductCategory.medicines => 'Medicines',
           ProductCategory.personalCare => 'Personal care',
           ProductCategory.cleaning => 'Cleaning',
           ProductCategory.other => 'Other',
@@ -34,7 +32,6 @@ extension ProductCategoryLocalization on ProductCategory {
 const selectableProductCategories = [
   ProductCategory.food,
   ProductCategory.beverages,
-  ProductCategory.medicines,
   ProductCategory.personalCare,
 ];
 

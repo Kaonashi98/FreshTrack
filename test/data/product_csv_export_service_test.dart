@@ -14,7 +14,7 @@ void main() {
       expired.copyWith(name: 'Buttata', status: ProductStatus.discarded),
       expired.copyWith(
         name: 'Utilizzato',
-        category: ProductCategory.medicines,
+        category: ProductCategory.personalCare,
         status: ProductStatus.consumed,
       ),
     ], now: DateTime(2026, 8, 31));
@@ -36,20 +36,17 @@ void main() {
     expect(text, isNot(contains('"Scaduto"')));
   });
 
-  test(
-    'regressione: CSV farmaco utilizzato conserva la terminologia corretta',
-    () {
-      final text = utf8.decode(
-        ProductCsvExportService.encode([
-          _product(name: 'Farmaco').copyWith(
-            category: ProductCategory.medicines,
-            status: ProductStatus.consumed,
-          ),
-        ]),
-      );
-      expect(text, contains('"Utilizzato"'));
-    },
-  );
+  test('regressione: CSV cura personale usa la terminologia corretta', () {
+    final text = utf8.decode(
+      ProductCsvExportService.encode([
+        _product(name: 'Dentifricio').copyWith(
+          category: ProductCategory.personalCare,
+          status: ProductStatus.consumed,
+        ),
+      ]),
+    );
+    expect(text, contains('"Utilizzato"'));
+  });
   test('esporta colonne complete compatibili con Excel', () {
     final bytes = ProductCsvExportService.encode([_product(name: 'Latte')]);
     final text = utf8.decode(bytes.sublist(3));

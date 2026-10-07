@@ -311,7 +311,7 @@ void main() {
     expect(find.text('Tutti i dati sono stati cancellati.'), findsOneWidget);
   });
 
-  testWidgets('mostra privacy avvertenza e versione', (tester) async {
+  testWidgets('mostra privacy e versione', (tester) async {
     await tester.pumpWidget(
       _app(
         const AboutSettingsScreen(),
@@ -326,7 +326,6 @@ void main() {
       findsOneWidget,
     );
     expect(find.byKey(const Key('open-source-licenses')), findsOneWidget);
-    expect(find.textContaining('Non è un dispositivo medico'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('Versione 1.0.0 · build 3'), 250);
     expect(find.text('Versione 1.0.0 · build 3'), findsOneWidget);
   });

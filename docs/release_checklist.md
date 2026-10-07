@@ -2,6 +2,16 @@
 
 ## Verifiche automatiche
 
+- [x] Candidato `1.0.1+13` senza categoria Farmaci: analisi statica pulita,
+      197 test superati; dopo l'aggiornamento della data privacy, i 5 test
+      mirati sono passati.
+- [x] AAB `1.0.1+13` generato: 92.112.452 byte, SHA-256
+      `F0D911600FB72CAFEC7BEFE37BA802A110D6EC8CA5651C2A42358A40CA3C3C5A`.
+      `jarsigner` riporta `jar verified`; bundletool 1.18.3 ha validato il
+      bundle e confermato package, versionCode 13, versionName 1.0.1,
+      target SDK 36 e `PAGE_ALIGNMENT_16K`.
+- [ ] Installazione e aggiornamento reali del build 13 su dispositivo; la
+      validazione statica dell'AAB non sostituisce questo test.
 - [x] File Dart modificati formattati con `dart format`.
 - [x] `flutter analyze --no-pub lib test` sulla build 12: nessun problema.
 - [x] Suite completa build 12: 197 test superati, inclusi lingua automatica e
@@ -57,12 +67,12 @@ pacchetti store su dispositivo fisico; i relativi punti restano aperti sotto.
 - [x] Package ID definitivo: `io.github.kaonashi98.freshtrack`.
 - [x] Codice pubblicato senza licenza open-source, con tutti i diritti riservati.
 - [x] Indirizzo di assistenza professionale: `freshtrack.help@outlook.com`.
-- [x] Preparare l'informativa bilingue aggiornata del 19 settembre 2026 con
+- [x] Preparare l'informativa bilingue aggiornata del 7 ottobre 2026 con
       Open Food Facts, dati tecnici ML Kit, backup, condivisione, allarmi esatti
-      facoltativi, permessi e disclaimer medico.
-- [ ] Pubblicare su GitHub Pages l'informativa aggiornata del 19 settembre 2026 e
+      facoltativi e permessi, senza funzioni relative alla salute.
+- [ ] Pubblicare su GitHub Pages l'informativa aggiornata del 7 ottobre 2026 e
       verificare `https://kaonashi98.github.io/FreshTrack/` dopo il
-      `git push origin main` della build 12.
+      pubblicazione della versione 1.0.1+13.
 - [x] Controllare che nessun file `.jks`, `key.properties` o `local.properties`
       sia tracciato da Git.
 - [ ] Attivare GitHub Actions e verificare che la workflow `Flutter CI` sia verde.
@@ -104,7 +114,9 @@ pacchetti store su dispositivo fisico; i relativi punti restano aperti sotto.
       (tema chiaro, inventario dimostrativo) e rigenerate le composizioni
       `docs/play-store/screenshots-benefits/` e
       `docs/play-store/screenshots-benefits-en/`.
-- [ ] Caricare in Play Console le composizioni, l'icona e la feature graphic.
+- [ ] Caricare in Play Console soltanto le composizioni 01, 03 e 04 per ciascuna
+      lingua, l'icona e la feature graphic; rimuovere il vecchio screenshot 02
+      che contiene Ibuprofene.
 - [ ] Dichiarare che l'app non contiene pubblicità.
 - [ ] Compilare target audience, classificazione dei contenuti e Data safety.
 - [ ] Dichiarare correttamente Notifiche, Fotocamera, allarmi esatti facoltativi
@@ -115,8 +127,7 @@ pacchetti store su dispositivo fisico; i relativi punti restano aperti sotto.
       corrente dell'SDK.
 - [ ] Verificare che l'attribuzione Open Food Facts/ODbL sia visibile e che la
       ricerca usi l'API v3.6 nel bundle definitivo.
-- [ ] Compilare la dichiarazione app per la salute selezionando «Gestione di
-      farmaci e cure» e riportare il disclaimer non-medical-device.
+- [ ] Sostituire la build 12 nei canali di test e aggiornare schede Store e screenshot; poi dichiarare «La mia app non ha funzionalità relative alla salute» per la build 13 senza categoria Farmaci.
 - [ ] Eseguire prima un test interno su almeno un dispositivo fisico.
 - [ ] Se l'account personale è nuovo, completare il closed test richiesto da Play Console prima di chiedere l'accesso alla produzione.
 - [ ] Controllare Pre-launch report e Android Vitals prima del rollout.

@@ -1,6 +1,6 @@
 # FreshTrack — Play Console handoff
 
-Prepared for candidate `1.0.0+12` (`io.github.kaonashi98.freshtrack`). This file
+Prepared for candidate `1.0.1+13` (`io.github.kaonashi98.freshtrack`). This file
 contains the repository-backed answers to copy into Play Console. Console labels
 can change; read each displayed question before confirming it.
 
@@ -13,14 +13,18 @@ Console. In Play Console resta solo questo:
 2. Lingua predefinita `en-US`, traduzione `it-IT`.
 3. Email `freshtrack.help@outlook.com`.
 4. URL privacy `https://kaonashi98.github.io/FreshTrack/` dopo aver aperto
-   la pagina e verificato la data 19 settembre 2026 e le sezioni Open Food
+   la pagina e verificato la data 7 ottobre 2026 e le sezioni Open Food
    Facts / ML Kit.
 5. Carica `build/app/outputs/bundle/release/app-release.aab` e lascia attivo
    Play App Signing.
 6. Icona `docs/play-store/play-store-icon-512.png` e feature graphic
    `docs/play-store/feature-graphic-1024x500.png`.
-7. Screenshot telefono: `docs/play-store/screenshots-benefits-en/` in `en-US`
-   e `docs/play-store/screenshots-benefits/` in `it-IT`.
+7. Screenshot telefono: rimuovi dalla Console il vecchio screenshot n. 2
+   della lista prodotti, che mostra Ibuprofene, in entrambe le lingue. Carica
+   solo gli screenshot n. 1, 3 e 4 delle rispettive cartelle finché non hai
+   una nuova cattura autentica della lista senza medicinali. Tre screenshot
+   sono sufficienti per la scheda; quattro sono richiesti solo per alcune
+   opportunità promozionali.
 8. Testi da `docs/play_store_listing_en.md` e `docs/play_store_listing_it.md`.
 9. Data Safety, classificazione, pubblico non infantile e dichiarazione salute
    come nelle sezioni sotto.
@@ -41,9 +45,9 @@ Console. In Play Console resta solo questo:
   match the intended adult/general audience.
 
 The English and Italian copy is in `play_store_listing_en.md` and
-`play_store_listing_it.md`. Phone screenshots for upload are in
+`play_store_listing_it.md`. Upload only phone screenshots 01, 03 and 04 from
 `docs/play-store/screenshots-benefits-en/` and
-`docs/play-store/screenshots-benefits/`.
+`docs/play-store/screenshots-benefits/`; screenshot 02 is obsolete.
 
 ## Permissions and core behavior
 
@@ -129,31 +133,20 @@ user-directed and governed by the selected provider.
 
 ## Health apps declaration
 
-FreshTrack includes an optional Medicines category and expiration reminders. It
-does not provide diagnoses, dosage advice, treatment recommendations or medical
-device functionality.
-
-Conservative declaration:
-
-- declare the applicable medication/care-management feature if the Console
-  offers it for medicine reminders;
-- state that FreshTrack is not a medical device;
-- use this disclaimer: “FreshTrack is a personal organization tool. It is not a
-  medical device and does not diagnose, treat, cure or prevent any disease. For
-  medical advice, diagnosis or treatment, consult a qualified healthcare
-  professional.”
-
-The disclaimer is present in the app, both store listings and the public privacy
-policy.
+Build 13 removes the dedicated Medicines category and related reminders.
+The app is for pantry, drinks and personal care expiry dates. After replacing
+the rejected build 12 and updating both store listings and screenshots, select
+"My app doesn't provide any health features" in the Health apps declaration.
+Do not submit that declaration while build 12 remains the only active build in
+a test track.
 
 ## Content and distribution
 
 - Complete content rating using the actual app behavior: no violence, gambling,
   sexual content, social features or user-to-user communication.
 - Select all Google Play-supported countries/regions for worldwide availability.
-- Leave Play App Signing enabled and upload the `1.0.0+12` AAB.
-- If Play Console reports that version code 12 has already been used, increase
-  the build number and regenerate every release artifact.
+- Leave Play App Signing enabled and upload the `1.0.1+13` AAB.
+- Version code 12 is already used. Do not re-upload the rejected build.
 - If production access is locked for this app/account, complete the closed test
   shown by Play Console before requesting production access.
 - Review the Pre-launch Report, device catalog exclusions and Android Vitals
@@ -164,8 +157,10 @@ policy.
 - AAB: `build/app/outputs/bundle/release/app-release.aab`.
 - Icon: `docs/play-store/play-store-icon-512.png`.
 - Feature graphic: `docs/play-store/feature-graphic-1024x500.png`.
-- English phone screenshots: `docs/play-store/screenshots-benefits-en/`.
-- Italian phone screenshots: `docs/play-store/screenshots-benefits/`.
+- English phone screenshots: files 01, 03, 04 in
+  `docs/play-store/screenshots-benefits-en/` (not 02).
+- Italian phone screenshots: files 01, 03, 04 in
+  `docs/play-store/screenshots-benefits/` (not 02).
 - English copy: `docs/play_store_listing_en.md`.
 - Italian copy: `docs/play_store_listing_it.md`.
 - Privacy URL: `https://kaonashi98.github.io/FreshTrack/`.
