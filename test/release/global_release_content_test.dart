@@ -13,8 +13,8 @@ void main() {
 
     expect(policy, contains('id="english"'));
     expect(policy, contains('id="italiano"'));
-    expect(policy, contains('October 7, 2026'));
-    expect(policy, contains('7 ottobre 2026'));
+    expect(policy, contains('October 20, 2026'));
+    expect(policy, contains('20 ottobre 2026'));
     expect(policy, contains('Open Food Facts'));
     expect(policy, contains('Google ML Kit'));
     expect(policy, contains('per-installation identifiers'));
