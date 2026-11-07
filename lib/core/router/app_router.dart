@@ -22,59 +22,74 @@ final routerProvider = Provider<GoRouter>(
     routes: [
       GoRoute(
         path: '/products/add',
-        builder: (_, _) => const ProductAddScreen(),
+        pageBuilder: (_, state) =>
+            _instantPage(state, const ProductAddScreen()),
       ),
       GoRoute(
         path: '/products/new',
-        builder: (_, state) => ProductFormScreen(
-          templateId: state.uri.queryParameters['template'],
-          scanOnOpen: state.uri.queryParameters['scan'] == 'true',
+        pageBuilder: (_, state) => _instantPage(
+          state,
+          ProductFormScreen(
+            templateId: state.uri.queryParameters['template'],
+            scanOnOpen: state.uri.queryParameters['scan'] == 'true',
+          ),
         ),
       ),
       GoRoute(
         path: '/products/scan-barcode',
-        builder: (_, _) => const BarcodeScannerScreen(),
+        pageBuilder: (_, state) =>
+            _instantPage(state, const BarcodeScannerScreen()),
       ),
       GoRoute(
         path: '/products/:id/edit',
-        builder: (_, state) =>
-            ProductFormScreen(productId: state.pathParameters['id']!),
+        pageBuilder: (_, state) => _instantPage(
+          state,
+          ProductFormScreen(productId: state.pathParameters['id']!),
+        ),
       ),
       GoRoute(
         path: '/products/:id',
-        builder: (_, state) =>
-            ProductDetailsScreen(productId: state.pathParameters['id']!),
+        pageBuilder: (_, state) => _instantPage(
+          state,
+          ProductDetailsScreen(productId: state.pathParameters['id']!),
+        ),
       ),
       GoRoute(
         path: '/settings/privacy',
-        builder: (_, _) => const PrivacyPolicyScreen(),
+        pageBuilder: (_, state) =>
+            _instantPage(state, const PrivacyPolicyScreen()),
       ),
       GoRoute(
         path: '/settings/appearance',
-        builder: (_, _) => const AppearanceSettingsScreen(),
+        pageBuilder: (_, state) =>
+            _instantPage(state, const AppearanceSettingsScreen()),
       ),
       GoRoute(
         path: '/settings/notifications',
-        builder: (_, _) => const NotificationSettingsScreen(),
+        pageBuilder: (_, state) =>
+            _instantPage(state, const NotificationSettingsScreen()),
       ),
       GoRoute(
         path: '/settings/data',
-        builder: (_, _) => const DataSettingsScreen(),
+        pageBuilder: (_, state) =>
+            _instantPage(state, const DataSettingsScreen()),
       ),
       GoRoute(
         path: '/settings/about',
-        builder: (_, _) => const AboutSettingsScreen(),
+        pageBuilder: (_, state) =>
+            _instantPage(state, const AboutSettingsScreen()),
       ),
       ShellRoute(
         builder: (_, _, child) => MainShell(child: child),
         routes: [
           GoRoute(
             path: '/dashboard',
-            pageBuilder: (_, state) => _tabPage(state, const DashboardScreen()),
+            pageBuilder: (_, state) =>
+                _instantPage(state, const DashboardScreen()),
           ),
           GoRoute(
             path: '/products',
-            pageBuilder: (_, state) => _tabPage(
+            pageBuilder: (_, state) => _instantPage(
               state,
               ProductsScreen(
                 expirationDate: CivilDate.tryParse(
@@ -85,31 +100,13 @@ final routerProvider = Provider<GoRouter>(
           ),
           GoRoute(
             path: '/settings',
-            pageBuilder: (_, state) => _tabPage(state, const SettingsScreen()),
+            pageBuilder: (_, state) =>
+                _instantPage(state, const SettingsScreen()),
           ),
         ],
       ),
     ],
   ),
 );
-CustomTransitionPage<void> _tabPage(GoRouterState state, Widget child) =>
-    CustomTransitionPage<void>(
-      key: state.pageKey,
-      child: child,
-      transitionDuration: const Duration(milliseconds: 180),
-      reverseTransitionDuration: const Duration(milliseconds: 140),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        final curve = CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutCubic,
-          reverseCurve: Curves.easeInCubic,
-        );
-        return SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(.018, 0),
-            end: Offset.zero,
-          ).animate(curve),
-          child: child,
-        );
-      },
-    );
+NoTransitionPage<void> _instantPage(GoRouterState state, Widget child) =>
+    NoTransitionPage<void>(key: state.pageKey, child: child);

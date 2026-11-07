@@ -14,7 +14,7 @@ Il package Android è `io.github.kaonashi98.freshtrack` ed è mantenuto da
 
 L'inventario resta sul dispositivo: FreshTrack non richiede account né API key
 e non invia allo sviluppatore prodotti, foto o scadenze. La connessione viene
-usata su richiesta per cercare un prodotto tramite Open Food Facts; gli SDK
+usata su richiesta per cercare un prodotto nei cataloghi Open Facts; gli SDK
 Google ML Kit trasmettono inoltre metriche tecniche, ma non immagini, testo
 riconosciuto o inventario.
 
@@ -24,14 +24,15 @@ riconosciuto o inventario.
   azioni rapide consumato/utilizzato con Annulla.
 - Inventario con ricerca, filtri rapidi per scadenze/scaduti/archivio,
   categoria e ordinamento per scadenza, nome o inserimento.
-- Categorie principali: Alimentari, Bevande e Cura personale.
+- Categorie: Alimentari, Bevande, Cura personale, Pulizia e Altro.
 - Aggiunta con scelta tra scansione e inserimento manuale; nome, categoria e scadenza in primo piano; quantità,
   acquisto, descrizione e foto restano in una sezione facoltativa.
 - Suggerimenti dai prodotti già usati, duplicazione e azione “Salva e aggiungi
   un altro” per inserire più articoli con meno passaggi.
 - Scansione barcode con zoom automatico, torcia, foto dalla galleria o codice
-  inserito a mano; ricerca opzionale su Open Food Facts e compilazione
-  manuale sempre disponibile in assenza di rete.
+  inserito a mano; ricerca opzionale nei cataloghi Open Facts e compilazione
+  manuale sempre disponibile in assenza di rete. Dopo il riconoscimento, il
+  flusso propone subito di fotografare la scadenza della confezione.
 - Riconoscimento sul dispositivo della data da una foto ravvicinata, sempre
   sottoposta alla conferma dell'utente, con riprova se la lettura fallisce.
 - Creazione e modifica dei prodotti con foto da fotocamera o galleria.
@@ -43,7 +44,8 @@ riconosciuto o inventario.
   Android può ritardare l’orario: all’apertura FreshTrack recupera i promemoria
   persi, e puoi chiedere allarmi più puntuali o inviare una prova.
 - Apertura dell'elenco corretto toccando una notifica.
-- Tema chiaro, scuro o di sistema.
+- Tema del telefono predefinito sulle nuove installazioni; scelta manuale tra
+  Sistema, Chiaro e Scuro nelle Impostazioni.
 - Lingua automatica: italiano sui dispositivi in italiano, inglese su tutti gli
   altri; selezione manuale Sistema, Italiano o English dalle Impostazioni.
 - Backup ZIP manuale con prodotti, preferenze e foto; puoi salvarlo o
@@ -89,7 +91,7 @@ documenta le modifiche e le verifiche.
 - `image_picker`
 - `mobile_scanner`
 - ML Kit Text Recognition
-- Open Food Facts API v3.6, database ODbL
+- API Open Facts v3.6; database Open Food Facts ODbL
 - `archive` e `file_picker`
 - `shared_preferences`
 
@@ -167,7 +169,8 @@ flutter build appbundle --release
 
 Fotografie, inventario e preferenze restano nella memoria privata dell'app e non
 vengono inviati allo sviluppatore. La ricerca barcode facoltativa invia il
-codice cercato a Open Food Facts. Il riconoscimento avviene sul dispositivo, ma
+codice cercato a Open Food Facts e può essere reindirizzata ai cataloghi Open
+Beauty Facts, Open Pet Food Facts e Open Products Facts. Il riconoscimento avviene sul dispositivo, ma
 gli SDK Google ML Kit possono trasmettere informazioni tecniche e diagnostiche
 descritte nell'[informativa completa](PRIVACY_POLICY.md). I dati prodotto di
 Open Food Facts sono attribuiti ai suoi collaboratori e distribuiti con licenza

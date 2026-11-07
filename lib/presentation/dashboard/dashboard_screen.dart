@@ -57,14 +57,13 @@ class DashboardScreen extends ConsumerWidget {
                           context.strings.languageCode,
                         ).format(now),
                         eyebrowKey: const Key('dashboard-summary'),
-                        subtitle: priorities.isEmpty
-                            ? context.tr(
-                                'Le prossime scadenze sono sotto controllo.',
-                                'Your upcoming expirations are under control.',
-                              )
-                            : context.strings.isEnglish
-                            ? '${priorities.length} ${priorities.length == 1 ? 'product' : 'products'} to keep an eye on this week.'
-                            : '${priorities.length} ${priorities.length == 1 ? 'prodotto' : 'prodotti'} da tenere d’occhio questa settimana.',
+                      ),
+                      const SizedBox(height: 22),
+                      _OverviewCard(
+                        inventoryEmpty: items.isEmpty,
+                        today: today.length,
+                        upcoming: upcoming.length,
+                        expired: expired.length,
                       ),
                       if (expired.isNotEmpty) ...[
                         const SizedBox(height: 20),
@@ -271,16 +270,26 @@ class DashboardScreen extends ConsumerWidget {
                       const SizedBox(height: 8),
                       if (upcoming.isEmpty)
                         _QuietState(
-                          title: expired.isEmpty && today.isEmpty
+                          title: items.isEmpty
+                              ? context.tr(
+                                  'Le tue prossime scadenze',
+                                  'Your upcoming expirations',
+                                )
+                              : expired.isEmpty && today.isEmpty
                               ? context.tr('Nessuna urgenza', 'Nothing urgent')
                               : context.tr(
                                   'Nessun’altra scadenza vicina',
                                   'No other upcoming expirations',
                                 ),
-                          description: context.tr(
-                            'Nessun prodotto in scadenza nei prossimi 7 giorni.',
-                            'No products expire within the next 7 days.',
-                          ),
+                          description: items.isEmpty
+                              ? context.tr(
+                                  'Qui vedrai le scadenze dei prodotti che registri.',
+                                  'The expiration dates of products you add will appear here.',
+                                )
+                              : context.tr(
+                                  'Nessun prodotto in scadenza nei prossimi 7 giorni.',
+                                  'No products expire within the next 7 days.',
+                                ),
                         )
                       else
                         GlassSurface(
@@ -496,6 +505,143 @@ class DashboardScreen extends ConsumerWidget {
       }
     }
   }
+}
+
+class _OverviewCard extends StatelessWidget {
+  const _OverviewCard({
+    required this.inventoryEmpty,
+    required this.today,
+    required this.upcoming,
+    required this.expired,
+  });
+
+  final int today;
+  final bool inventoryEmpty;
+  final int upcoming;
+  final int expired;
+
+  @override
+  Widget build(BuildContext context) {
+    final total = today + upcoming + expired;
+    final text = Theme.of(context).textTheme;
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF123E78), Color(0xFF1768A6), Color(0xFF087650)],
+        ),
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF155EEF).withValues(alpha: .16),
+            blurRadius: 22,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.tr('LA TUA SETTIMANA', 'YOUR WEEK'),
+                      style: text.labelSmall?.copyWith(
+                        color: Colors.white.withValues(alpha: .82),
+                        letterSpacing: 1.5,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      inventoryEmpty
+                          ? context.tr(
+                              'Aggiungi il primo prodotto',
+                              'Add your first product',
+                            )
+                          : total == 0
+                          ? context.tr('Tutto in ordine', 'All in order')
+                          : context.strings.isEnglish
+                          ? '$total ${total == 1 ? 'product' : 'products'} to check'
+                          : '$total ${total == 1 ? 'prodotto' : 'prodotti'} da controllare',
+                      style: text.headlineSmall?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                        height: 1.14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (MediaQuery.textScalerOf(context).scale(14) <= 21) ...[
+                const SizedBox(width: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: .16),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: const Icon(
+                    Icons.auto_awesome_rounded,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 20),
+          Container(height: 1, color: Colors.white.withValues(alpha: .22)),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              _OverviewMetric(count: today, label: context.tr('Oggi', 'Today')),
+              _OverviewMetric(
+                count: upcoming,
+                label: context.tr('Prossimi 7 giorni', 'Next 7 days'),
+              ),
+              if (expired > 0)
+                _OverviewMetric(
+                  count: expired,
+                  label: context.tr('Scaduti', 'Expired'),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OverviewMetric extends StatelessWidget {
+  const _OverviewMetric({required this.count, required this.label});
+
+  final int count;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+    decoration: BoxDecoration(
+      color: Colors.white.withValues(alpha: .14),
+      borderRadius: BorderRadius.circular(13),
+    ),
+    child: Text(
+      '$count  $label',
+      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+        color: Colors.white,
+        fontWeight: FontWeight.w700,
+      ),
+    ),
+  );
 }
 
 class _SectionHeading extends StatelessWidget {

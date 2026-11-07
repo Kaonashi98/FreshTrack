@@ -1,12 +1,27 @@
 # Asset Google Play
 
-Asset pronti (lo screenshot n. 2 è obsoleto e non va caricato):
+## Candidato corrente — 20 ottobre 2026
+
+Il set corrente di catture reali è in
+[`candidate-2026-10-20/`](candidate-2026-10-20/README.md): otto PNG per lingua,
+1080×2400, provenienza e hash documentati. Non contiene nuove composizioni
+promozionali: conserva le schermate integrali del candidato locale `1.0.1+14`.
+Va approvato e confrontato con la release effettivamente scelta prima dell'upload.
+
+Le composizioni `screenshots-benefits/` e `screenshots-benefits-en/`, insieme
+alle anteprime `preview-it.png` e `preview-en.png`, sono **storiche**: tutte le
+immagini 01–08 vanno sostituite nella selezione destinata al nuovo rilascio.
+In particolare 03 mostra il vecchio modulo e 04 usa ancora la build 11.
+Non rigenerarle con le vecchie sorgenti per rappresentare la build 14.
+
+## Inventario degli asset preesistenti
+
+Asset locali per la scheda telefono in italiano e inglese:
 
 - `play-store-icon-512.png`: icona 512×512, PNG 32 bit, meno di 1 MB;
 - `feature-graphic-1024x500.png`: feature graphic 1024×500, PNG 24 bit;
 - `feature-background-source.png`: sfondo sorgente generato per la feature graphic;
-- `screenshots-benefits/`: tre composizioni telefono 1080×2400 in italiano,
-  da schermate reali sul Pixel 8;
+- `screenshots-benefits/`: otto composizioni telefono 1080×2400 in italiano;
 - `screenshots-benefits-en/`: lo stesso set in inglese;
 - `benefit-background-source-v1.png`: sfondo senza testo usato per le
   composizioni degli screenshot.
@@ -31,14 +46,17 @@ python tool/generate_benefit_screenshots.py `
   --language it
 ```
 
-Per l'inglese, acquisire dal candidato release le tre schermate
-`dashboard.png`, `quick-add.png` e `data-backup.png` dentro
-`docs/screenshots/source-release-en/`, quindi eseguire lo stesso comando con
-`--language en` e `--output docs/play-store/screenshots-benefits-en`.
+Per l'inglese, eseguire lo stesso comando con `--language en` e
+`--output docs/play-store/screenshots-benefits-en`. Le sorgenti di entrambe le
+lingue sono indicate nel generatore.
 
-Il set comunica tre risultati concreti: sapere cosa usare prima, aggiungere
-rapidamente i prodotti e proteggere l'inventario con un backup. Le sei
-composizioni del 19 settembre 2026 usano schermate della build 11 sul Pixel 8,
-tema chiaro, italiano e inglese. Caricare in Console
-soltanto gli screenshot 01, 03 e 04 di `screenshots-benefits/` per `it-IT` e di
-`screenshots-benefits-en/` per `en-US`. Il vecchio n. 02 è stato rimosso.
+Ordine delle otto immagini: dashboard, inventario, aggiunta rapida, backup,
+scelta tra scansione e inserimento manuale, dettaglio prodotto, promemoria,
+tema e lingua. Le nuove catture 01, 02, 03 e 05–08 provengono dalla build
+`1.0.1+13` sull'emulatore Android nel tema chiaro, con tre prodotti dimostrativi
+non medici; la schermata 04 conserva la cattura della build 11, che mostra
+ancora le funzioni di creazione, ripristino ed esportazione del backup. Prima
+del rilascio finale ricontrollare ogni immagine rispetto al bundle pubblicato.
+Caricare gli otto PNG in ordine numerico nella scheda `it-IT` e gli otto PNG
+inglesi nella scheda `en-US`. Il vecchio screenshot dei prodotti con
+Ibuprofene resta escluso.

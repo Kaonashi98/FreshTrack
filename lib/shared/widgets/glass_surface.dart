@@ -5,7 +5,7 @@ class GlassSurface extends StatelessWidget {
     required this.child,
     this.padding = EdgeInsets.zero,
     this.margin = EdgeInsets.zero,
-    this.borderRadius = const BorderRadius.all(Radius.circular(18)),
+    this.borderRadius = const BorderRadius.all(Radius.circular(22)),
     this.onTap,
     super.key,
   });
@@ -15,19 +15,24 @@ class GlassSurface extends StatelessWidget {
   final BorderRadius borderRadius;
   final VoidCallback? onTap;
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: margin,
-    child: Material(
-      color: Theme.of(context).colorScheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: borderRadius,
-        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: margin,
+      child: Material(
+        color: scheme.surface,
+        elevation: Theme.of(context).brightness == Brightness.dark ? 0 : 2,
+        shadowColor: const Color(0xFF2D6685).withValues(alpha: .12),
+        shape: RoundedRectangleBorder(
+          borderRadius: borderRadius,
+          side: BorderSide(color: scheme.outlineVariant),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(padding: padding, child: child),
+        ),
       ),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(padding: padding, child: child),
-      ),
-    ),
-  );
+    );
+  }
 }

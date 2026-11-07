@@ -60,8 +60,10 @@ class OpenFoodFactsService {
       'world.openfoodfacts.org',
       '/api/v3.6/product/$barcode',
       {
+        'product_type': 'all',
+        'lc': languageCode,
         'fields':
-            'code,product_name_it,product_name_en,product_name,brands,categories_tags',
+            'code,product_type,product_name_it,product_name_en,product_name,brands,categories_tags',
       },
     );
     try {
@@ -103,15 +105,7 @@ class OpenFoodFactsService {
           barcode: barcode,
           name: name,
           brand: brand,
-          category:
-              tags.any(
-                (tag) =>
-                    tag.contains('beverage') ||
-                    tag.contains('drink') ||
-                    tag.contains('bevande'),
-              )
-              ? ProductCategory.beverages
-              : ProductCategory.food,
+          category: _categoryFor(product['product_type'], tags),
         ),
       );
     } on TimeoutException {
@@ -122,6 +116,33 @@ class OpenFoodFactsService {
       return const BarcodeLookupResult.unavailable();
     } on Object {
       return const BarcodeLookupResult.unavailable();
+    }
+  }
+
+  ProductCategory _categoryFor(Object? productType, List<String> tags) {
+    switch (productType) {
+      case 'beauty':
+        return ProductCategory.personalCare;
+      case 'petfood':
+        return ProductCategory.other;
+      case 'product':
+        return tags.any(
+              (tag) => tag.contains('cleaning') || tag.contains('detergent'),
+            )
+            ? ProductCategory.cleaning
+            : ProductCategory.other;
+      case 'food':
+      case null:
+        return tags.any(
+              (tag) =>
+                  tag.contains('beverage') ||
+                  tag.contains('drink') ||
+                  tag.contains('bevande'),
+            )
+            ? ProductCategory.beverages
+            : ProductCategory.food;
+      default:
+        return ProductCategory.other;
     }
   }
 

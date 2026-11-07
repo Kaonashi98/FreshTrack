@@ -65,7 +65,7 @@ void main() {
     expect(find.textContaining('per-installation identifiers'), findsOneWidget);
     expect(find.textContaining('not a medical device'), findsNothing);
 
-    await tester.scrollUntilVisible(find.text('October 7, 2026'), 400);
-    expect(find.text('October 7, 2026'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('October 20, 2026'), 400);
+    expect(find.text('October 20, 2026'), findsOneWidget);
   });
 }

@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('il candidato usa un versionCode nuovo', () {
+  test('la versione sorgente è 1.0.1+14', () {
     final pubspec = File('pubspec.yaml').readAsStringSync();
-    expect(pubspec, contains('version: 1.0.1+13'));
+    expect(pubspec, contains('version: 1.0.1+14'));
   });
 
   test('la privacy pubblicabile copre entrambe le lingue e i fornitori', () {
@@ -16,20 +16,27 @@ void main() {
     expect(policy, contains('October 20, 2026'));
     expect(policy, contains('20 ottobre 2026'));
     expect(policy, contains('Open Food Facts'));
+    expect(policy, contains('Open Beauty Facts'));
+    expect(policy, contains('Open Pet Food Facts'));
+    expect(policy, contains('Open Products Facts'));
     expect(policy, contains('Google ML Kit'));
     expect(policy, contains('per-installation identifiers'));
     expect(policy, contains('identificatori per installazione'));
+    expect(policy, contains('auto zoom'));
+    expect(policy, contains('zoom automatico'));
+    expect(policy, contains('bounding-box coordinates'));
+    expect(policy, contains('coordinate previste'));
     expect(policy, isNot(contains('not a medical device')));
     expect(policy, isNot(contains('Non è un dispositivo medico')));
   });
 
-  test('sono pronte le schede Play italiana e inglese', () {
+  test('le bozze delle schede Play rispettano i limiti dei testi', () {
     final italian = File('docs/play_store_listing_it.md').readAsStringSync();
     final english = File('docs/play_store_listing_en.md').readAsStringSync();
 
-    expect(italian, contains('build 13'));
+    expect(italian, contains('prossimo bundle'));
     expect(italian, contains('italiana o inglese'));
-    expect(english, contains('build 13'));
+    expect(english, contains('next bundle'));
     expect(english, contains('automatic Italian/English'));
     expect(english, isNot(contains('medicines')));
 
@@ -57,12 +64,12 @@ void main() {
       _section(
         italian,
         '## Descrizione completa',
-        '## Note di rilascio',
+        '## Bozza note di rilascio',
       ).length,
       lessThanOrEqualTo(4000),
     );
     expect(
-      _section(english, '## Full description', '## Release notes').length,
+      _section(english, '## Full description', '## Draft release notes').length,
       lessThanOrEqualTo(4000),
     );
   });

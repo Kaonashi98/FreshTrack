@@ -1,0 +1,146 @@
+[
+  {
+    "file": "it\\01-home.png",
+    "source": "build\\audit-2026-10-20\\device\\final-it-01-home.png",
+    "width": 1080,
+    "height": 2400,
+    "sha256": "6b6df3a801fb0d3823c979219cf6577d2508ca5fe1084a1062d462cbcc29eca1",
+    "sourceAabSha256": "7fbc9490b98354d8677d232142fa1366974c4a5177fc97b3bcbebdaecf2a9343",
+    "sourceQaApkSha256": "4ec45f353f0f4bec5a46d8562a4dcd7b4c476e22a492b80118bec81e2b2df25d"
+  },
+  {
+    "file": "it\\02-inventory.png",
+    "source": "build\\audit-2026-10-20\\device\\final-it-02-inventory.png",
+    "width": 1080,
+    "height": 2400,
+    "sha256": "2807b26cbaa1574f155b74e6614127b355ca8e077f6e80841351fa1204e25bf5",
+    "sourceAabSha256": "7fbc9490b98354d8677d232142fa1366974c4a5177fc97b3bcbebdaecf2a9343",
+    "sourceQaApkSha256": "4ec45f353f0f4bec5a46d8562a4dcd7b4c476e22a492b80118bec81e2b2df25d"
+  },
+  {
+    "file": "it\\03-form.png",
+    "source": "build\\audit-2026-10-20\\device\\final-it-03-form.png",
+    "width": 1080,
+    "height": 2400,
+    "sha256": "fc6f43bfb9f3a49dbad2590aa90e6b21ef08def637d0c2f59164384f37f8a773",
+    "sourceAabSha256": "7fbc9490b98354d8677d232142fa1366974c4a5177fc97b3bcbebdaecf2a9343",
+    "sourceQaApkSha256": "4ec45f353f0f4bec5a46d8562a4dcd7b4c476e22a492b80118bec81e2b2df25d"
+  },
+  {
+    "file": "it\\04-backup.png",
+    "source": "build\\audit-2026-10-20\\device\\final-it-04-backup.png",
+    "width": 1080,
+    "height": 2400,
+    "sha256": "bc2b2d7ef28760297c0028175d3474c409ead58fdf427c15f40bb332840d927d",
+    "sourceAabSha256": "7fbc9490b98354d8677d232142fa1366974c4a5177fc97b3bcbebdaecf2a9343",
+    "sourceQaApkSha256": "4ec45f353f0f4bec5a46d8562a4dcd7b4c476e22a492b80118bec81e2b2df25d"
+  },
+  {
+    "file": "it\\05-choice.png",
+    "source": "build\\audit-2026-10-20\\device\\final-it-05-choice.png",
+    "width": 1080,
+    "height": 2400,
+    "sha256": "89c876b8500cd23a3b724a1c611237927c65cd98454d29d4503b0feadd3f669b",
+    "sourceAabSha256": "7fbc9490b98354d8677d232142fa1366974c4a5177fc97b3bcbebdaecf2a9343",
+    "sourceQaApkSha256": "4ec45f353f0f4bec5a46d8562a4dcd7b4c476e22a492b80118bec81e2b2df25d"
+  },
+  {
+    "file": "it\\06-detail.png",
+    "source": "build\\audit-2026-10-20\\device\\final-it-06-detail.png",
+    "width": 1080,
+    "height": 2400,
+    "sha256": "c7c918ff5ae247bdd5e139e1b8931a3c521d3b1e55dcd48e76c22707b2ecf650",
+    "sourceAabSha256": "7fbc9490b98354d8677d232142fa1366974c4a5177fc97b3bcbebdaecf2a9343",
+    "sourceQaApkSha256": "4ec45f353f0f4bec5a46d8562a4dcd7b4c476e22a492b80118bec81e2b2df25d"
+  },
+  {
+    "file": "it\\07-notifications.png",
+    "source": "build\\audit-2026-10-20\\device\\final-it-07-notifications.png",
+    "width": 1080,
+    "height": 2400,
+    "sha256": "e11bc572b0da70836c6dc4e926396cfa8e4f8a5170e6eeba471ae06a80418e5e",
+    "sourceAabSha256": "7fbc9490b98354d8677d232142fa1366974c4a5177fc97b3bcbebdaecf2a9343",
+    "sourceQaApkSha256": "4ec45f353f0f4bec5a46d8562a4dcd7b4c476e22a492b80118bec81e2b2df25d"
+  },
+  {
+    "file": "it\\08-appearance.png",
+    "source": "build\\audit-2026-10-20\\device\\final-it-08-appearance.png",
+    "width": 1080,
+    "height": 2400,
+    "sha256": "c82947332651660be77d17a3fbf1a39d9d30f7128a8c54a9cb6d163c056ac938",
+    "sourceAabSha256": "7fbc9490b98354d8677d232142fa1366974c4a5177fc97b3bcbebdaecf2a9343",
+    "sourceQaApkSha256": "4ec45f353f0f4bec5a46d8562a4dcd7b4c476e22a492b80118bec81e2b2df25d"
+  },
+  {
+    "file": "en\\01-home.png",
+    "source": "build\\audit-2026-10-20\\device\\final-en-01-home.png",
+    "width": 1080,
+    "height": 2400,
+    "sha256": "25aacc435b97e86f28c8a3b9619f7905abc5424211399d08ce7c2f295b9ade60",
+    "sourceAabSha256": "7fbc9490b98354d8677d232142fa1366974c4a5177fc97b3bcbebdaecf2a9343",
+    "sourceQaApkSha256": "4ec45f353f0f4bec5a46d8562a4dcd7b4c476e22a492b80118bec81e2b2df25d"
+  },
+  {
+    "file": "en\\02-inventory.png",
+    "source": "build\\audit-2026-10-20\\device\\final-en-02-inventory.png",
+    "width": 1080,
+    "height": 2400,
+    "sha256": "5ffcd90ba52ee3c774aa6db51c94f301d42d8301e288db12fd53d187ff24a05d",
+    "sourceAabSha256": "7fbc9490b98354d8677d232142fa1366974c4a5177fc97b3bcbebdaecf2a9343",
+    "sourceQaApkSha256": "4ec45f353f0f4bec5a46d8562a4dcd7b4c476e22a492b80118bec81e2b2df25d"
+  },
+  {
+    "file": "en\\03-form.png",
+    "source": "build\\audit-2026-10-20\\device\\final-en-03-form.png",
+    "width": 1080,
+    "height": 2400,
+    "sha256": "dbaafbdb66239e2aa6c66219f972610134c821a252b26bdb3245fc38eb82faea",
+    "sourceAabSha256": "7fbc9490b98354d8677d232142fa1366974c4a5177fc97b3bcbebdaecf2a9343",
+    "sourceQaApkSha256": "4ec45f353f0f4bec5a46d8562a4dcd7b4c476e22a492b80118bec81e2b2df25d"
+  },
+  {
+    "file": "en\\04-backup.png",
+    "source": "build\\audit-2026-10-20\\device\\final-en-04-backup.png",
+    "width": 1080,
+    "height": 2400,
+    "sha256": "1eca9d141e063e4664b797ca449f0d8ad9db5f00538632351cc059c8391f766e",
+    "sourceAabSha256": "7fbc9490b98354d8677d232142fa1366974c4a5177fc97b3bcbebdaecf2a9343",
+    "sourceQaApkSha256": "4ec45f353f0f4bec5a46d8562a4dcd7b4c476e22a492b80118bec81e2b2df25d"
+  },
+  {
+    "file": "en\\05-choice.png",
+    "source": "build\\audit-2026-10-20\\device\\final-en-05-choice.png",
+    "width": 1080,
+    "height": 2400,
+    "sha256": "b87338e1f21d406a69d7fa6249593b66870c89cad9a517434f6e97d00f813a72",
+    "sourceAabSha256": "7fbc9490b98354d8677d232142fa1366974c4a5177fc97b3bcbebdaecf2a9343",
+    "sourceQaApkSha256": "4ec45f353f0f4bec5a46d8562a4dcd7b4c476e22a492b80118bec81e2b2df25d"
+  },
+  {
+    "file": "en\\06-detail.png",
+    "source": "build\\audit-2026-10-20\\device\\final-en-06-detail.png",
+    "width": 1080,
+    "height": 2400,
+    "sha256": "ddb99ada4131e91c5a46cbd04ae63257c95f76b734ebbebd26b218712cb2da18",
+    "sourceAabSha256": "7fbc9490b98354d8677d232142fa1366974c4a5177fc97b3bcbebdaecf2a9343",
+    "sourceQaApkSha256": "4ec45f353f0f4bec5a46d8562a4dcd7b4c476e22a492b80118bec81e2b2df25d"
+  },
+  {
+    "file": "en\\07-notifications.png",
+    "source": "build\\audit-2026-10-20\\device\\final-en-07-notifications.png",
+    "width": 1080,
+    "height": 2400,
+    "sha256": "175e235a38d551f99878ee64aeae870183225c6bd5e75722127fbc96052fd3cf",
+    "sourceAabSha256": "7fbc9490b98354d8677d232142fa1366974c4a5177fc97b3bcbebdaecf2a9343",
+    "sourceQaApkSha256": "4ec45f353f0f4bec5a46d8562a4dcd7b4c476e22a492b80118bec81e2b2df25d"
+  },
+  {
+    "file": "en\\08-appearance.png",
+    "source": "build\\audit-2026-10-20\\device\\final-en-08-appearance.png",
+    "width": 1080,
+    "height": 2400,
+    "sha256": "2c1b64b33864611940b1f2cab989788ef7aa18c8000ef1a8dc6d5d1a3c2d4bb9",
+    "sourceAabSha256": "7fbc9490b98354d8677d232142fa1366974c4a5177fc97b3bcbebdaecf2a9343",
+    "sourceQaApkSha256": "4ec45f353f0f4bec5a46d8562a4dcd7b4c476e22a492b80118bec81e2b2df25d"
+  }
+]

@@ -11,7 +11,7 @@ class ProductAddScreen extends StatelessWidget {
     body: SafeArea(
       top: false,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+        padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
         children: [
           Text(
             context.tr('Aggiungi un prodotto', 'Add a product'),
@@ -19,16 +19,49 @@ class ProductAddScreen extends StatelessWidget {
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            context.tr('Da dove iniziamo?', 'Where shall we start?'),
-            style: AppTheme.pageTitle(context),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            context.tr(
-              'Scegli il modo più comodo per te.',
-              'Choose the easiest option for you.',
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(22),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF123E78), Color(0xFF087650)],
+              ),
+              borderRadius: BorderRadius.circular(28),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(11),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: .16),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Icon(
+                    Icons.add_shopping_cart_rounded,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Text(
+                  context.tr('Da dove iniziamo?', 'Where shall we start?'),
+                  style: AppTheme.pageTitle(
+                    context,
+                  )?.copyWith(color: Colors.white),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  context.tr(
+                    'Scegli il modo più comodo per te.',
+                    'Choose the easiest option for you.',
+                  ),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.white.withValues(alpha: .9),
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 24),
@@ -55,25 +88,35 @@ class ProductAddScreen extends StatelessWidget {
             ),
             onTap: () => context.pushReplacement('/products/new'),
           ),
-          const SizedBox(height: 24),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(
-                Icons.photo_camera_outlined,
-                size: 20,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  context.tr(
-                    'Puoi fotografare la data di scadenza durante l’inserimento.',
-                    'You can photograph the expiration date while adding the product.',
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.secondaryContainer,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.photo_camera_outlined,
+                  size: 21,
+                  color: Theme.of(context).colorScheme.onSecondaryContainer,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    context.tr(
+                      'Puoi fotografare la data di scadenza durante l’inserimento.',
+                      'You can photograph the expiration date while adding the product.',
+                    ),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -98,46 +141,56 @@ class _AddChoice extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final color = primary ? scheme.onPrimary : scheme.onSurface;
+    final accent = primary ? scheme.primary : scheme.secondary;
     return Material(
-      color: primary ? scheme.primary : scheme.surface,
+      color: scheme.surface,
+      elevation: Theme.of(context).brightness == Brightness.dark ? 0 : 2,
+      shadowColor: const Color(0xFF2D6685).withValues(alpha: .12),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-        side: BorderSide(
-          color: primary ? scheme.primary : scheme.outlineVariant,
-        ),
+        borderRadius: BorderRadius.circular(22),
+        side: BorderSide(color: scheme.outlineVariant),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(18),
           child: Row(
             children: [
-              Icon(icon, size: 27, color: color),
-              const SizedBox(width: 14),
+              Container(
+                width: 54,
+                height: 54,
+                decoration: BoxDecoration(
+                  color: primary
+                      ? scheme.primaryContainer
+                      : scheme.secondaryContainer,
+                  borderRadius: BorderRadius.circular(17),
+                ),
+                child: Icon(icon, size: 27, color: accent),
+              ),
+              const SizedBox(width: 15),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       title,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.titleMedium?.copyWith(color: color),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: scheme.onSurface,
+                      ),
                     ),
                     const SizedBox(height: 5),
                     Text(
                       description,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: primary ? color : scheme.onSurfaceVariant,
+                        color: scheme.onSurfaceVariant,
                       ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: 8),
-              Icon(Icons.chevron_right_rounded, color: color, size: 20),
+              Icon(Icons.chevron_right_rounded, color: accent, size: 20),
             ],
           ),
         ),

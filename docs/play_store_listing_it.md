@@ -27,13 +27,13 @@ Funzioni principali:
   recupera all’apertura e può usare allarmi più puntuali se li consenti);
 - foto da fotocamera o galleria;
 - scansione barcode con zoom, torcia, foto o codice inserito a mano, ricerca
-  opzionale su Open Food Facts e inserimento sempre disponibile;
+  opzionale nei cataloghi Open Facts e inserimento sempre disponibile;
 - lettura sul dispositivo della scadenza da una foto ravvicinata, con conferma
   obbligatoria;
 - backup completo di prodotti, preferenze e foto, con salvataggio, condivisione
   verso un altro telefono e anteprima prima del ripristino;
 - esportazione CSV per Excel e Fogli Google;
-- categorie dedicate ad alimenti, bevande e cura personale;
+- categorie per alimenti, bevande, cura personale, pulizia e altri prodotti;
 - stato consumato, utilizzato o buttato con possibilità di ripristino;
 - ricerca, categorie e ordinamento per scadenza;
 - tema chiaro, scuro o di sistema;
@@ -42,7 +42,8 @@ Funzioni principali:
 
 Privacy prima di tutto: FreshTrack non richiede un account, non contiene
 pubblicità e non invia allo sviluppatore inventario, foto o scadenze. Una
-ricerca barcode avviata dall'utente invia il codice cercato a Open Food Facts.
+ricerca barcode avviata dall'utente invia il codice cercato a Open Food Facts e
+può essere reindirizzata a Open Beauty Facts, Open Pet Food Facts o Open Products Facts.
 Il riconoscimento del testo avviene sul dispositivo; gli SDK Google ML Kit
 possono trasmettere informazioni tecniche e diagnostiche, ma non il contenuto
 delle immagini o dell'inventario.
@@ -51,11 +52,12 @@ FreshTrack è pensata per un telefono in casa. Non c’è un elenco famiglia né
 account cloud: per copiare l’inventario su un altro dispositivo usa Condividi
 backup, poi Ripristina sull’altro telefono.
 
-## Note di rilascio 1.0.1 (build 13)
+## Bozza note di rilascio per il prossimo bundle
 
-FreshTrack ora si concentra su dispensa, bevande e prodotti per la cura
-personale. I prodotti e i backup esistenti restano disponibili. Sono inclusi
-promemoria, scanner barcode, backup e interfaccia italiana/inglese.
+La ricerca barcode può trovare alimenti, cosmetici, cibo per animali e altri
+oggetti presenti nei cataloghi Open Facts. Restano disponibili inserimento
+manuale, promemoria, backup e interfaccia italiana/inglese. Confermare queste
+note solo dopo aver generato e verificato il nuovo bundle.
 
 ## Risorse Play Console
 
@@ -64,17 +66,19 @@ promemoria, scanner barcode, backup e interfaccia italiana/inglese.
 - email di assistenza: freshtrack.help@outlook.com
 - icona `docs/play-store/play-store-icon-512.png`
 - feature graphic `docs/play-store/feature-graphic-1024x500.png`
-- screenshot telefono: `docs/play-store/screenshots-benefits/`
+- screenshot telefono: `docs/play-store/candidate-2026-10-20/it/`
+  (catture del candidato locale; approvare e confrontare con la release finale)
 
 ## Data Safety
 
 - Inventario, fotografie, date e preferenze sono conservati localmente e non
   vengono inviati allo sviluppatore.
 - La ricerca barcode, soltanto su iniziativa dell'utente, trasmette a Open Food
-  Facts tramite HTTPS il codice cercato e i normali dati tecnici di rete. Non
+  Facts tramite HTTPS il codice cercato e la lingua; può essere reindirizzata a
+  Open Beauty Facts, Open Pet Food Facts o Open Products Facts. Non
   trasmette foto, date o l'intero inventario.
-- Open Food Facts è usato tramite API v3.6. I dati prodotto provengono dal
-  database collaborativo Open Food Facts e sono soggetti a licenza ODbL;
+- La ricerca usa l'API v3.6 dei cataloghi Open Facts. I dati alimentari di Open
+  Food Facts sono soggetti a licenza ODbL;
   l'attribuzione è visibile nella schermata «Privacy e informazioni».
 - Google ML Kit può raccogliere tramite HTTPS informazioni su dispositivo e
   app, identificatori per installazione, metriche delle prestazioni,

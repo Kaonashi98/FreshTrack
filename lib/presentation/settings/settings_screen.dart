@@ -14,12 +14,20 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settingsState = ref.watch(appSettingsProvider);
     final scheme = Theme.of(context).colorScheme;
-    final privacyCard = GlassSurface(
-      padding: const EdgeInsets.all(18),
+    final privacyCard = Container(
+      padding: const EdgeInsets.all(19),
+      decoration: BoxDecoration(
+        color: scheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(22),
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.shield_outlined, color: scheme.primary, size: 24),
+          Icon(
+            Icons.shield_outlined,
+            color: scheme.onSecondaryContainer,
+            size: 25,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -27,9 +35,9 @@ class SettingsScreen extends ConsumerWidget {
                 'L’inventario resta sul dispositivo. Scegli tu quando creare un backup.',
                 'Your inventory stays on your device. You decide when to create a backup.',
               ),
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: scheme.onSecondaryContainer,
+              ),
             ),
           ),
         ],
@@ -61,7 +69,9 @@ class SettingsScreen extends ConsumerWidget {
                   color: scheme.onSurfaceVariant,
                 ),
               ),
-              const SizedBox(height: 26),
+              const SizedBox(height: 22),
+              privacyCard,
+              const SizedBox(height: 27),
               _SettingsSectionLabel(
                 context.tr('LA TUA ESPERIENZA', 'YOUR EXPERIENCE'),
               ),
@@ -138,8 +148,6 @@ class SettingsScreen extends ConsumerWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
-              privacyCard,
             ],
           ),
         ),
@@ -196,13 +204,13 @@ class _SettingsDestination extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ListTile(
     onTap: onTap,
-    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 17, vertical: 12),
     leading: Container(
-      width: 44,
-      height: 44,
+      width: 46,
+      height: 46,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withValues(alpha: .12),
-        borderRadius: BorderRadius.circular(14),
+        color: Theme.of(context).colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(15),
       ),
       child: Icon(icon, color: Theme.of(context).colorScheme.primary),
     ),

@@ -4,7 +4,7 @@ import 'package:freshtrack/l10n/app_strings.dart';
 class PrivacyPolicyScreen extends StatelessWidget {
   const PrivacyPolicyScreen({super.key});
 
-  static const lastUpdated = '7 ottobre 2026';
+  static const lastUpdated = '20 ottobre 2026';
 
   @override
   Widget build(BuildContext context) {
@@ -40,11 +40,12 @@ class PrivacyPolicyScreen extends StatelessWidget {
     ),
     (
       'Funzioni online opzionali',
-      'Solo quando richiedi una ricerca barcode, FreshTrack invia quel codice e la lingua della richiesta a Open Food Facts tramite HTTPS per cercare i dati del prodotto. Il servizio riceve anche i normali dati tecnici della connessione, come l’indirizzo IP e lo User-Agent dell’app. Non vengono inviati inventario, fotografie o date. Se la rete non è disponibile, puoi continuare compilando i dati a mano.',
+      'Solo quando richiedi una ricerca barcode, FreshTrack invia quel codice e la lingua della richiesta tramite HTTPS a Open Food Facts. La ricerca può essere reindirizzata a Open Beauty Facts, Open Pet Food Facts o Open Products Facts. Il catalogo consultato riceve anche i normali dati tecnici della connessione, come l’indirizzo IP e lo User-Agent dell’app. Non vengono inviati inventario, fotografie o date. Se il prodotto non viene trovato o la rete non è disponibile, puoi compilare i dati a mano.',
     ),
     (
       'Foto, OCR e metriche tecniche',
-      'Il riconoscimento del testo nelle immagini avviene sul dispositivo: immagini, testo riconosciuto e data proposta non vengono inviati a Google. Gli SDK Google ML Kit possono però inviare tramite HTTPS informazioni tecniche su dispositivo e app, identificatori per installazione, prestazioni, utilizzo, eventi ed errori, per diagnostica e miglioramento del servizio.',
+      'Il riconoscimento del testo nelle immagini avviene sul dispositivo: immagini, testo riconosciuto e data proposta non vengono inviati a Google. Gli SDK Google ML Kit possono però inviare tramite HTTPS informazioni tecniche su dispositivo e app, identificatori per installazione, prestazioni, utilizzo, eventi ed errori, per diagnostica e miglioramento del servizio. '
+          'Lo scanner barcode usa lo zoom automatico. Google ML Kit raccoglie inoltre un identificatore generato per la sessione di scansione, non destinato a identificare un utente o dispositivo, le variazioni del livello di zoom e le coordinate previste del riquadro che potrebbe contenere un codice a barre.',
     ),
     (
       'Backup e condivisione',
@@ -58,7 +59,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
       'Contatti',
       'Per richieste relative alla privacy o all’assistenza: freshtrack.help@outlook.com. Sviluppatore: Nicola Zingaro.',
     ),
-    ('Ultimo aggiornamento', '7 ottobre 2026'),
+    ('Ultimo aggiornamento', '20 ottobre 2026'),
   ];
 
   static const _englishSections = <(String, String)>[
@@ -72,11 +73,12 @@ class PrivacyPolicyScreen extends StatelessWidget {
     ),
     (
       'Optional online features',
-      'Only when you request a barcode lookup does FreshTrack send that code and the request language to Open Food Facts over HTTPS to retrieve product data. The service also receives ordinary connection data such as the IP address and the app User-Agent. Your inventory, photographs and dates are not sent. If the network is unavailable, you can continue by entering the data manually.',
+      'Only when you request a barcode lookup does FreshTrack send that code and the request language to Open Food Facts over HTTPS. The lookup may be redirected to Open Beauty Facts, Open Pet Food Facts or Open Products Facts. The catalog contacted also receives ordinary connection data such as the IP address and the app User-Agent. Your inventory, photographs and dates are not sent. If the product is missing or the network is unavailable, you can enter the data manually.',
     ),
     (
       'Photos, OCR and technical metrics',
-      'Text recognition runs on the device: images, recognized text and the proposed date are not sent to Google. Google ML Kit SDKs may, however, send technical information about the device and app, per-installation identifiers, performance, usage, events and errors over HTTPS for diagnostics and service improvement.',
+      'Text recognition runs on the device: images, recognized text and the proposed date are not sent to Google. Google ML Kit SDKs may, however, send technical information about the device and app, per-installation identifiers, performance, usage, events and errors over HTTPS for diagnostics and service improvement. '
+          'The barcode scanner uses auto zoom. Google ML Kit also collects a generated scanning-session identifier not intended to identify a user or device, zoom level changes, and predicted bounding-box coordinates that may contain a barcode.',
     ),
     (
       'Backup and sharing',
@@ -90,7 +92,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
       'Contact',
       'For privacy or support requests: freshtrack.help@outlook.com. Developer: Nicola Zingaro.',
     ),
-    ('Last updated', 'October 7, 2026'),
+    ('Last updated', 'October 20, 2026'),
   ];
 }
 

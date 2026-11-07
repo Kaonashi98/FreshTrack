@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:freshtrack/data/ocr/expiration_date_image_preprocessor.dart';
 import 'package:freshtrack/domain/products/expiration_date_parser.dart';
@@ -15,10 +17,20 @@ class ExpirationDateOcrService {
 
   Future<List<ExpirationDateCandidate>> recognize(String imagePath) async {
     final croppedPath = await _preprocessor.cropDateBand(imagePath);
-    final cropped = await _recognizePath(croppedPath);
-    if (cropped.isNotEmpty) return cropped;
-    if (croppedPath == imagePath) return const [];
-    return _recognizePath(imagePath);
+    try {
+      final cropped = await _recognizePath(croppedPath);
+      if (cropped.isNotEmpty) return cropped;
+      if (croppedPath == imagePath) return const [];
+      return await _recognizePath(imagePath);
+    } finally {
+      if (croppedPath != imagePath) {
+        try {
+          await File(croppedPath).delete();
+        } on FileSystemException {
+          // Cleanup must not hide recognition errors or a successful result.
+        }
+      }
+    }
   }
 
   Future<List<ExpirationDateCandidate>> _recognizePath(String path) async {

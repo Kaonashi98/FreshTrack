@@ -63,6 +63,14 @@ class ProductCard extends StatelessWidget {
       date.year == CurrentDateScope.now(context).year ? 'd MMM' : 'd MMM yyyy',
       context.strings.languageCode,
     ).format(date);
+    final statusBackground = product.status != ProductStatus.available
+        ? scheme.surfaceContainerHigh
+        : switch (info.state) {
+            ExpirationState.expired => AppTheme.dangerSurface(context),
+            ExpirationState.expiresToday => AppTheme.warningSurface(context),
+            ExpirationState.dueSoon => scheme.primaryContainer,
+            ExpirationState.fresh => scheme.secondaryContainer,
+          };
     final status = Text(
       '$label · $dateText',
       style: text.bodySmall?.copyWith(color: color),
@@ -71,10 +79,14 @@ class ProductCard extends StatelessWidget {
       padding: EdgeInsets.only(bottom: embedded ? 0 : 10),
       child: Material(
         color: embedded ? Colors.transparent : scheme.surface,
+        elevation: embedded || Theme.of(context).brightness == Brightness.dark
+            ? 0
+            : 2,
+        shadowColor: const Color(0xFF2D6685).withValues(alpha: .12),
         shape: embedded
             ? null
             : RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(22),
                 side: BorderSide(color: scheme.outlineVariant),
               ),
         clipBehavior: Clip.antiAlias,
@@ -82,13 +94,13 @@ class ProductCard extends StatelessWidget {
           onTap: onTap,
           child: Padding(
             padding: EdgeInsets.symmetric(
-              vertical: 15,
-              horizontal: embedded ? 0 : 14,
+              vertical: 16,
+              horizontal: embedded ? 0 : 16,
             ),
             child: Row(
               children: [
                 ProductThumbnail(product: product),
-                const SizedBox(width: 12),
+                const SizedBox(width: 13),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,16 +128,26 @@ class ProductCard extends StatelessWidget {
                 if (showDate && !large) ...[
                   const SizedBox(width: 8),
                   SizedBox(
-                    width: 82,
+                    width: 100,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(
-                          label,
-                          textAlign: TextAlign.right,
-                          style: text.labelSmall?.copyWith(
-                            color: color,
-                            fontWeight: FontWeight.w700,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: statusBackground,
+                            borderRadius: BorderRadius.circular(9),
+                          ),
+                          child: Text(
+                            label,
+                            textAlign: TextAlign.right,
+                            style: text.labelSmall?.copyWith(
+                              color: color,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 4),

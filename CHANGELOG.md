@@ -2,6 +2,36 @@
 
 Tutte le modifiche rilevanti di FreshTrack sono documentate in questo file.
 
+## [Non rilasciato] - 20 ottobre 2026
+
+- Scadenza obbligatoria scelta esplicitamente anche per inserimento manuale,
+  duplicazione, suggerimenti e inserimenti consecutivi; nessuna data inventata.
+- OCR numerico con alternative giorno/mese e mese/giorno, ritaglio fuori dal
+  thread UI, orientamento EXIF e pulizia dei file temporanei.
+- Corretti riepilogo vuoto/scaduti, leggibilità con testo grande, messaggio
+  quantità inglese e apertura impostazioni notifiche su Android 7.
+- Scanner con fotocamera negata: riquadro non sovrapposto all'errore e
+  messaggio scorrevole anche con testo al 200%.
+- Informative locali IT/EN aggiornate per Open Facts e dati tecnici auto zoom
+  ML Kit. La pagina pubblica richiede ancora deploy autorizzato.
+- 215 test, analisi statica e Android Lint superati. Candidato locale
+  provvisorio `1.0.1+14`, senza upload; dettagli e limiti in
+  [audit del 20 ottobre](docs/RELEASE_AUDIT_2026-10-20.md).
+
+## [Non rilasciato] - 9 ottobre 2026
+
+- Ridisegnati dashboard, inventario, aggiunta, modulo prodotto, impostazioni e
+  navigazione con la palette azzurro-verde, superfici e gerarchie visive coerenti
+  nei temi chiaro e scuro.
+- Sulle nuove installazioni il tema segue automaticamente quello del telefono;
+  la scelta manuale nelle Impostazioni resta disponibile e persistente.
+- Analisi statica pulita e 200 test Flutter superati sul codice locale.
+- Dopo la scansione o l'inserimento del barcode, l'app propone subito di
+  fotografare la scadenza. La data della singola confezione va confermata
+  prima del salvataggio: il barcode comune non la contiene.
+- Il bundle `1.0.1+13` esistente precede queste modifiche e va rigenerato per
+  distribuirle.
+
 ## [1.0.1] - 7 ottobre 2026
 
 - Rimossa la categoria dedicata ai medicinali e i relativi testi e avvisi:

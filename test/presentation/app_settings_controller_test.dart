@@ -56,7 +56,7 @@ void main() {
     );
     expect(
       container.read(appSettingsProvider).requireValue.themePreference,
-      AppThemePreference.dark,
+      AppThemePreference.system,
     );
   });
 }

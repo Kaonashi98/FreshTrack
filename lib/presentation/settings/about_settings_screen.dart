@@ -10,7 +10,7 @@ class AboutSettingsScreen extends ConsumerWidget {
   const AboutSettingsScreen({super.key});
 
   static final _openFoodFactsUri = Uri.parse(
-    'https://world.openfoodfacts.org/',
+    'https://openfoodfacts.github.io/documentation/docs/Product-Opener/api/tutorials/scanning-cosmetics-pet-food-and-other-products/',
   );
 
   Future<void> _openOpenFoodFacts(BuildContext context) async {
@@ -28,8 +28,8 @@ class AboutSettingsScreen extends ConsumerWidget {
         SnackBar(
           content: Text(
             context.tr(
-              'Impossibile aprire Open Food Facts.',
-              'Unable to open Open Food Facts.',
+              'Impossibile aprire le informazioni sui cataloghi Open Facts.',
+              'Unable to open information about the Open Facts catalogs.',
             ),
           ),
         ),
@@ -108,15 +108,15 @@ class AboutSettingsScreen extends ConsumerWidget {
             ),
             title: Text(
               context.tr(
-                'Dati da Open Food Facts',
-                'Data from Open Food Facts',
+                'Dati dai cataloghi Open Facts',
+                'Data from Open Facts catalogs',
               ),
               style: TextStyle(fontWeight: FontWeight.w700),
             ),
             subtitle: Text(
               context.tr(
-                'Database © Open Food Facts contributors, licenza ODbL',
-                'Database © Open Food Facts contributors, ODbL license',
+                'Open Food Facts (ODbL), Open Beauty Facts, Open Pet Food Facts e Open Products Facts',
+                'Open Food Facts (ODbL), Open Beauty Facts, Open Pet Food Facts and Open Products Facts',
               ),
             ),
             trailing: const Icon(Icons.open_in_new_rounded),

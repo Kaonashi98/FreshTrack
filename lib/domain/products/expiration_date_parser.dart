@@ -28,11 +28,11 @@ abstract final class ExpirationDateParser {
 
     final dayFirstPatterns = [
       RegExp(
-        r'(^|[^0-9])([0-3]?\d)\s*[./-]\s*([01]?\d)\s*[./-]\s*(20\d{2}|\d{2})(?=$|[^0-9])',
+        r'(^|[^0-9])([0-3]?\d)\s*[./-]\s*([0-3]?\d)\s*[./-]\s*(20\d{2}|\d{2})(?=$|[^0-9])',
         multiLine: true,
       ),
       RegExp(
-        r'(^|[^0-9])([0-3]?\d)\s+([01]?\d)\s+(20\d{2}|\d{2})(?=$|[^0-9])',
+        r'(^|[^0-9])([0-3]?\d)\s+([0-3]?\d)\s+(20\d{2}|\d{2})(?=$|[^0-9])',
         multiLine: true,
       ),
     ];
@@ -43,6 +43,14 @@ abstract final class ExpirationDateParser {
           rawYear < 100 ? 2000 + rawYear : rawYear,
           int.parse(match.group(3)!),
           int.parse(match.group(2)!),
+          match.group(0)!,
+        );
+        // Numeric dates may use either D/M/Y or M/D/Y. Present both valid
+        // interpretations for explicit confirmation instead of guessing.
+        add(
+          rawYear < 100 ? 2000 + rawYear : rawYear,
+          int.parse(match.group(2)!),
+          int.parse(match.group(3)!),
           match.group(0)!,
         );
       }

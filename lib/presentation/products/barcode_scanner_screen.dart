@@ -79,72 +79,72 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
         ),
       ],
     ),
-    body: Stack(
-      fit: StackFit.expand,
-      children: [
-        MobileScanner(
-          controller: _controller,
-          onDetect: _onDetect,
-          errorBuilder: (context, error) => _ScannerError(
-            error: error,
-            onManualEntry: _enterManually,
-            onGallery: _analyzeGallery,
-          ),
-        ),
-        IgnorePointer(
-          child: Center(
-            child: Container(
-              width: 240,
-              height: 88,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.primary,
-                  width: 3,
+    body: MobileScanner(
+      controller: _controller,
+      onDetect: _onDetect,
+      errorBuilder: (context, error) => _ScannerError(
+        error: error,
+        onManualEntry: _enterManually,
+        onGallery: _analyzeGallery,
+      ),
+      overlayBuilder: (context, constraints) => Stack(
+        fit: StackFit.expand,
+        children: [
+          IgnorePointer(
+            child: Center(
+              child: Container(
+                width: 240,
+                height: 88,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.primary,
+                    width: 3,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                borderRadius: BorderRadius.circular(16),
               ),
             ),
           ),
-        ),
-        SafeArea(
-          child: Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              margin: const EdgeInsets.all(20),
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.surface.withValues(alpha: .92),
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    context.tr(
-                      'Avvicina il codice a barre al riquadro. Tieni ferma la confezione; la torcia aiuta se c’è poco contrasto.',
-                      'Bring the barcode into the frame. Hold the pack still; the flashlight helps when contrast is low.',
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  TextButton(
-                    key: const Key('barcode-manual-entry'),
-                    onPressed: _enterManually,
-                    child: Text(
+          SafeArea(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                margin: const EdgeInsets.all(20),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                decoration: BoxDecoration(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.surface.withValues(alpha: .92),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
                       context.tr(
-                        'Inserisci il codice a mano',
-                        'Enter the code manually',
+                        'Avvicina il codice a barre al riquadro. Tieni ferma la confezione; la torcia aiuta se c’è poco contrasto.',
+                        'Bring the barcode into the frame. Hold the pack still; the flashlight helps when contrast is low.',
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      key: const Key('barcode-manual-entry'),
+                      onPressed: _enterManually,
+                      child: Text(
+                        context.tr(
+                          'Inserisci il codice a mano',
+                          'Enter the code manually',
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     ),
   );
 
@@ -314,7 +314,7 @@ class _ScannerError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-    child: Padding(
+    child: SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         mainAxisSize: MainAxisSize.min,

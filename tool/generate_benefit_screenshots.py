@@ -180,13 +180,19 @@ def generate(
     background = Image.open(background_path).convert("RGB")
     italian_specs = [
         ScreenshotSpec(
-            source=root / "docs/screenshots/dashboard.png",
+            source=root / "docs/screenshots/source-release-it/dashboard-light.png",
             filename="01-sai-cosa-usare-prima.png",
             title="Sai cosa usare prima",
             subtitle="Le scadenze più vicine restano sempre in primo piano.",
         ),
         ScreenshotSpec(
-            source=root / "docs/screenshots/source-current/quick-add.png",
+            source=root / "docs/screenshots/source-release-it/products.png",
+            filename="02-tutto-sotto-controllo.png",
+            title="Tutto sotto controllo",
+            subtitle="Cerca e filtra i prodotti in base alla scadenza.",
+        ),
+        ScreenshotSpec(
+            source=root / "docs/screenshots/source-release-it/form-light-v13.png",
             filename="03-aggiungi-in-pochi-secondi.png",
             title="Aggiungi in pochi secondi",
             subtitle="Nome e scadenza bastano. Barcode e foto sono facoltativi.",
@@ -197,16 +203,46 @@ def generate(
             title="Proteggi il tuo inventario",
             subtitle="Crea un backup completo con prodotti, preferenze e foto.",
         ),
+        ScreenshotSpec(
+            source=root / "docs/screenshots/source-release-it/add-choice-light.png",
+            filename="05-scansiona-o-inserisci.png",
+            title="Scansiona o inserisci",
+            subtitle="Scegli tra codice a barre e inserimento manuale.",
+        ),
+        ScreenshotSpec(
+            source=root / "docs/screenshots/source-release-it/product-detail.png",
+            filename="06-ogni-dettaglio-a-portata.png",
+            title="Ogni dettaglio a portata",
+            subtitle="Controlla la scadenza e aggiorna lo stato del prodotto.",
+        ),
+        ScreenshotSpec(
+            source=root / "docs/screenshots/source-release-it/notifications.png",
+            filename="07-promemoria-su-misura.png",
+            title="Promemoria su misura",
+            subtitle="Scegli il preavviso e l’orario più comodi per te.",
+        ),
+        ScreenshotSpec(
+            source=root / "docs/screenshots/source-release-it/appearance-before-en.png",
+            filename="08-app-come-piace-a-te.png",
+            title="L’app come piace a te",
+            subtitle="Tema chiaro o scuro e lingua italiana o inglese.",
+        ),
     ]
     english_specs = [
         ScreenshotSpec(
-            source=root / "docs/screenshots/source-release-en/dashboard.png",
+            source=root / "docs/screenshots/source-release-en/dashboard-v13.png",
             filename="01-know-what-to-use-first.png",
             title="Know what to use first",
             subtitle="The closest expiration dates always stay in focus.",
         ),
         ScreenshotSpec(
-            source=root / "docs/screenshots/source-release-en/quick-add.png",
+            source=root / "docs/screenshots/source-release-en/products-v13.png",
+            filename="02-keep-everything-organized.png",
+            title="Keep everything organized",
+            subtitle="Search and filter products by expiration date.",
+        ),
+        ScreenshotSpec(
+            source=root / "docs/screenshots/source-release-en/form-v13.png",
             filename="03-add-in-seconds.png",
             title="Add items in seconds",
             subtitle="A name and date are enough. Barcode and photos are optional.",
@@ -216,6 +252,30 @@ def generate(
             filename="04-keep-inventory-safe.png",
             title="Keep your inventory safe",
             subtitle="Create a complete backup with products, settings and photos.",
+        ),
+        ScreenshotSpec(
+            source=root / "docs/screenshots/source-release-en/add-choice.png",
+            filename="05-scan-or-add-manually.png",
+            title="Scan or add manually",
+            subtitle="Choose between a barcode lookup and manual entry.",
+        ),
+        ScreenshotSpec(
+            source=root / "docs/screenshots/source-release-en/product-detail.png",
+            filename="06-every-detail-at-hand.png",
+            title="Every detail at hand",
+            subtitle="Check the date and update each product’s status.",
+        ),
+        ScreenshotSpec(
+            source=root / "docs/screenshots/source-release-en/notifications.png",
+            filename="07-reminders-your-way.png",
+            title="Reminders your way",
+            subtitle="Choose the advance notice and time that suit you.",
+        ),
+        ScreenshotSpec(
+            source=root / "docs/screenshots/source-release-en/appearance.png",
+            filename="08-make-it-yours.png",
+            title="Make it yours",
+            subtitle="Choose a light or dark theme, in English or Italian.",
         ),
     ]
     specs = italian_specs if language == "it" else english_specs

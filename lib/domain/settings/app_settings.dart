@@ -29,7 +29,7 @@ class AppSettings {
   });
 
   static const defaults = AppSettings(
-    themePreference: AppThemePreference.dark,
+    themePreference: AppThemePreference.system,
     languagePreference: AppLanguagePreference.system,
     notificationDaysBefore: 0,
     notificationHour: 9,

@@ -27,13 +27,13 @@ Main features:
   precise alarms if you allow them);
 - photos from the camera or gallery;
 - barcode scanning with auto-zoom, flashlight, a gallery photo or a typed code,
-  plus an optional Open Food Facts lookup and manual entry always available;
+  plus an optional lookup across the Open Facts catalogs and manual entry always available;
 - on-device expiration-date recognition from a close-up photo, always requiring
   your confirmation;
 - complete backup of products, preferences and photos, with save, share to
   another phone, and a preview before restoring;
 - CSV export for Excel and Google Sheets;
-- dedicated categories for food, drinks and personal care;
+- categories for food, drinks, personal care, cleaning and other products;
 - consumed, used or discarded states, with the option to restore an item;
 - search, category filters and expiration-date sorting;
 - light, dark or system theme;
@@ -41,7 +41,8 @@ Main features:
 
 Privacy first: FreshTrack requires no account, contains no advertising and does
 not send your inventory, photos or expiration dates to the developer. A barcode
-lookup you start sends the searched code to Open Food Facts. Text recognition
+lookup you start sends the searched code to Open Food Facts and may be redirected
+to Open Beauty Facts, Open Pet Food Facts or Open Products Facts. Text recognition
 runs on the device; Google ML Kit SDKs may transmit technical and diagnostic
 information, but not the contents of your images or inventory.
 
@@ -49,11 +50,12 @@ FreshTrack is designed for one phone in the household. There is no family list
 or cloud account: to copy the inventory onto another device, use Share backup,
 then Restore on the other phone.
 
-## Release notes 1.0.1 (build 13)
+## Draft release notes for the next bundle
 
-FreshTrack now focuses on pantry, drinks and personal care products. Existing
-entries and backups remain available. Expiry reminders, barcode scanning,
-backups and the Italian/English interface are included.
+Barcode lookup can find food, cosmetics, pet food and other items present in the
+Open Facts catalogs. Manual entry, reminders, backups and the Italian/English
+interface remain available. Confirm these notes only after building and
+verifying the new bundle.
 
 ## Play Console resources
 
@@ -61,7 +63,8 @@ backups and the Italian/English interface are included.
 - support email: freshtrack.help@outlook.com
 - icon: `docs/play-store/play-store-icon-512.png`
 - feature graphic: `docs/play-store/feature-graphic-1024x500.png`
-- phone screenshots: `docs/play-store/screenshots-benefits-en/`
+- phone screenshots: `docs/play-store/candidate-2026-10-20/en/`
+  (local candidate captures; approve and compare with the final release before upload)
 
 ## Recommended listing configuration
 

@@ -1,34 +1,39 @@
 # FreshTrack — Play Console handoff
 
-Prepared for candidate `1.0.1+13` (`io.github.kaonashi98.freshtrack`). This file
-contains the repository-backed answers to copy into Play Console. Console labels
-can change; read each displayed question before confirming it.
+Working draft for `io.github.kaonashi98.freshtrack`. A signed provisional
+`1.0.1+14` candidate was built locally on October 20; see
+[the current audit](RELEASE_AUDIT_2026-10-20.md) for its hash and verification
+boundaries. Version code availability and Play signing still need confirmation.
+Check the live privacy page before copying these answers into Play Console.
+Console labels can change; read each displayed question before confirming it.
 
 ## Cosa fare in Play Console
 
-Il codice, l'informativa, l'AAB e gli screenshot sono preparati fuori dalla
-Console. In Play Console resta solo questo:
+Il candidato locale è verificato nei limiti dell'audit; pagina privacy pubblica,
+collaudo fisico, disponibilità versionCode e asset approvati richiedono ancora
+verifica prima dell'invio in Console.
+Poi completare questi passaggi:
 
-1. Crea l'app: gratuita, categoria Produttività, senza pubblicità.
+1. Nell'app già esistente verifica: gratuita, categoria Produttività, senza pubblicità.
 2. Lingua predefinita `en-US`, traduzione `it-IT`.
 3. Email `freshtrack.help@outlook.com`.
 4. URL privacy `https://kaonashi98.github.io/FreshTrack/` dopo aver aperto
-   la pagina e verificato la data 7 ottobre 2026 e le sezioni Open Food
-   Facts / ML Kit.
+   la pagina e verificato il testo del 20 ottobre 2026: quattro cataloghi
+   Open Facts, metadati di rete, ML Kit e dati aggiuntivi dell'auto zoom in IT/EN.
 5. Carica `build/app/outputs/bundle/release/app-release.aab` e lascia attivo
    Play App Signing.
 6. Icona `docs/play-store/play-store-icon-512.png` e feature graphic
    `docs/play-store/feature-graphic-1024x500.png`.
-7. Screenshot telefono: rimuovi dalla Console il vecchio screenshot n. 2
-   della lista prodotti, che mostra Ibuprofene, in entrambe le lingue. Carica
-   solo gli screenshot n. 1, 3 e 4 delle rispettive cartelle finché non hai
-   una nuova cattura autentica della lista senza medicinali. Tre screenshot
-   sono sufficienti per la scheda; quattro sono richiesti solo per alcune
-   opportunità promozionali.
+7. Screenshot telefono: rimuovi dalla Console il vecchio screenshot della
+   lista prodotti che mostra Ibuprofene. Carica gli otto PNG numerati delle
+   rispettive cartelle, in ordine 01–08, dopo il controllo finale rispetto al
+   bundle da pubblicare.
 8. Testi da `docs/play_store_listing_en.md` e `docs/play_store_listing_it.md`.
 9. Data Safety, classificazione, pubblico non infantile e dichiarazione salute
    come nelle sezioni sotto.
-10. Test interno o closed test se Console lo chiede, poi Pre-launch report.
+10. Controlla il test chiuso esistente e il Pre-launch report; verifica
+    l'effettiva approvazione della produzione senza modificare automaticamente
+    i canali o presumere completato il requisito dei tester.
 
 ## Store configuration
 
@@ -45,9 +50,12 @@ Console. In Play Console resta solo questo:
   match the intended adult/general audience.
 
 The English and Italian copy is in `play_store_listing_en.md` and
-`play_store_listing_it.md`. Upload only phone screenshots 01, 03 and 04 from
-`docs/play-store/screenshots-benefits-en/` and
-`docs/play-store/screenshots-benefits/`; screenshot 02 is obsolete.
+`play_store_listing_it.md`. Upload phone screenshots 01–08, in order, from
+`docs/play-store/candidate-2026-10-20/en/` and
+`docs/play-store/candidate-2026-10-20/it/`, after editorial approval and
+comparison with the exact release selected in Console. These are real,
+uncomposited candidate captures. The previous `screenshots-benefits*` sets
+and any screenshot showing a medicine product remain obsolete for this release.
 
 ## Permissions and core behavior
 
@@ -60,7 +68,7 @@ The English and Italian copy is in `play_store_listing_en.md` and
   more precise reminder time. If denied, reminders stay around the chosen hour.
   Do not declare `USE_EXACT_ALARM`.
 - Completed boot: restores locally scheduled reminders after device restart.
-- Internet: optional Open Food Facts lookups and technical traffic produced by
+- Internet: optional Open Facts catalog lookups and technical traffic produced by
   Google ML Kit components.
 - No location, contacts, microphone, broad storage or advertising permission.
 - Android automatic backup and device transfer are disabled.
@@ -108,9 +116,13 @@ Before submission, compare the form against the current official source:
 https://developers.google.com/ml-kit/android-data-disclosure. Google explicitly
 states that the developer remains responsible for the final declaration.
 
-### Open Food Facts
+Auto zoom is enabled in the barcode scanner. Include its generated scanning-session ID, zoom level changes and predicted barcode bounding-box coordinates in the assessment, as specified in the official ML Kit disclosure. The local privacy documents dated October 20, 2026 describe this in both languages; the public page checked during this audit still serves October 7 and requires an authorized deployment.
 
-Only after a user requests a barcode lookup, FreshTrack sends:
+### Cataloghi Open Facts
+
+Only after a user requests a barcode lookup, FreshTrack sends the request to
+Open Food Facts, which may redirect it to Open Beauty Facts, Open Pet Food Facts
+or Open Products Facts according to the product type:
 
 - the barcode;
 - the requested language;
@@ -145,7 +157,7 @@ a test track.
 - Complete content rating using the actual app behavior: no violence, gambling,
   sexual content, social features or user-to-user communication.
 - Select all Google Play-supported countries/regions for worldwide availability.
-- Leave Play App Signing enabled and upload the `1.0.1+13` AAB.
+- Leave Play App Signing enabled and upload only the newly verified AAB.
 - Version code 12 is already used. Do not re-upload the rejected build.
 - If production access is locked for this app/account, complete the closed test
   shown by Play Console before requesting production access.
@@ -157,10 +169,10 @@ a test track.
 - AAB: `build/app/outputs/bundle/release/app-release.aab`.
 - Icon: `docs/play-store/play-store-icon-512.png`.
 - Feature graphic: `docs/play-store/feature-graphic-1024x500.png`.
-- English phone screenshots: files 01, 03, 04 in
-  `docs/play-store/screenshots-benefits-en/` (not 02).
-- Italian phone screenshots: files 01, 03, 04 in
-  `docs/play-store/screenshots-benefits/` (not 02).
+- English phone screenshots: files 01–08 in
+  `docs/play-store/screenshots-benefits-en/`.
+- Italian phone screenshots: files 01–08 in
+  `docs/play-store/screenshots-benefits/`.
 - English copy: `docs/play_store_listing_en.md`.
 - Italian copy: `docs/play_store_listing_it.md`.
 - Privacy URL: `https://kaonashi98.github.io/FreshTrack/`.

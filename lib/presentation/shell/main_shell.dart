@@ -55,15 +55,20 @@ class _MainShellState extends ConsumerState<MainShell> {
           ],
         ),
       ),
-      bottomNavigationBar: Material(
-        color: scheme.surface,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            border: Border(top: BorderSide(color: scheme.outlineVariant)),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        minimum: const EdgeInsets.fromLTRB(12, 4, 12, 10),
+        child: Material(
+          color: scheme.surface,
+          elevation: 8,
+          shadowColor: const Color(0xFF173C5B).withValues(alpha: .18),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(28),
+            side: BorderSide(color: scheme.outlineVariant),
           ),
-          child: SafeArea(
-            top: false,
-            minimum: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+          clipBehavior: Clip.antiAlias,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             child: Row(
               key: const Key('main-navigation'),
               children: [
@@ -78,14 +83,30 @@ class _MainShellState extends ConsumerState<MainShell> {
                 Expanded(
                   flex: largeText ? 1 : 2,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child:
-                        loaded &&
-                            !path.startsWith('/settings') &&
-                            MediaQuery.viewInsetsOf(context).bottom == 0
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: path.startsWith('/settings')
+                        ? _Destination(
+                            label: context.tr('Impostazioni', 'Settings'),
+                            icon: Icons.tune_rounded,
+                            selected: true,
+                            onTap: () => context.go('/settings'),
+                          )
+                        : loaded && MediaQuery.viewInsetsOf(context).bottom == 0
                         ? FilledButton(
                             key: const Key('add-product'),
                             onPressed: _openProduct,
+                            style: ButtonStyle(
+                              backgroundColor: WidgetStatePropertyAll(
+                                scheme.primary,
+                              ),
+                              foregroundColor: WidgetStatePropertyAll(
+                                scheme.onPrimary,
+                              ),
+                              overlayColor: const WidgetStatePropertyAll(
+                                Colors.transparent,
+                              ),
+                              splashFactory: NoSplash.splashFactory,
+                            ),
                             child: largeText
                                 ? Icon(
                                     Icons.add_rounded,
@@ -145,25 +166,34 @@ class _Destination extends StatelessWidget {
     return Semantics(
       selected: selected,
       button: true,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 23, color: color),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: color,
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+      child: Material(
+        color: selected ? scheme.primaryContainer : Colors.transparent,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          onTap: onTap,
+          overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+          splashFactory: NoSplash.splashFactory,
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, size: 23, color: color),
+                const SizedBox(height: 4),
+                Text(
+                  label,
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: color,
+                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

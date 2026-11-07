@@ -125,12 +125,20 @@ void main() {
       await source.writeAsBytes(_jpegBytes);
       final failing = ProductImageStorage(
         appSupportDirectoryProvider: () async => supportDirectory,
-        copyFile: (_, _) =>
-            Future.error(const FileSystemException('Spazio esaurito')),
+        copyFile: (_, destination) async {
+          await File(destination).writeAsBytes([0xff, 0xd8]);
+          throw const FileSystemException('Spazio esaurito');
+        },
       );
       await expectLater(
         failing.save(source.path),
         throwsA(isA<FileSystemException>()),
+      );
+      expect(
+        await Directory(
+          path.join(supportDirectory.path, 'product_images'),
+        ).list().toList(),
+        isEmpty,
       );
     },
   );

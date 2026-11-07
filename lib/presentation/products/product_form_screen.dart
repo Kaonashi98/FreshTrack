@@ -49,7 +49,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   ProductCategory _category = ProductCategory.food;
   MeasurementUnit _unit = MeasurementUnit.pieces;
   DateTime _purchaseDate = DateTime.now();
-  DateTime _expirationDate = DateTime.now().add(const Duration(days: 7));
+  DateTime? _expirationDate;
   XFile? _selectedImage;
   String? _existingImagePath;
   String? _loadedProductId;
@@ -58,6 +58,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   bool _saving = false;
   bool _scanningBarcode = false;
   bool _readingExpirationDate = false;
+  bool _barcodeExpirationPending = false;
   bool _selectingImage = false;
   bool _showAdvanced = false;
   int _formGeneration = 0;
@@ -151,6 +152,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                       const SizedBox(height: 18),
                     ],
                     _FormSection(
+                      title: context.tr('Il prodotto', 'The product'),
+                      icon: Icons.inventory_2_outlined,
                       children: [
                         _ProductNameAutocomplete(
                           controller: _name,
@@ -220,6 +223,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                               onDeleted: () => setState(() {
                                 _barcode = null;
                                 _scanningBarcode = false;
+                                _barcodeExpirationPending = false;
                                 _formGeneration++;
                               }),
                             ),
@@ -229,6 +233,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                     ),
                     const SizedBox(height: 14),
                     _FormSection(
+                      title: context.tr('La scadenza', 'Expiration'),
+                      icon: Icons.event_available_outlined,
                       children: [
                         _DateField(
                           label: context.tr(
@@ -240,6 +246,18 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                               ? null
                               : () => _pickDate(purchase: false),
                         ),
+                        if (_barcodeExpirationPending) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            context.tr(
+                              'Il codice identifica il prodotto, non la scadenza di questa confezione. Leggi la data dalla foto o confermala qui prima di salvare.',
+                              'The code identifies the product, not this package’s expiration date. Read the date from a photo or confirm it here before saving.',
+                            ),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                          ),
+                        ],
                         const SizedBox(height: 8),
                         Wrap(
                           spacing: 8,
@@ -254,22 +272,24 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                                 key: Key('quick-expiry-${choice.$1}'),
                                 label: Text(choice.$2),
                                 selected:
-                                    CivilDate.fromDateTime(_expirationDate) ==
-                                    CivilDate.fromDateTime(
-                                      DateTime.now(),
-                                    ).addDays(choice.$1),
+                                    _expirationDate != null &&
+                                    CivilDate.fromDateTime(_expirationDate!) ==
+                                        CivilDate.fromDateTime(
+                                          DateTime.now(),
+                                        ).addDays(choice.$1),
                                 onSelected: _readingExpirationDate
                                     ? null
                                     : (_) {
                                         FocusScope.of(context).unfocus();
-                                        setState(
-                                          () => _expirationDate =
+                                        setState(() {
+                                          _expirationDate =
                                               CivilDate.fromDateTime(
                                                     DateTime.now(),
                                                   )
                                                   .addDays(choice.$1)
-                                                  .toLocalDateTime(),
-                                        );
+                                                  .toLocalDateTime();
+                                          _barcodeExpirationPending = false;
+                                        });
                                       },
                               ),
                           ],
@@ -299,6 +319,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                     ),
                     const SizedBox(height: 14),
                     _FormSection(
+                      title: context.tr('Categoria', 'Category'),
+                      icon: Icons.category_outlined,
                       children: [
                         DropdownButtonFormField<ProductCategory>(
                           key: ValueKey(_category),
@@ -533,11 +555,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     _barcode = product.barcode;
     if (asTemplate) {
       final today = CivilDate.fromDateTime(DateTime.now());
-      final shelfLife = product.expirationDate
-          .differenceInDays(product.purchaseDate)
-          .clamp(0, 3650);
       _purchaseDate = today.toLocalDateTime();
-      _expirationDate = today.addDays(shelfLife).toLocalDateTime();
+      _expirationDate = null;
       _existingImagePath = null;
       _showAdvanced = false;
     } else {
@@ -551,9 +570,6 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   void _applySuggestion(Product product) {
     _formGeneration++;
     final today = CivilDate.fromDateTime(DateTime.now());
-    final shelfLife = product.expirationDate
-        .differenceInDays(product.purchaseDate)
-        .clamp(0, 3650);
     setState(() {
       _scanningBarcode = false;
       _readingExpirationDate = false;
@@ -564,7 +580,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
           : MeasurementUnit.pieces;
       _barcode = product.barcode;
       _purchaseDate = today.toLocalDateTime();
-      _expirationDate = today.addDays(shelfLife).toLocalDateTime();
+      _expirationDate = null;
     });
   }
 
@@ -578,7 +594,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     final generation = _formGeneration;
     final barcode = await context.push<String>('/products/scan-barcode');
     if (barcode == null || !mounted || generation != _formGeneration) return;
-    await _applyBarcode(barcode, generation);
+    await _acquireBarcode(barcode, generation);
   }
 
   Future<void> _enterBarcodeManually() async {
@@ -589,13 +605,21 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       builder: (dialogContext) => const _ManualProductBarcodeDialog(),
     );
     if (barcode == null || !mounted || generation != _formGeneration) return;
-    await _applyBarcode(barcode, generation);
+    await _acquireBarcode(barcode, generation);
   }
 
-  Future<void> _applyBarcode(String barcode, int generation) async {
+  Future<void> _acquireBarcode(String barcode, int generation) async {
+    final applied = await _applyBarcode(barcode, generation);
+    if (applied && mounted && widget.productId == null && !_saving) {
+      await _scanExpirationDate();
+    }
+  }
+
+  Future<bool> _applyBarcode(String barcode, int generation) async {
     setState(() {
       _barcode = barcode;
       _scanningBarcode = true;
+      if (widget.productId == null) _barcodeExpirationPending = true;
     });
 
     final localProducts = ref.read(productsProvider).value ?? const <Product>[];
@@ -612,14 +636,16 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       _applySuggestion(localMatch);
       if (mounted) {
         setState(() => _scanningBarcode = false);
-        _showMessage(
-          context.tr(
-            'Prodotto riconosciuto dai dati già salvati.',
-            'Product recognized from your saved data.',
-          ),
-        );
+        if (widget.productId != null) {
+          _showMessage(
+            context.tr(
+              'Prodotto riconosciuto dai dati già salvati.',
+              'Product recognized from your saved data.',
+            ),
+          );
+        }
       }
-      return;
+      return true;
     }
 
     final previousName = _name.text;
@@ -633,7 +659,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       result = const BarcodeLookupResult.unavailable();
     }
     if (!mounted || generation != _formGeneration || _barcode != barcode) {
-      return;
+      return false;
     }
     final lookup = result.product;
     setState(() {
@@ -651,17 +677,19 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     });
     switch (result.status) {
       case BarcodeLookupStatus.found:
-        _showMessage(
-          context.tr(
-            'Prodotto riconosciuto. Verifica nome e scadenza.',
-            'Product recognized. Check its name and expiration date.',
-          ),
-        );
+        if (widget.productId != null) {
+          _showMessage(
+            context.tr(
+              'Prodotto riconosciuto. Verifica nome e scadenza.',
+              'Product recognized. Check its name and expiration date.',
+            ),
+          );
+        }
       case BarcodeLookupStatus.notFound:
         _showMessage(
           context.tr(
-            'Codice salvato. Alcune marche locali spesso non sono nel catalogo online: inserisci il nome a mano.',
-            'Code saved. Some local brands are often missing from the online catalog: enter the name yourself.',
+            'Codice salvato. Prodotto non trovato nei cataloghi online: inserisci il nome a mano.',
+            'Code saved. Product not found in the online catalogs: enter the name manually.',
           ),
         );
       case BarcodeLookupStatus.unavailable:
@@ -672,6 +700,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
           ),
         );
     }
+    return true;
   }
 
   Future<void> _scanExpirationDate() async {
@@ -805,7 +834,10 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
           ),
         );
         if (selected != null && mounted && generation == _formGeneration) {
-          setState(() => _expirationDate = selected.toLocalDateTime());
+          setState(() {
+            _expirationDate = selected.toLocalDateTime();
+            _barcodeExpirationPending = false;
+          });
         }
         return;
       } catch (_) {
@@ -904,7 +936,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   }
 
   Future<void> _pickDate({required bool purchase}) async {
-    final current = purchase ? _purchaseDate : _expirationDate;
+    final current = purchase
+        ? _purchaseDate
+        : _expirationDate ?? DateTime.now();
     final picked = await showDatePicker(
       context: context,
       initialDate: current,
@@ -915,9 +949,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     setState(() {
       if (purchase) {
         _purchaseDate = picked;
-        if (_expirationDate.isBefore(picked)) _expirationDate = picked;
       } else {
         _expirationDate = picked;
+        _barcodeExpirationPending = false;
       }
     });
   }
@@ -925,14 +959,26 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   Future<void> _save({bool addAnother = false}) async {
     if (_saving) return;
     if (!_formKey.currentState!.validate()) return;
+    final expirationDate = _expirationDate;
+    if (expirationDate == null || _barcodeExpirationPending) {
+      _showMessage(
+        context.tr(
+          'Conferma la scadenza di questa confezione prima di salvare.',
+          'Confirm this package’s expiration date before saving.',
+        ),
+      );
+      return;
+    }
     final quantity = double.tryParse(_quantity.text.replaceAll(',', '.'));
     final quantityError = ProductValidation.quantity(quantity);
     if (quantityError != null) {
-      _showMessage(quantityError);
+      _showMessage(
+        context.tr(quantityError, 'Enter a valid quantity greater than zero.'),
+      );
       return;
     }
     if (CivilDate.fromDateTime(
-      _expirationDate,
+      expirationDate,
     ).isBefore(CivilDate.fromDateTime(_purchaseDate))) {
       _showMessage(
         context.tr(
@@ -967,7 +1013,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       quantity: quantity!,
       unit: _unit,
       purchaseDate: CivilDate.fromDateTime(_purchaseDate),
-      expirationDate: CivilDate.fromDateTime(_expirationDate),
+      expirationDate: CivilDate.fromDateTime(expirationDate),
       imagePath: _existingImagePath,
       barcode: _barcode,
       status: original?.status ?? ProductStatus.available,
@@ -1070,10 +1116,11 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       _description.clear();
       _quantity.text = '1';
       _purchaseDate = today;
-      _expirationDate = today.add(const Duration(days: 7));
+      _expirationDate = null;
       _selectedImage = null;
       _existingImagePath = null;
       _barcode = null;
+      _barcodeExpirationPending = false;
       _showAdvanced = false;
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1293,7 +1340,7 @@ class _DateField extends StatelessWidget {
   });
 
   final String label;
-  final DateTime value;
+  final DateTime? value;
   final VoidCallback? onTap;
 
   @override
@@ -1310,18 +1357,51 @@ class _DateField extends StatelessWidget {
             ? null
             : const Icon(Icons.edit_calendar_outlined),
       ),
-      child: Text(DateFormat.yMd(context.strings.languageCode).format(value)),
+      child: Text(
+        value == null
+            ? context.tr('Seleziona la data', 'Select the date')
+            : DateFormat.yMd(context.strings.languageCode).format(value!),
+      ),
     ),
   );
 }
 
 class _FormSection extends StatelessWidget {
-  const _FormSection({required this.children});
+  const _FormSection({
+    required this.title,
+    required this.icon,
+    required this.children,
+  });
+  final String title;
+  final IconData icon;
   final List<Widget> children;
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: children,
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.all(17),
+    decoration: BoxDecoration(
+      color: Theme.of(context).colorScheme.surface,
+      borderRadius: BorderRadius.circular(22),
+      border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 9),
+            Expanded(
+              child: Text(
+                title,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 17),
+        ...children,
+      ],
+    ),
   );
 }
 

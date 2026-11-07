@@ -3,7 +3,6 @@ import 'package:freshtrack/core/theme/app_theme.dart';
 import 'package:freshtrack/l10n/app_strings.dart';
 import 'package:go_router/go_router.dart';
 
-/// Content occupies the former brand row; settings keeps its top-right anchor.
 class PageHeading extends StatelessWidget {
   const PageHeading({
     required this.title,
@@ -21,43 +20,56 @@ class PageHeading extends StatelessWidget {
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (eyebrow != null) ...[
-                  Text(
-                    eyebrow!.toUpperCase(),
-                    key: eyebrowKey,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      letterSpacing: 1.1,
-                      fontWeight: FontWeight.w600,
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 11,
+                      vertical: 7,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondaryContainer,
+                      borderRadius: BorderRadius.circular(99),
+                    ),
+                    child: Text(
+                      eyebrow!.toUpperCase(),
+                      key: eyebrowKey,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSecondaryContainer,
+                        letterSpacing: .8,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 7),
+                  const SizedBox(height: 12),
                 ],
                 Text(title, style: AppTheme.pageTitle(context)),
               ],
             ),
           ),
-          const SizedBox(width: 8),
-          IconButton(
+          const SizedBox(width: 12),
+          IconButton.filledTonal(
             key: const Key('open-settings'),
             tooltip: context.tr('Impostazioni', 'Settings'),
             onPressed: () => context.go('/settings'),
-            icon: const Icon(Icons.tune_outlined, size: 22),
+            icon: const Icon(Icons.tune_rounded, size: 22),
           ),
         ],
       ),
       if (subtitle != null) ...[
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
         Text(
           subtitle!,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
+            height: 1.35,
           ),
         ),
       ],

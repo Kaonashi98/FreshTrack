@@ -9,6 +9,7 @@ void main() {
     );
 
     expect(result.map((candidate) => candidate.date), [
+      CivilDate(2026, 4, 9),
       CivilDate(2026, 9, 4),
       CivilDate(2026, 10, 12),
     ]);
@@ -17,8 +18,10 @@ void main() {
   test('riconosce il formato anno mese giorno senza duplicati', () {
     final result = ExpirationDateParser.parse('2027-01-08 e ancora 08/01/2027');
 
-    expect(result, hasLength(1));
-    expect(result.single.date, CivilDate(2027, 1, 8));
+    expect(result.map((candidate) => candidate.date), [
+      CivilDate(2027, 1, 8),
+      CivilDate(2027, 8, 1),
+    ]);
   });
 
   test('riconosce anche i nomi dei mesi inglesi', () {
@@ -38,5 +41,22 @@ void main() {
     );
 
     expect(result, isEmpty);
+  });
+
+  test('date americane e ambigue restano scelte esplicite', () {
+    expect(
+      ExpirationDateParser.parse('EXP 10/25/2026').single.date,
+      CivilDate(2026, 10, 25),
+    );
+    expect(
+      ExpirationDateParser.parse(
+        'EXP 03/04/2027',
+      ).map((candidate) => candidate.date),
+      [CivilDate(2027, 3, 4), CivilDate(2027, 4, 3)],
+    );
+    expect(
+      ExpirationDateParser.parse('2028-02-29').single.date,
+      CivilDate(2028, 2, 29),
+    );
   });
 }

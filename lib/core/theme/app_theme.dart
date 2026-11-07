@@ -9,8 +9,8 @@ abstract final class AppTheme {
   static const danger = Color(0xFFA43842);
   static Color background(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-      ? const Color(0xFF14243A)
-      : const Color(0xFFEEF4FF);
+      ? const Color(0xFF0E1B2B)
+      : const Color(0xFFF5F9FC);
   static Color warningText(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
       ? const Color(0xFFFFDE98)
@@ -56,19 +56,19 @@ abstract final class AppTheme {
           onSecondaryContainer: dark
               ? const Color(0xFFDEFFF1)
               : const Color(0xFF075D42),
-          surface: dark ? const Color(0xFF263C57) : Colors.white,
-          surfaceDim: dark ? const Color(0xFF14243A) : const Color(0xFFE6EFFD),
+          surface: dark ? const Color(0xFF1D3149) : Colors.white,
+          surfaceDim: dark ? const Color(0xFF0E1B2B) : const Color(0xFFEAF2F7),
           surfaceBright: dark ? const Color(0xFF344F70) : Colors.white,
           surfaceContainerLowest: dark ? const Color(0xFF0C192B) : Colors.white,
           surfaceContainerLow: dark
-              ? const Color(0xFF20334D)
-              : const Color(0xFFF8FAFF),
+              ? const Color(0xFF172A40)
+              : const Color(0xFFF9FCFF),
           surfaceContainer: dark
-              ? const Color(0xFF263C57)
-              : const Color(0xFFEEF4FF),
+              ? const Color(0xFF1D3149)
+              : const Color(0xFFEFF6FA),
           surfaceContainerHigh: dark
-              ? const Color(0xFF2D4665)
-              : const Color(0xFFEBF2FD),
+              ? const Color(0xFF29415C)
+              : const Color(0xFFE8F2F8),
           surfaceContainerHighest: dark
               ? const Color(0xFF344F70)
               : const Color(0xFFE6EFFD),
@@ -79,8 +79,8 @@ abstract final class AppTheme {
               : const Color(0xFF415877),
           outline: dark ? const Color(0xFF93AED1) : const Color(0xFF687E9D),
           outlineVariant: dark
-              ? const Color(0xFF56789F)
-              : const Color(0xFFBCD0EB),
+              ? const Color(0xFF4A6888)
+              : const Color(0xFFD9E7EF),
           inverseSurface: dark
               ? const Color(0xFFFFFFFF)
               : const Color(0xFF12243D),
@@ -103,19 +103,19 @@ abstract final class AppTheme {
     );
     final text = base.textTheme.copyWith(
       headlineMedium: base.textTheme.headlineMedium?.copyWith(
-        fontSize: 31,
-        fontWeight: FontWeight.w700,
-        letterSpacing: -1.1,
-        height: 1.16,
+        fontSize: 33,
+        fontWeight: FontWeight.w800,
+        letterSpacing: -1.3,
+        height: 1.12,
       ),
       headlineSmall: base.textTheme.headlineSmall?.copyWith(
         fontWeight: FontWeight.w700,
         letterSpacing: -.6,
       ),
       titleLarge: base.textTheme.titleLarge?.copyWith(
-        fontSize: 19,
-        fontWeight: FontWeight.w700,
-        letterSpacing: -.35,
+        fontSize: 20,
+        fontWeight: FontWeight.w800,
+        letterSpacing: -.45,
       ),
       titleMedium: base.textTheme.titleMedium?.copyWith(
         fontWeight: FontWeight.w700,
@@ -125,7 +125,7 @@ abstract final class AppTheme {
       bodySmall: base.textTheme.bodySmall?.copyWith(height: 1.4),
     );
     final border = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(13),
+      borderRadius: BorderRadius.circular(17),
       borderSide: BorderSide(color: scheme.outlineVariant),
     );
     return base.copyWith(
@@ -150,16 +150,16 @@ abstract final class AppTheme {
         color: scheme.surface,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(24),
           side: BorderSide(color: scheme.outlineVariant),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: scheme.surface,
+        fillColor: scheme.surfaceContainerLow,
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 15,
+          horizontal: 16,
+          vertical: 17,
         ),
         border: border,
         enabledBorder: border,
@@ -173,7 +173,7 @@ abstract final class AppTheme {
         surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
         side: WidgetStatePropertyAll(BorderSide(color: scheme.outlineVariant)),
         shape: WidgetStatePropertyAll(
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         ),
         padding: const WidgetStatePropertyAll(
           EdgeInsets.symmetric(horizontal: 14),
@@ -183,23 +183,23 @@ abstract final class AppTheme {
         backgroundColor: scheme.surface,
         selectedColor: scheme.primaryContainer,
         side: BorderSide(color: scheme.outlineVariant),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          minimumSize: const Size(48, 48),
+          minimumSize: const Size(48, 52),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(13),
+            borderRadius: BorderRadius.circular(16),
           ),
           textStyle: text.labelLarge?.copyWith(fontWeight: FontWeight.w700),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          minimumSize: const Size(48, 48),
+          minimumSize: const Size(48, 52),
           side: BorderSide(color: scheme.outlineVariant),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(13),
+            borderRadius: BorderRadius.circular(16),
           ),
         ),
       ),

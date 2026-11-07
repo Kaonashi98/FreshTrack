@@ -38,7 +38,10 @@ void main() {
       'FreshTrack/1.0.0+3 Android (freshtrack.help@outlook.com)',
     );
     expect(captured.url.path, '/api/v3.6/product/8001234567890');
+    expect(captured.url.queryParameters['product_type'], 'all');
+    expect(captured.url.queryParameters['lc'], 'it');
     expect(captured.url.queryParameters['fields'], contains('product_name_it'));
+    expect(captured.url.queryParameters['fields'], contains('product_type'));
   });
 
   test('distingue prodotto assente da servizio non disponibile', () async {
@@ -100,6 +103,83 @@ void main() {
 
     expect((await service.lookup('123')).status, BarcodeLookupStatus.notFound);
     expect(calls, 0);
+  });
+
+  test('riconosce cosmetici e conserva un nome in una lingua estera', () async {
+    final service = OpenFoodFactsService(
+      MockClient(
+        (_) async => http.Response(
+          jsonEncode({
+            'status': 'success',
+            'product': {
+              'product_type': 'beauty',
+              'product_name': 'Shampooing doux',
+              'brands': 'Exemple',
+            },
+          }),
+          200,
+        ),
+      ),
+      appVersion: 'test',
+    );
+
+    final result = await service.lookup('3560070791460', languageCode: 'en');
+
+    expect(result.status, BarcodeLookupStatus.found);
+    expect(result.product?.name, 'Shampooing doux');
+    expect(result.product?.category, ProductCategory.personalCare);
+  });
+
+  test('non classifica oggetti e cibo per animali come alimenti', () async {
+    for (final (type, category) in [
+      ('petfood', ProductCategory.other),
+      ('product', ProductCategory.other),
+    ]) {
+      final service = OpenFoodFactsService(
+        MockClient(
+          (_) async => http.Response(
+            jsonEncode({
+              'status': 'success',
+              'product': {
+                'product_type': type,
+                'product_name': 'International item',
+              },
+            }),
+            200,
+          ),
+        ),
+        appVersion: 'test',
+      );
+
+      expect(
+        (await service.lookup('3760044183738')).product?.category,
+        category,
+      );
+    }
+  });
+
+  test('classifica un detergente come prodotto per la pulizia', () async {
+    final service = OpenFoodFactsService(
+      MockClient(
+        (_) async => http.Response(
+          jsonEncode({
+            'status': 'success',
+            'product': {
+              'product_type': 'product',
+              'product_name': 'Detergente universale',
+              'categories_tags': ['en:cleaning-products'],
+            },
+          }),
+          200,
+        ),
+      ),
+      appVersion: 'test',
+    );
+
+    expect(
+      (await service.lookup('3760044183738')).product?.category,
+      ProductCategory.cleaning,
+    );
   });
 
   test(

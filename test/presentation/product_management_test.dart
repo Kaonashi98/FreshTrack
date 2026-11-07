@@ -22,6 +22,31 @@ import 'package:freshtrack/shared/widgets/product_card.dart';
 import 'package:go_router/go_router.dart';
 
 void main() {
+  testWidgets('nuovo prodotto richiede una scadenza esplicita', (tester) async {
+    _useLargeViewport(tester);
+    final repo = _MemoryProductRepository([]);
+    final router = _auditFormRouter();
+    addTearDown(router.dispose);
+    await tester.pumpWidget(_app(router, repo));
+    await tester.tap(find.byKey(const Key('audit-new')));
+    await tester.pumpAndSettle();
+    expect(find.text('Seleziona la data'), findsOneWidget);
+    expect(
+      tester
+          .widget<ChoiceChip>(find.byKey(const Key('quick-expiry-7')))
+          .selected,
+      isFalse,
+    );
+    await tester.enterText(find.byKey(const Key('product-name')), 'Senza data');
+    await tester.tap(find.byKey(const Key('save-product')));
+    await tester.pumpAndSettle();
+    expect(repo.products, isEmpty);
+    expect(
+      find.text('Conferma la scadenza di questa confezione prima di salvare.'),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('scadenze rapide mostrano e salvano il giorno scelto', (
     tester,
   ) async {
@@ -66,6 +91,7 @@ void main() {
         find.byKey(const Key('product-name')),
         'Latte audit',
       );
+      await tester.tap(find.byKey(const Key('quick-expiry-1')));
       await tester.tap(find.byKey(const Key('save-product')));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
@@ -100,6 +126,7 @@ void main() {
         find.byKey(const Key('product-name')),
         'Quantita audit',
       );
+      await tester.tap(find.byKey(const Key('quick-expiry-1')));
       await tester.tap(find.text('Altri dettagli'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byKey(const Key('product-quantity')), '-2');
@@ -172,6 +199,7 @@ void main() {
         find.byKey(const Key('product-name')),
         'Primo prodotto manuale',
       );
+      await tester.tap(find.byKey(const Key('quick-expiry-1')));
       await tester.tap(find.byKey(const Key('save-and-add-another')));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
@@ -204,6 +232,108 @@ void main() {
             .text,
         'Secondo prodotto',
       );
+    },
+  );
+  testWidgets(
+    'barcode propone subito la foto della scadenza e richiede conferma',
+    (tester) async {
+      _useLargeViewport(tester);
+      final repo = _MemoryProductRepository([]);
+      final lookup = _AuditDelayedLookup();
+      lookup.release.complete(
+        const BarcodeLookupResult.found(
+          BarcodeProductLookup(
+            barcode: '3017620422003',
+            name: 'Yogurt',
+            category: ProductCategory.food,
+          ),
+        ),
+      );
+      final router = GoRouter(
+        initialLocation: '/host',
+        routes: [
+          GoRoute(
+            path: '/host',
+            builder: (context, _) => Scaffold(
+              body: FilledButton(
+                key: const Key('audit-new'),
+                onPressed: () => context.push('/products/new'),
+                child: const Text('Nuovo'),
+              ),
+            ),
+          ),
+          GoRoute(
+            path: '/products/new',
+            builder: (_, _) => const ProductFormScreen(),
+          ),
+          GoRoute(
+            path: '/products/scan-barcode',
+            builder: (context, _) => Scaffold(
+              body: FilledButton(
+                onPressed: () => context.pop('3017620422003'),
+                child: const Text('Rileva codice audit'),
+              ),
+            ),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            productRepositoryProvider.overrideWithValue(repo),
+            appSettingsRepositoryProvider.overrideWithValue(
+              _FakeSettingsRepository(),
+            ),
+            expirationNotificationSchedulerProvider.overrideWithValue(
+              _FakeNotificationScheduler(),
+            ),
+            openFoodFactsServiceProvider.overrideWith((ref) async => lookup),
+          ],
+          child: MaterialApp.router(
+            locale: const Locale('it'),
+            supportedLocales: const [Locale('it'), Locale('en')],
+            localizationsDelegates: GlobalMaterialLocalizations.delegates,
+            routerConfig: router,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('audit-new')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('scan-barcode')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Rileva codice audit'));
+      await tester.pumpAndSettle();
+
+      expect(lookup.started, isTrue);
+      expect(find.text('Fotografa la scadenza'), findsOneWidget);
+      expect(
+        tester
+            .widget<TextFormField>(find.byKey(const Key('product-name')))
+            .controller!
+            .text,
+        'Yogurt',
+      );
+
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+      expect(find.text('Fotografa la scadenza'), findsNothing);
+      await tester.tap(find.byKey(const Key('save-product')));
+      await tester.pump();
+      expect(repo.products, isEmpty);
+      expect(
+        find.text(
+          'Conferma la scadenza di questa confezione prima di salvare.',
+        ),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.byKey(const Key('quick-expiry-1')));
+      await tester.tap(find.byKey(const Key('save-product')));
+      await tester.pumpAndSettle();
+      expect(repo.products.single.name, 'Yogurt');
+      expect(repo.products.single.barcode, '3017620422003');
     },
   );
   testWidgets(
@@ -358,11 +488,18 @@ void main() {
     await tester.pumpWidget(_app(router, repository));
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const Key('product-name')), 'Yogurt');
+    await tester.tap(find.byKey(const Key('quick-expiry-1')));
     await tester.tap(find.byKey(const Key('save-and-add-another')));
     await tester.pumpAndSettle();
 
     expect(repository.products, hasLength(1));
     expect(repository.products.single.name, 'Yogurt');
+    expect(find.text('Seleziona la data'), findsOneWidget);
+    await tester.enterText(find.byKey(const Key('product-name')), 'Secondo');
+    await tester.tap(find.byKey(const Key('save-and-add-another')));
+    await tester.pumpAndSettle();
+    expect(repository.products, hasLength(1));
+    await tester.enterText(find.byKey(const Key('product-name')), '');
     final nameField = tester.widget<TextFormField>(
       find.byKey(const Key('product-name')),
     );
@@ -406,6 +543,7 @@ void main() {
       find.byKey(const Key('product-name')),
     );
     expect(nameField.controller?.text, 'Latte');
+    expect(find.text('Seleziona la data'), findsOneWidget);
   });
 
   testWidgets('duplica un prodotto in un nuovo form precompilato', (
@@ -442,6 +580,10 @@ void main() {
     );
     expect(nameField.controller?.text, 'Latte');
     expect(find.byKey(const Key('save-and-add-another')), findsOneWidget);
+    expect(find.text('Seleziona la data'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('save-product')));
+    await tester.pumpAndSettle();
+    expect(repository.products, hasLength(1));
   });
 
   testWidgets('dopo il salvataggio propone di attivare le notifiche', (
@@ -497,6 +639,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Cura personale'));
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('quick-expiry-1')));
     await tester.tap(find.byKey(const Key('save-product')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 350));
@@ -556,6 +699,7 @@ void main() {
     await tester.tap(find.byKey(const Key('open-new')));
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const Key('product-name')), 'Pasta');
+    await tester.tap(find.byKey(const Key('quick-expiry-1')));
     await tester.tap(find.byKey(const Key('save-product')));
     await tester.pumpAndSettle();
 

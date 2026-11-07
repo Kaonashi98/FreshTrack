@@ -33,6 +33,8 @@ const selectableProductCategories = [
   ProductCategory.food,
   ProductCategory.beverages,
   ProductCategory.personalCare,
+  ProductCategory.cleaning,
+  ProductCategory.other,
 ];
 
 enum ProductStatus {

@@ -23,6 +23,19 @@ import 'package:freshtrack/domain/common/civil_date.dart';
 import 'package:go_router/go_router.dart';
 
 void main() {
+  testWidgets(
+    'home vuota invita ad aggiungere senza rassicurazioni infondate',
+    (tester) async {
+      final repository = FakeProductRepository([]);
+      addTearDown(repository.dispose);
+      await tester.pumpWidget(
+        _testApp(const Scaffold(body: DashboardScreen()), repository),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Tutto in ordine'), findsNothing);
+      expect(find.text('Aggiungi il primo prodotto'), findsWidgets);
+    },
+  );
   testWidgets('filtri rapidi distinguono scadenze, scaduti e archivio', (
     tester,
   ) async {
@@ -117,6 +130,8 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.text('Nessuna urgenza'), findsNothing);
+    expect(find.text('Tutto in ordine'), findsNothing);
+    expect(find.text('1 prodotto da controllare'), findsOneWidget);
     await tester.tap(find.byKey(const Key('review-expired-products')));
     await tester.pumpAndSettle();
     expect(find.text('Prodotti scaduti'), findsOneWidget);
@@ -273,6 +288,7 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.ensureVisible(find.byKey(const Key('dashboard-stat-total')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('dashboard-stat-total')));
     await tester.pumpAndSettle();
 
@@ -397,8 +413,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Bevande'), findsOneWidget);
     expect(find.text('Cura personale'), findsOneWidget);
-    expect(find.text('Pulizia'), findsNothing);
-    expect(find.text('Altro'), findsNothing);
+    expect(find.text('Pulizia'), findsOneWidget);
+    expect(find.text('Altro'), findsOneWidget);
     await tester.tap(find.text('Tutte le categorie'));
     await tester.pumpAndSettle();
 
@@ -521,12 +537,16 @@ void main() {
       final date = tester.getRect(find.byKey(const Key('dashboard-summary')));
       final settings = tester.getRect(find.byKey(const Key('open-settings')));
       expect(date.top, lessThan(25));
-      expect(settings.top, moreOrLessEquals(date.top, epsilon: 1));
+      expect(settings.top, greaterThan(date.top));
+      expect(
+        settings.top,
+        lessThan(tester.getBottomLeft(find.text('Cosa scade?')).dy),
+      );
       expect(settings.right, greaterThan(380));
-      expect(tester.getTopLeft(find.text('Cosa scade?')).dy, lessThan(50));
+      expect(tester.getTopLeft(find.text('Cosa scade?')).dy, lessThan(110));
       await tester.tap(find.byKey(const Key('open-settings')));
       await tester.pumpAndSettle();
-      expect(find.text('Impostazioni'), findsOneWidget);
+      expect(find.text('Impostazioni'), findsWidgets);
       expect(find.byKey(const Key('add-product')), findsNothing);
     },
   );
@@ -548,6 +568,38 @@ void main() {
     expect(find.byKey(const Key('dashboard-summary')), findsOneWidget);
   });
 
+  testWidgets(
+    'cambio pagina e Aggiungi non lasciano contenuti in transizione',
+    (tester) async {
+      final repository = FakeProductRepository([]);
+      addTearDown(repository.dispose);
+      await tester.pumpWidget(_freshTrackTestApp(repository));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Prodotti'));
+      await tester.pump();
+      expect(find.text('I tuoi prodotti'), findsOneWidget);
+      expect(find.text('Cosa scade?'), findsNothing);
+
+      final add = tester.widget<FilledButton>(
+        find.byKey(const Key('add-product')),
+      );
+      expect(
+        add.style!.overlayColor!.resolve({WidgetState.pressed}),
+        Colors.transparent,
+      );
+      await tester.tap(find.byKey(const Key('add-product')));
+      await tester.pump();
+      expect(find.text('Da dove iniziamo?'), findsOneWidget);
+      expect(find.text('I tuoi prodotti'), findsNothing);
+
+      await tester.binding.handlePopRoute();
+      await tester.pump();
+      expect(find.text('I tuoi prodotti'), findsOneWidget);
+      expect(find.text('Da dove iniziamo?'), findsNothing);
+    },
+  );
+
   testWidgets('azione rapida aggiorna il prodotto e Annulla lo ripristina', (
     tester,
   ) async {
@@ -559,6 +611,7 @@ void main() {
     await tester.pumpAndSettle();
     final complete = find.byKey(const Key('complete-today-Yogurt'));
     await tester.ensureVisible(complete);
+    await tester.pumpAndSettle();
     await tester.tap(complete);
     await tester.pumpAndSettle();
     expect(repository.products.single.status, ProductStatus.consumed);
@@ -583,6 +636,8 @@ void main() {
     await tester.pumpWidget(_freshTrackTestApp(repository));
     await tester.pumpAndSettle();
     expect(find.text('Segna utilizzato'), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const Key('complete-today-Crema')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('complete-today-Crema')));
     await tester.pumpAndSettle();
     await repository.save(
@@ -672,6 +727,8 @@ void main() {
     await tester.tap(find.byKey(const Key('add-manually')));
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const Key('product-name')), 'Latte');
+    await tester.ensureVisible(find.byKey(const Key('quick-expiry-1')));
+    await tester.tap(find.byKey(const Key('quick-expiry-1')));
     await tester.tap(find.byKey(const Key('save-product')));
     await tester.pumpAndSettle();
     expect(repository.products.single.name, 'Latte');
@@ -817,8 +874,8 @@ void main() {
     await tester.tap(find.text('Alimentari').first);
     await tester.pumpAndSettle();
     expect(find.text('Cura personale'), findsOneWidget);
-    expect(find.text('Pulizia'), findsNothing);
-    expect(find.text('Altro'), findsNothing);
+    expect(find.text('Pulizia'), findsOneWidget);
+    expect(find.text('Altro'), findsOneWidget);
     expect(find.text('Bevande'), findsOneWidget);
     expect(find.text('Farmaci'), findsNothing);
     await tester.tap(find.text('Cura personale'));

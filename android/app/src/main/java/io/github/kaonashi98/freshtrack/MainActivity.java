@@ -32,8 +32,14 @@ public final class MainActivity extends FlutterActivity {
                 SETTINGS_CHANNEL
         ).setMethodCallHandler((call, result) -> {
             if (call.method.equals("openNotificationSettings")) {
-                final Intent intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
-                intent.putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
+                final Intent intent;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+                    intent.putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
+                } else {
+                    intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    intent.setData(Uri.parse("package:" + getPackageName()));
+                }
                 startActivity(intent);
                 result.success(null);
             } else if (call.method.equals("openExactAlarmSettings")) {

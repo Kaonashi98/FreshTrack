@@ -4,14 +4,15 @@
 
 ## Italiano
 
-Ultimo aggiornamento: 7 ottobre 2026.
+Ultimo aggiornamento: 20 ottobre 2026.
 
 FreshTrack è un'applicazione offline-first. Non richiede un account, non mostra
 pubblicità e non usa i dati per profilazione. L'inventario è conservato nello
 spazio privato dell'app e non viene inviato allo sviluppatore.
 
 La connessione Internet è usata soltanto per la ricerca facoltativa di prodotti
-su Open Food Facts e per i dati tecnici raccolti automaticamente dagli SDK
+nei cataloghi Open Food Facts, Open Beauty Facts, Open Pet Food Facts e Open
+Products Facts e per i dati tecnici raccolti automaticamente dagli SDK
 Google ML Kit descritti di seguito.
 
 ## Dati conservati sul dispositivo
@@ -31,7 +32,7 @@ non cancella tutti i dati o non disinstalla l'app.
 - **Fotocamera:** usata solo quando l'utente avvia la scansione di un codice a
   barre, scatta la foto di un prodotto o fotografa una data per il
   riconoscimento del testo.
-- **Internet:** usato per la ricerca facoltativa su Open Food Facts e dalle
+- **Internet:** usato per la ricerca facoltativa nei cataloghi Open Facts e dalle
   componenti Google ML Kit.
 - **Notifiche:** usate per mostrare promemoria locali sulle scadenze.
 - **Allarmi esatti (facoltativo):** usati solo se attivi “Orario più puntuale”
@@ -46,17 +47,19 @@ concedere all'app un accesso generale alla memoria condivisa.
 ## Ricerca tramite codice a barre
 
 Solo quando l'utente richiede una ricerca, FreshTrack invia il codice a barre e
-la lingua della richiesta a Open Food Facts tramite HTTPS per ottenere nome,
-marca e categoria. Il servizio riceve anche i normali dati tecnici della
-connessione, come l'indirizzo IP e lo User-Agent con nome e versione dell'app.
-FreshTrack non invia a Open Food Facts fotografie, date o l'intero inventario.
-Se il servizio non è disponibile, l'inserimento manuale rimane utilizzabile.
+la lingua della richiesta tramite HTTPS all'API di Open Food Facts. La ricerca
+può essere reindirizzata a Open Beauty Facts, Open Pet Food Facts o Open
+Products Facts in base al tipo di prodotto. Il catalogo consultato riceve anche
+i normali dati tecnici della connessione, come l'indirizzo IP e lo User-Agent
+con nome e versione dell'app. FreshTrack non invia fotografie, date o l'intero
+inventario. Nome, marca e categoria sono proposti solo se il prodotto è presente
+con dati sufficienti; altrimenti rimane disponibile l'inserimento manuale.
 
-I dati dei prodotti provengono dal database collaborativo Open Food Facts,
-distribuito con licenza
+I dati provengono dai cataloghi collaborativi della famiglia Open Facts. Per
+informazioni sui cataloghi e sulle licenze consulta la
+[documentazione ufficiale](https://openfoodfacts.github.io/documentation/docs/Product-Opener/api/tutorials/scanning-cosmetics-pet-food-and-other-products/).
+Il database Open Food Facts è distribuito con licenza
 [Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/1-0/).
-Ulteriori informazioni sono disponibili sul
-[sito di Open Food Facts](https://world.openfoodfacts.org/).
 
 ## Foto, riconoscimento del testo e Google ML Kit
 
@@ -74,6 +77,8 @@ con terze parti. Questi dati non includono l'inventario o il contenuto delle
 immagini analizzate. Consulta la
 [guida Data Safety di ML Kit](https://developers.google.com/ml-kit/android-data-disclosure)
 e i [termini di ML Kit](https://developers.google.com/ml-kit/terms).
+
+Lo scanner barcode usa lo zoom automatico. Google ML Kit raccoglie inoltre un identificatore generato per la sessione di scansione, non destinato a identificare un utente o dispositivo, le variazioni del livello di zoom e le coordinate previste del riquadro che potrebbe contenere un codice a barre.
 
 ## Backup, ripristino ed esportazione
 
@@ -121,14 +126,15 @@ Sviluppatore: Nicola Zingaro.
 
 ## English
 
-Last updated: October 7, 2026.
+Last updated: October 20, 2026.
 
 FreshTrack is an offline-first application. It does not require an account,
 display advertising, or use data for profiling. Your inventory is stored in the
 app's private storage and is not sent to the developer.
 
 Internet access is used only for optional product lookups through Open Food
-Facts and for the technical data automatically collected by Google ML Kit SDKs,
+Facts, Open Beauty Facts, Open Pet Food Facts and Open Products Facts, and for
+the technical data automatically collected by Google ML Kit SDKs,
 as described below.
 
 ### Data stored on your device
@@ -147,7 +153,7 @@ or uninstall the app.
 
 - **Camera:** used only when you start a barcode scan, take a product photo, or
   photograph a date for text recognition.
-- **Internet:** used for optional Open Food Facts lookups and by Google ML Kit
+- **Internet:** used for optional Open Facts lookups and by Google ML Kit
   components.
 - **Notifications:** used to show local expiration reminders.
 - **Exact alarms (optional):** used only if you enable “More precise time” in
@@ -161,16 +167,19 @@ granting the app general access to shared storage.
 ### Barcode lookup
 
 Only when you request a lookup does FreshTrack send the barcode and request
-language to Open Food Facts over HTTPS to retrieve the product name, brand and
-category. The service also receives ordinary connection data, such as the IP
-address and the User-Agent containing the app name and version. FreshTrack does
-not send photographs, dates or your complete inventory to Open Food Facts. If
-the service is unavailable, manual entry remains available.
+language over HTTPS to the Open Food Facts API. The request may be redirected to
+Open Beauty Facts, Open Pet Food Facts or Open Products Facts according to the
+product type. The catalog contacted also receives ordinary connection data,
+such as the IP address and the User-Agent containing the app name and version.
+FreshTrack does not send photographs, dates or your complete inventory. Name,
+brand and category are suggested only when the catalog has sufficient data;
+manual entry remains available otherwise.
 
-Product data comes from the collaborative Open Food Facts database, distributed
-under the [Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/1-0/).
-More information is available on the
-[Open Food Facts website](https://world.openfoodfacts.org/).
+Product data comes from the collaborative Open Facts catalogs. See the
+[official documentation](https://openfoodfacts.github.io/documentation/docs/Product-Opener/api/tutorials/scanning-cosmetics-pet-food-and-other-products/)
+for information about the catalogs and their licenses.
+The Open Food Facts database is distributed under the
+[Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/1-0/).
 
 ### Photos, text recognition and Google ML Kit
 
@@ -187,6 +196,8 @@ third parties. This data does not include your inventory or the contents of the
 images being analyzed. See the
 [ML Kit Data Safety guide](https://developers.google.com/ml-kit/android-data-disclosure)
 and [ML Kit terms](https://developers.google.com/ml-kit/terms).
+
+The barcode scanner uses auto zoom. Google ML Kit also collects a generated scanning-session identifier not intended to identify a user or device, zoom level changes, and predicted bounding-box coordinates that may contain a barcode.
 
 ### Backup, restore and export
 

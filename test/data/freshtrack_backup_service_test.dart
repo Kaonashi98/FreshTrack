@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:freshtrack/domain/common/async_mutex.dart';
 import 'dart:io';
 import 'dart:typed_data';
@@ -14,6 +15,76 @@ import 'package:freshtrack/domain/settings/app_settings.dart';
 import 'package:freshtrack/domain/settings/app_settings_repository.dart';
 
 void main() {
+  for (final entry in [
+    '../escape.png',
+    'images/../../escape.png',
+    'C:/escape.png',
+    '/absolute.png',
+  ]) {
+    test('ripristino rifiuta il percorso $entry e conserva i dati', () async {
+      final root = await Directory.systemTemp.createTemp('freshtrack_paths_');
+      addTearDown(() => root.delete(recursive: true));
+      final products = _MemoryProductRepository([_product()]);
+      final service = _service(
+        root: root,
+        products: products,
+        settings: _MemorySettingsRepository(AppSettings.defaults),
+      );
+      final valid = await service.createBackup(appVersion: 'test');
+      final archive = ZipDecoder().decodeBytes(valid);
+      archive.add(ArchiveFile.bytes(entry, _pngBytes));
+      await expectLater(
+        service.restore(
+          Uint8List.fromList(ZipEncoder().encode(archive)),
+          mode: BackupImportMode.replace,
+        ),
+        throwsA(isA<BackupFormatException>()),
+      );
+      expect(products.products.single.id, 'latte');
+      expect(await File('${root.path}/escape.png').exists(), isFalse);
+    });
+  }
+
+  test(
+    'ripristina un vecchio backup Farmaci senza perdere date o prodotti',
+    () async {
+      final root = await Directory.systemTemp.createTemp('freshtrack_legacy_');
+      addTearDown(() => root.delete(recursive: true));
+      final products = _MemoryProductRepository([_product()]);
+      final service = _service(
+        root: root,
+        products: products,
+        settings: _MemorySettingsRepository(AppSettings.defaults),
+      );
+      final valid = await service.createBackup(appVersion: '1.0.0');
+      final manifest =
+          jsonDecode(
+                utf8.decode(
+                  ZipDecoder()
+                      .decodeBytes(valid)
+                      .find('manifest.json')!
+                      .readBytes()!,
+                ),
+              )
+              as Map<String, dynamic>;
+      (manifest['products'] as List).single['category'] = 'medicines';
+      final archive = Archive()
+        ..add(
+          ArchiveFile.bytes('manifest.json', utf8.encode(jsonEncode(manifest))),
+        );
+      await service.restore(
+        Uint8List.fromList(ZipEncoder().encode(archive)),
+        mode: BackupImportMode.replace,
+      );
+      expect(products.products.single.category, ProductCategory.personalCare);
+      expect(
+        products.products.single.expirationDate,
+        _product().expirationDate,
+      );
+      expect(products.products.single.id, 'latte');
+    },
+  );
+
   test(
     'interrompe la decompressione quando supera la dimensione dichiarata',
     () async {

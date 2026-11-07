@@ -1,7 +1,38 @@
 # Checklist di rilascio FreshTrack
 
+## Stato corrente — 20 ottobre 2026
+
+Il riferimento corrente è [l'audit del 20 ottobre](RELEASE_AUDIT_2026-10-20.md).
+Le voci datate qui sotto restano uno storico, non attestazioni del candidato.
+
+- [x] Correzioni mirate; 215 test, format, analisi e Android Lint superati.
+- [x] Candidato locale firmato `1.0.1+14`, manifest e hash registrati nell'audit.
+- [x] Packaging 16 KB e librerie ELF a 64 bit controllati.
+- [x] Aggiornamento locale da build 13 a 14 con prodotto di prova conservato.
+- [ ] Confermare disponibilità versionCode e firma in Play Console.
+- [ ] Pubblicare e rileggere la privacy del 20 ottobre in entrambe le lingue.
+- [ ] Chiudere test fisici, Android 24/16 KB e distribuzione Play.
+- [ ] Verificare Data Safety, test chiuso e approvazione produzione.
+- [ ] Approvare il set Store del candidato effettivamente destinato all'upload.
+
 ## Verifiche automatiche
 
+- [x] Codice locale del 12 ottobre: ricerca barcode universale con
+      `product_type=all`, categoria coerente per alimenti, cosmetici, cibo per
+      animali e altri oggetti; `flutter analyze --no-pub lib test` pulito e
+      `flutter test --no-pub` superato con 203 test. L'API reale ha restituito
+      alimenti (`3017620422003`), cosmetici (`3560070791460`) e oggetti
+      (`6281073982224`) tramite i rispettivi cataloghi. Le prove dell'API non
+      equivalgono alla scansione su dispositivo.
+- [ ] Generare un nuovo bundle con un versionCode disponibile in Play Console:
+      l'AAB `1.0.1+13` del 7 ottobre precede queste modifiche.
+- [ ] Pubblicare e verificare la privacy del 12 ottobre: la pagina pubblica
+      controllata il 12 ottobre risponde HTTP 200 ma mostra ancora il testo
+      precedente, senza Open Beauty Facts.
+- [x] Codice locale del 9 ottobre: dopo il barcode viene proposta la foto
+      della scadenza e il salvataggio richiede una data confermata; analisi
+      statica pulita e 199 test superati. Il bundle `1.0.1+13` sotto non
+      include ancora questa modifica.
 - [x] Candidato `1.0.1+13` senza categoria Farmaci: analisi statica pulita,
       197 test superati; dopo l'aggiornamento della data privacy, i 5 test
       mirati sono passati.
@@ -114,19 +145,25 @@ pacchetti store su dispositivo fisico; i relativi punti restano aperti sotto.
       (tema chiaro, inventario dimostrativo) e rigenerate le composizioni
       `docs/play-store/screenshots-benefits/` e
       `docs/play-store/screenshots-benefits-en/`.
-- [ ] Caricare in Play Console soltanto le composizioni 01, 03 e 04 per ciascuna
-      lingua, l'icona e la feature graphic; rimuovere il vecchio screenshot 02
-      che contiene Ibuprofene.
+- [x] Preparare otto composizioni 1080×2400 per ciascuna lingua nello stesso
+      stile delle prime tre, con nuove catture della build 13 per dashboard,
+      inventario, aggiunta, scelta, dettaglio, notifiche e aspetto.
+- [ ] Verificare che le otto immagini riflettano il bundle pubblico definitivo,
+      poi caricarle in ordine 01–08 per `it-IT` e `en-US` insieme a icona e
+      feature graphic; rimuovere dalla Console lo screenshot obsoleto con
+      Ibuprofene.
+- [ ] Ricatturare le schermate Store dopo il redesign e confrontarle con il
+      bundle definitivo: le composizioni esistenti mostrano la UI precedente.
 - [ ] Dichiarare che l'app non contiene pubblicità.
 - [ ] Compilare target audience, classificazione dei contenuti e Data safety.
 - [ ] Dichiarare correttamente Notifiche, Fotocamera, allarmi esatti facoltativi
       (`SCHEDULE_EXACT_ALARM`, non `USE_EXACT_ALARM`) e la connessione opzionale
-      a Open Food Facts per la ricerca barcode.
+      ai cataloghi Open Facts per la ricerca barcode.
 - [ ] Dichiarare nella Data Safety i dati tecnici trasmessi da Google ML Kit,
       verificando categorie, finalità e trattamento contro la documentazione
       corrente dell'SDK.
-- [ ] Verificare che l'attribuzione Open Food Facts/ODbL sia visibile e che la
-      ricerca usi l'API v3.6 nel bundle definitivo.
+- [ ] Verificare che l'attribuzione dei cataloghi Open Facts sia visibile e che
+      la ricerca universale usi `product_type=all` nel bundle definitivo.
 - [ ] Sostituire la build 12 nei canali di test e aggiornare schede Store e screenshot; poi dichiarare «La mia app non ha funzionalità relative alla salute» per la build 13 senza categoria Farmaci.
 - [ ] Eseguire prima un test interno su almeno un dispositivo fisico.
 - [ ] Se l'account personale è nuovo, completare il closed test richiesto da Play Console prima di chiedere l'accesso alla produzione.
@@ -138,6 +175,8 @@ pacchetti store su dispositivo fisico; i relativi punti restano aperti sotto.
 - [ ] Creazione, modifica ed eliminazione prodotto.
 - [ ] Aggiunta rapida, suggerimenti, duplicazione e “Salva e aggiungi un altro”.
 - [ ] Scansione barcode con prodotto trovato, non trovato e assenza di rete.
+- [ ] Dopo il barcode, foto della scadenza con conferma; chiusura della foto
+      senza conferma e successiva selezione manuale della data.
 - [ ] OCR della scadenza con una o più date, conferma e foto illeggibile.
 - [ ] Foto da fotocamera, foto da galleria, apertura a schermo intero e rimozione foto.
 - [ ] Backup con e senza immagini; ripristino Unisci e Sostituisci dopo una

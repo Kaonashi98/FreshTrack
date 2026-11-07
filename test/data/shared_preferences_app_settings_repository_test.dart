@@ -9,6 +9,29 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test(
+    'tema nuovo usa il sistema e una scelta scura salvata resta scura',
+    () async {
+      SharedPreferencesAsyncPlatform.instance =
+          InMemorySharedPreferencesAsync.withData({});
+      final repository = SharedPreferencesAppSettingsRepository(
+        SharedPreferencesAsync(),
+      );
+
+      expect(
+        (await repository.load()).themePreference,
+        AppThemePreference.system,
+      );
+      await repository.save(
+        AppSettings.defaults.copyWith(themePreference: AppThemePreference.dark),
+      );
+      expect(
+        (await repository.load()).themePreference,
+        AppThemePreference.dark,
+      );
+    },
+  );
+
+  test(
     'preserva il vecchio preavviso e conserva le modifiche manuali',
     () async {
       SharedPreferencesAsyncPlatform.instance =

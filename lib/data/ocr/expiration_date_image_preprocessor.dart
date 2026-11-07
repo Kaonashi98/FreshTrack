@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:image/image.dart' as img;
 
@@ -8,12 +9,17 @@ class ExpirationDateImagePreprocessor {
   /// Crops a horizontal band where printed dates usually sit, then falls back
   /// to the original path if decoding or writing fails.
   Future<String> cropDateBand(String imagePath) async {
+    return Isolate.run(() => _cropDateBand(imagePath));
+  }
+
+  static Future<String> _cropDateBand(String imagePath) async {
     try {
       final bytes = await File(imagePath).readAsBytes();
-      final decoded = img.decodeImage(bytes);
-      if (decoded == null || decoded.width < 32 || decoded.height < 32) {
+      final source = img.decodeImage(bytes);
+      if (source == null || source.width < 32 || source.height < 32) {
         return imagePath;
       }
+      final decoded = img.bakeOrientation(source);
       final left = (decoded.width * 0.08).round();
       final top = (decoded.height * 0.28).round();
       final width = (decoded.width * 0.84).round().clamp(

@@ -73,7 +73,13 @@ class ProductImageStorage {
       imagesDirectory.path,
       '${uuid.v4()}$extension',
     );
-    return (await _copyFile(source, destination)).path;
+    try {
+      return (await _copyFile(source, destination)).path;
+    } catch (_) {
+      // A failed copy can leave a partial file before returning its path.
+      await deleteProductImageBestEffort(this, destination);
+      rethrow;
+    }
   }
 
   Future<void> delete(String? imagePath) async {
